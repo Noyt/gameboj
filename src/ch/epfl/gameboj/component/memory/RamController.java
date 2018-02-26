@@ -15,18 +15,17 @@ public final class RamController implements Component{
         this.ram = Objects.requireNonNull(ram);
         Preconditions.checkBits16(startAddress);
         Preconditions.checkBits16(endAddress);
-        //Preconditions.checkArgument((endAddress-startAddress >= 0) && (endAddress-startAddress <= ram.size()));
+        Preconditions.checkArgument((endAddress-startAddress >= 0) && (endAddress-startAddress <= ram.size()));
         this.startAddress = startAddress;
         this.endAddress = endAddress;
     }
     
     //TODO
     public RamController(Ram ram, int startAddress) {
-        //this(ram, startAddress, 0x100);
-        this(ram, startAddress, startAddress + 0x100);
+        this(ram, startAddress, startAddress + ram.size());
     }
     
-    //TODO que faire si address pas entre start et end
+
     public int read(int address) {
         Preconditions.checkBits16(address);
         if(address < startAddress || address >= endAddress) {
@@ -58,7 +57,6 @@ public final class RamController implements Component{
       Preconditions.checkBits8(data);
       
       if(address >= startAddress && address < endAddress) {
-          //ram.write(address, data);
           ram.write(address-startAddress, data);
       }
     }

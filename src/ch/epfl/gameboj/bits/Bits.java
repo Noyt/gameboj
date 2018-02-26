@@ -41,8 +41,6 @@ public final class Bits {
     
     public static int clip(int size, int bits) {
         Preconditions.checkArgument(size >= 0 && size <= Integer.SIZE);
-        //return (bits << (Integer.SIZE - size)) >>> (Integer.SIZE - size);
-        // trop de zeros apres décalage ?
         
         if (Integer.SIZE == size) {
             return bits;
@@ -54,15 +52,7 @@ public final class Bits {
     
     public static int extract(int bits, int start, int size) {
         //TODO Integer.SIZE ici ?
-        Objects.checkFromIndexSize(start, size, Integer.SIZE);
-        
-        //Preconditions.checkBits8(bits);
-//        if(size + start > 8 || size < 0) {
-//            throw new IndexOutOfBoundsException();
-//        }
-        //return clip(size + start, bits) >>> start + 1;
-        //return (bits << (31 - (size + start))) >>> (31 - size);
-        
+        Objects.checkFromIndexSize(start, size, Integer.SIZE);     
         return clip(size, bits >>> start);
     };
 

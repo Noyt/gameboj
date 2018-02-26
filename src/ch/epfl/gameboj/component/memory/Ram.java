@@ -6,7 +6,7 @@ import ch.epfl.gameboj.Preconditions;
 /**
  * Represents the RAM
  * 
- * @author Sophie Du Couedic
+ * @author Sophie Du Couedic (260007)
  * @author Arnaud Robert (287964)
  *
  */
@@ -22,7 +22,6 @@ public class Ram {
      */
     public Ram(int size){
         Preconditions.checkArgument(size >= 0);
-        //memory = new ArrayList<Byte>(size);
         memory = new byte[size];
     }
     
@@ -31,7 +30,6 @@ public class Ram {
      * @return RAM's size
      */
     public int size() {
-        //return memory.size();
         return memory.length;
     }
     
@@ -46,11 +44,9 @@ public class Ram {
      *             if the index is negative or greater than the memory's length
      */
     public int read(int index) {
-        //if (index < 0 || index > memory.size()) {
         if (index < 0 || index >= memory.length) {
             throw new IndexOutOfBoundsException();
         }
-        //return Byte.toUnsignedInt(memory.get(index));
         return Byte.toUnsignedInt(memory[index]);
     }
     
@@ -68,12 +64,10 @@ public class Ram {
      *             if param value is not an 8 bits value
      */
     public void write(int index, int value) {
-        //if (index < 0 || index > memory.size()) {
         if (index < 0 || index > memory.length) {
             throw new IndexOutOfBoundsException();
         }
         Preconditions.checkBits8(value);
-        //memory.set(index, (byte)value);
         memory[index]=(byte)value;
     }
 }
