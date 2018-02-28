@@ -52,10 +52,12 @@ public final class Alu {
      * @return
      */
     public static int unpackValue(int valueFlags) {
-        return valueFlags >>> Byte.SIZE;
+        return Preconditions.checkBits16(valueFlags >>> Byte.SIZE);
     }
 
     public static int unpackFlags(int valueFlags) {
+        Preconditions.checkBits16(unpackValue(valueFlags));
+        
         return Bits.clip(Byte.SIZE, valueFlags);
     }
 
@@ -137,6 +139,9 @@ public final class Alu {
     }
 
     public static int bcdAdjust(int v, boolean n, boolean h, boolean c) {
+        
+        Preconditions.checkBits8(v);
+        
         int fixL = (h || (!n && Bits.clip(4, v) > 0x9)) ? 1 : 0;
         int fixH = (c || (!n && (v > 0x99))) ? 1 : 0;
         int fix = 0x60 * fixH + 0x6 * fixL;
@@ -219,6 +224,8 @@ public final class Alu {
                 false, false, Bits.test(rotValue, Byte.SIZE));
     }
 
+    //TODO swap and testBit
+    
     private static int rotateForAnyInt(RotDir d, int v) {
 
         int rotValue = 0;
