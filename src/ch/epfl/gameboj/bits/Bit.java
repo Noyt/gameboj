@@ -7,6 +7,7 @@ public interface Bit {
     default int index() {
         return ordinal();
     }
+    
     //TODO juste ?
     default int mask() {
         return Bits.mask(ordinal());
