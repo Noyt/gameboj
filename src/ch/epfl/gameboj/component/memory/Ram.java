@@ -2,7 +2,6 @@ package ch.epfl.gameboj.component.memory;
 
 import ch.epfl.gameboj.Preconditions;
 
-//TODO Ram ne doit pas implementer Component??
 /**
  * Represents the RAM
  * 
