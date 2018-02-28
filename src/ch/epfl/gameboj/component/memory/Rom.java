@@ -1,6 +1,9 @@
 package ch.epfl.gameboj.component.memory;
 
-//TODO implements Component?
+
+import java.util.Arrays;
+
+
 public final class Rom {
     private byte[] memory;
 
@@ -9,13 +12,8 @@ public final class Rom {
         if (data == null) {
             throw new NullPointerException();
         }
-        
-        
-        // TODO A corriger : il faut utiliser copyOf de la class Array
-        memory = new byte[data.length];
-        for (int i = 0; i < data.length; i++) {
-            memory[i] = data[i];
-        }
+
+        memory = Arrays.copyOf(data, data.length);
     }
     
     public int size() {
