@@ -161,25 +161,25 @@ public final class Alu {
         boolean z = (v == 0);
         return packValueZNHC(v, z, false, false, false);
     }
-    
+
     public static int xor(int l, int r) {
         Preconditions.checkBits8(l);
         Preconditions.checkBits8(r);
-        
+
         int v = l ^ r;
         boolean z = (v == 0);
         return packValueZNHC(v, z, false, false, false);
     }
-    
+
     public static int shiftLeft(int v) {
         Preconditions.checkBits8(v);
-        
+
         int value = v << 1;
         boolean z = (value == 0);
-        boolean c = Bits.test(v, Integer.SIZE);
+        boolean c = Bits.test(v, Integer.SIZE - 1);
         return packValueZNHC(value, z, false, false, c);
     }
-    
+
     public static int shiftRightA(int v) {
         Preconditions.checkBits8(v);
 
@@ -188,7 +188,7 @@ public final class Alu {
         boolean c = Bits.test(v, 0);
         return packValueZNHC(value, z, false, false, c);
     }
-    
+
     public static int shiftRightL(int v) {
         Preconditions.checkBits8(v);
 
@@ -197,8 +197,42 @@ public final class Alu {
         boolean c = Bits.test(v, 0);
         return packValueZNHC(value, z, false, false, c);
     }
-    
+
     public static int rotate(RotDir d, int v) {
-        
+        Preconditions.checkBits8(v);
+        // TODO precondition on RotDir?
+
+        int rotValue = rotateForAnyInt(d, v);
+        boolean c = Bits.test(rotValue, (d == RotDir.LEFT) ? 0 : Byte.SIZE - 1);
+
+        return packValueZNHC(rotValue, rotValue == 0, false, false, c);
     }
+
+    public static int rotate(RotDir d, int v, boolean c) {
+        Preconditions.checkBits8(v);
+
+        int nineBitsValue = v | (c ? Bits.mask(Byte.SIZE) : 0);
+
+        int rotValue = rotateForAnyInt(d, nineBitsValue);
+
+        return packValueZNHC(Bits.clip(Byte.SIZE, rotValue), rotValue == 0,
+                false, false, Bits.test(rotValue, Byte.SIZE));
+    }
+
+    private static int rotateForAnyInt(RotDir d, int v) {
+
+        int rotValue = 0;
+
+        if (d == RotDir.LEFT) {
+            rotValue = Bits.rotate(Byte.SIZE, v, 1);
+        } else if (d == RotDir.RIGHT) {
+            rotValue = Bits.rotate(Byte.SIZE, v, -1);
+        } else {
+            throw new IllegalArgumentException("non valid direction");
+        }
+
+        return rotValue;
+    }
+    
+    
 }
