@@ -7,7 +7,6 @@ import ch.epfl.gameboj.Preconditions;
 public final class Bits {
     private Bits() {}
 
-    // TODO java 9 or not to java 9 ?
     public static int mask(int index) {
         Objects.checkIndex(index, Integer.SIZE);
         int a = 0b1;
