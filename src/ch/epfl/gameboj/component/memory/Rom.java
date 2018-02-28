@@ -1,5 +1,6 @@
 package ch.epfl.gameboj.component.memory;
 
+//TODO implements Component?
 public final class Rom {
     private byte[] memory;
 
