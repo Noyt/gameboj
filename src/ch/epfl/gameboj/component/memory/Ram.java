@@ -1,6 +1,5 @@
 package ch.epfl.gameboj.component.memory;
 
-import java.util.ArrayList;
 import ch.epfl.gameboj.Preconditions;
 
 //TODO Ram ne doit pas implementer Component??
