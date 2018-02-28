@@ -1,6 +1,6 @@
 package ch.epfl.gameboj.component.memory;
 
-
+// TODO Rom ne doit pas implementer Component?
 public final class Rom {
     private byte[] memory;
 
@@ -10,6 +10,8 @@ public final class Rom {
             throw new NullPointerException();
         }
         
+        
+        // TODO A corriger : il faut utiliser copyOf de la class Array
         memory = new byte[data.length];
         for (int i = 0; i < data.length; i++) {
             memory[i] = data[i];
