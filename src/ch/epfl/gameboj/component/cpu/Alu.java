@@ -1,5 +1,7 @@
 package ch.epfl.gameboj.component.cpu;
 
+import java.util.Objects;
+
 import ch.epfl.gameboj.Preconditions;
 import ch.epfl.gameboj.bits.Bit;
 import ch.epfl.gameboj.bits.Bits;
@@ -232,10 +234,8 @@ public final class Alu {
 
         if (d == RotDir.LEFT) {
             rotValue = Bits.rotate(Byte.SIZE, v, 1);
-        } else if (d == RotDir.RIGHT) {
-            rotValue = Bits.rotate(Byte.SIZE, v, -1);
         } else {
-            throw new IllegalArgumentException("non valid direction");
+            rotValue = Bits.rotate(Byte.SIZE, v, -1);
         }
 
         return rotValue;
@@ -254,6 +254,9 @@ public final class Alu {
     
     public static int testBit(int v, int bitIndex) {
         Preconditions.checkBits8(v);
+        Objects.checkIndex(bitIndex, Byte.SIZE);
+        
+        return packValueZNHC(0, Bits.test(v, bitIndex), false, true, false);
     }
     
 }
