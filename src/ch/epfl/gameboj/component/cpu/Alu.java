@@ -241,5 +241,19 @@ public final class Alu {
         return rotValue;
     }
     
+    public static int swap(int v) {
+        Preconditions.checkBits8(v);
+        
+        int lowBits = Bits.clip(4,v) << 4;
+        int highBits = Bits.extract(v, 4, 4);
+       
+        boolean z = (v == 0);
+        
+        return packValueZNHC(highBits | lowBits, z, false, false, false);
+    }
+    
+    public static int testBit(int v, int bitIndex) {
+        Preconditions.checkBits8(v);
+    }
     
 }
