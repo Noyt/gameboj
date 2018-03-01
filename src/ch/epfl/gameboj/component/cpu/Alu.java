@@ -131,7 +131,7 @@ public final class Alu {
         if (c) {
             result += 256;
         }
-        boolean z = (r == l);
+        boolean z = (result == 0);
 
         return packValueZNHC(result, z, true, h, c);
     }
@@ -144,15 +144,15 @@ public final class Alu {
         
         Preconditions.checkBits8(v);
         
-        int fixL = (h || (!n && Bits.clip(4, v) > 0x9)) ? 1 : 0;
-        int fixH = (c || (!n && (v > 0x99))) ? 1 : 0;
-        int fix = 0x60 * fixH + 0x6 * fixL;
+        boolean fixL = (h || (!n && Bits.clip(4, v) > 0x9));
+        boolean fixH = (c || (!n && (v > 0x99)));
+        int fix = 0x60 * (fixH ? 1 : 0) + 0x6 * (fixL ? 1 : 0);
         int Va = n ? v - fix : v + fix;
 
-        return packValueZNHC(Va, false, false, false, false);
+        return packValueZNHC(Va, Va == 0, n, false, fixH);
     }
 
-    public static int and(int l, int r) {
+    public static int and(int l, int r) {                                               
         Preconditions.checkBits8(l);
         Preconditions.checkBits8(r);
         int v = l & r;

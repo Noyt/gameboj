@@ -9,7 +9,10 @@ import ch.epfl.gameboj.component.cpu.Alu.RotDir;
 
 public class AluTest {
     
-    // Illegal Values Tests
+    /*
+     *  Illegal Values Tests
+     */
+    
     @Test 
     void unpackValueFailsForInvalidValueFlags() {
         assertThrows(IllegalArgumentException.class, () -> Alu.unpackValue(-1));
@@ -52,7 +55,7 @@ public class AluTest {
         assertThrows(IllegalArgumentException.class, () -> Alu.add16L(-1, 3));
         assertThrows(IllegalArgumentException.class, () -> Alu.add16L(3, -1));
         assertThrows(IllegalArgumentException.class, () -> Alu.add16L(-5, -1));
-        assertThrows(IllegalArgumentException.class, () -> Alu.add16L(256, 1 << 16 + 5)); 
+        assertThrows(IllegalArgumentException.class, () -> Alu.add16L(256, (1 << 16) + 5)); 
         assertThrows(IllegalArgumentException.class, () -> Alu.add16L(1 << 16, 256));
         assertThrows(IllegalArgumentException.class, () -> Alu.add16L(1<<16, 1 << 16));
         assertThrows(IllegalArgumentException.class, () -> Alu.add16L(980, -3));
@@ -63,7 +66,7 @@ public class AluTest {
         assertThrows(IllegalArgumentException.class, () -> Alu.add16H(-5, -1));
         assertThrows(IllegalArgumentException.class, () -> Alu.add16H(266, 1 << 16)); 
         assertThrows(IllegalArgumentException.class, () -> Alu.add16H(1<<16, 256));
-        assertThrows(IllegalArgumentException.class, () -> Alu.add16H(1 << 16 -1, 1 << 16));
+        assertThrows(IllegalArgumentException.class, () -> Alu.add16H((1 << 16) -1, 1 << 16));
         assertThrows(IllegalArgumentException.class, () -> Alu.add16H(980, -3));
         assertThrows(IllegalArgumentException.class, () -> Alu.add16H(-15, -300));
     }
@@ -154,15 +157,27 @@ public class AluTest {
 
     }
     
-//    @Test
-//    void swapFailsForInvalidValue() {
-//        assertThrows(IllegalArgumentException.class, () -> Alu.swap(-45));   
-//    }
+    @Test
+    void swapFailsForInvalidValue() {
+        assertThrows(IllegalArgumentException.class, () -> Alu.swap(-45));
+        assertThrows(IllegalArgumentException.class, () -> Alu.swap(256));
+
+    }
     
-//    @Test
-//    void testBitFailsForInvalidValues() {
-//        
-//    }
+    @Test
+    void testBitFailsForInvalidValues() {
+        assertThrows(IllegalArgumentException.class, () -> Alu.testBit(-5, 3));
+        assertThrows(IllegalArgumentException.class, () -> Alu.testBit(900, 5));
+        
+        assertThrows(IndexOutOfBoundsException.class, () -> Alu.testBit(250, -1));
+        assertThrows(IndexOutOfBoundsException.class, () -> Alu.testBit(0, 8));
+        assertThrows(IndexOutOfBoundsException.class, () -> Alu.testBit(0, 255));
+    }
+    
+    
+    /*
+     * Functions Work for all valid values Tests
+     */
     
     @Test
     void maskZNHCWorksForAnyCombinationOfBoolean() {
@@ -193,4 +208,87 @@ public class AluTest {
         assertEquals(240, Alu.maskZNHC(true, true, true, true));
     }
     
+    @Test 
+    void unpackValueWorksForAnyValidValue() {
+        assertEquals(128, Alu.unpackValue((128 << 8) + 3));
+        assertEquals(34, Alu.unpackValue(34 << 8));
+        assertEquals(255, Alu.unpackValue((255 << 8) + 25));
+        assertEquals(1678, Alu.unpackValue((1678 << 8) + 127));
+        assertEquals(298, Alu.unpackValue((298 << 8) + 16));
+    }
+  
+    @Test
+    void unpackFlagsWorksForAnyValidValue() {
+        assertEquals(1 << 7, Alu.unpackFlags((1 << 7) + 4864));
+        assertEquals(1 << 6, Alu.unpackFlags((1 << 6) + 256));
+        assertEquals(1 << 5, Alu.unpackFlags((1 << 5) + 33024));
+        assertEquals(1 << 4, Alu.unpackFlags((1 << 4) + (1 << 23)));
+        
+        assertEquals(192, Alu.unpackFlags(192 + (65535 << 8)));
+        assertEquals(160, Alu.unpackFlags(160 + (26 << 8)));
+        assertEquals(144, Alu.unpackFlags(144 + (8243 << 8)));
+        assertEquals(96, Alu.unpackFlags(96 + (324 << 8)));
+        assertEquals(80, Alu.unpackFlags(80 + (8243 << 8)));
+        assertEquals(48, Alu.unpackFlags(48 + (72 << 8)));
+
+        assertEquals(224, Alu.unpackFlags(224 + (7362 << 8)));
+        assertEquals(208, Alu.unpackFlags(208 + (43323 << 8)));
+        assertEquals(112, Alu.unpackFlags(112 + (32156 << 8)));
+
+        assertEquals(240, Alu.unpackFlags(240 + (8243 << 8)));
+
+        assertEquals(201, Alu.unpackFlags(6681289));
+    }
+    
+    @Test
+    void addWorksForAnyValidValues() {
+        assertEquals((37 << 8) + (0 << 4), Alu.add(16, 21));
+        assertEquals((16 << 8) + (2 << 4), Alu.add(8, 8));
+        assertEquals((29 << 8) + (0 << 4) , Alu.add(12, 17));
+        assertEquals((146 << 8) + (3 << 4) , Alu.add(230, 172));
+        assertEquals((0 << 8) + (8 << 4) , Alu.add(0, 0));
+        assertEquals((142 << 8) + (1 << 4) ,Alu.add(226, 172));
+        assertEquals((255 << 8) + ( 0 << 4),Alu.add(128, 127));
+        assertEquals((0 << 8) + (9 << 4), Alu.add(192, 64));
+        assertEquals((0 << 8) + (11 << 4), Alu.add(158, 98));
+
+        
+        assertEquals((0 << 8) + (11 << 4) ,Alu.add(128, 127, true));
+        assertEquals((30 << 8) + (0 << 4) ,Alu.add(12, 17, true));
+        assertEquals((17 << 8) + (2 << 4) ,Alu.add(8, 8, true));
+        assertEquals((32 << 8) + (2 << 4) ,Alu.add(8, 23,true));
+        assertEquals((13 << 8) + (1 << 4), Alu.add(170, 98, true));
+        assertEquals((37 << 8) + (3 << 4), Alu.add(101, 191,true));
+        
+        assertEquals((27853 << 8) + (0 << 4), Alu.add16L(10757, 17096));
+        assertEquals((28045 << 8) + (1 << 4), Alu.add16L(17096, 10949));
+        assertEquals((59109 << 8) + (2 << 4) , Alu.add16L(8990, 50119));
+        assertEquals((26385 << 8) + (3 << 4) , Alu.add16L(17010, 9375));
+        assertEquals((5736 << 8) + (0 << 4) , Alu.add16L(18754, 52518));
+        assertEquals((0 << 8) + (3 << 4) , Alu.add16L(65535, 1)); 
+        assertEquals((0 << 8) + (1 << 4) , Alu.add16L(65504, 32)); 
+        assertEquals((0 << 8) + (0 << 4) , Alu.add16L(49152, 16384)); 
+
+       
+        assertEquals((27853 << 8) + (0 << 4), Alu.add16H(10757, 17096));
+        assertEquals((9601 << 8) + (1 << 4), Alu.add16H(45743, 29394));
+        assertEquals((57473 << 8) + (2 << 4) , Alu.add16H(45615, 11858));
+        assertEquals((41089 << 8) + (3 << 4) , Alu.add16H(45615, 61010));
+        assertEquals((0 << 8) + (1 << 4) , Alu.add16H(49152, 16384)); 
+        assertEquals((0 << 8) + (3 << 4) , Alu.add16H(63488, 2048)); 
+    }
+    
+    @Test
+    void subWorksForAnyValidValues() {
+        assertEquals((9 << 8) + (4 << 4), Alu.sub(9, 0));
+        assertEquals((0 << 8) + (12 << 4), Alu.sub(0, 0));
+        assertEquals((144 << 8) + (5 << 4), Alu.sub(16, 128));
+        assertEquals((0 << 8) + (12 << 4), Alu.sub(16, 16));
+        assertEquals((200 << 8) + (5 << 4), Alu.sub(136, 192));
+        assertEquals((200 << 8) + (7 << 4), Alu.sub(144, 200));
+
+        assertEquals((255 << 8) + (7 << 4), Alu.sub(1, 1, true));
+        assertEquals((147 << 8) + (4 << 4), Alu.sub(152, 4,true));
+        assertEquals((0 << 8) + (12 << 4) , Alu.sub(1, 0, true));
+    }
 }
