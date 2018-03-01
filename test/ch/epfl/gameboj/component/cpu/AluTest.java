@@ -154,15 +154,17 @@ public class AluTest {
 
     }
     
-//    @Test
-//    void swapFailsForInvalidValue() {
-//        assertThrows(IllegalArgumentException.class, () -> Alu.swap(-45));   
-//    }
+    @Test
+    void swapFailsForInvalidValue() {
+        assertThrows(IllegalArgumentException.class, () -> Alu.swap(-45));   
+    }
     
-//    @Test
-//    void testBitFailsForInvalidValues() {
-//        
-//    }
+    @Test
+    void testBitFailsForInvalidValues() {
+        assertThrows(IllegalArgumentException.class, () -> Alu.testBit(256, 0));
+        assertThrows(IllegalArgumentException.class, () -> Alu.testBit(256, 8));
+        assertThrows(IndexOutOfBoundsException.class, () -> Alu.testBit(0, 8));
+    }
     
     @Test
     void maskZNHCWorksForAnyCombinationOfBoolean() {
@@ -193,4 +195,72 @@ public class AluTest {
         assertEquals(240, Alu.maskZNHC(true, true, true, true));
     }
     
+    @Test
+    void bcdAdjustWorksForValidValue() {
+        assertEquals(0x7300, Alu.bcdAdjust(0x6D, false, false, false));
+        assertEquals(0x0940, Alu.bcdAdjust(0x0F, true, true, false));
+    }
+    
+    @Test
+    void andWorksForValidValue() {
+        assertEquals(0x320, Alu.and(0x53, 0xA7));
+        assertEquals(0xA0, Alu.and(0xF0, 0x0F));
+    }
+    
+    @Test
+    void orWorksForValidValue() {
+        assertEquals(0xF700, Alu.or(0x53, 0xA7));
+        assertEquals(0x80, Alu.or(0, 0));
+    }
+    
+    @Test
+    void xorWorksForValidValue() {
+        assertEquals(0xF400, Alu.xor(0x53, 0xA7));
+        assertEquals(0x80, Alu.xor(0xAB, 0xAB));
+    }
+    
+    @Test
+    void shiftLeftWorksForValidValue() {
+        assertEquals(0x90, Alu.shiftLeft(0x80));
+        assertEquals(0x2000, Alu.shiftLeft(0x10));
+    }
+    
+    @Test
+    void shiftRightLWorksForValidValue() {
+        assertEquals(0x4000, Alu.shiftRightL(0x80));
+        assertEquals(0x90, Alu.shiftRightL(0x1));
+    }
+    
+    @Test
+    void shiftRightAWorksForValidValue() {
+        assertEquals(0xC000, Alu.shiftRightA(0x80));
+        assertEquals(0xC010, Alu.shiftRightA(0x81));
+        assertEquals(0x90, Alu.shiftRightA(0x1));
+    }
+    
+    @Test
+    void rotateWorksForValidValue() {
+        assertEquals(0x110, Alu.rotate(RotDir.LEFT, 0x80));
+        assertEquals(0x90, Alu.rotate(RotDir.LEFT, 0x80, false));
+        assertEquals(0x100, Alu.rotate(RotDir.LEFT, 0x00, true));
+        assertEquals(0x80, Alu.rotate(RotDir.LEFT, 0));
+        assertEquals(0x80, Alu.rotate(RotDir.RIGHT, 0));
+        assertEquals(0x8010, Alu.rotate(RotDir.RIGHT, 0x1));
+        assertEquals(0x5010, Alu.rotate(RotDir.RIGHT, 0xA1, false));
+        assertEquals(0x5000, Alu.rotate(RotDir.RIGHT, 0xA0, false));
+        assertEquals(0xE800, Alu.rotate(RotDir.RIGHT, 0xD0, true));
+        
+    }
+    
+    @Test
+    void swapWorksForValidValue() {
+        assertEquals(0x80, Alu.swap(0));
+        assertEquals(0xF00, Alu.swap(0xF0));
+    }
+    
+    @Test
+    void testBitWorksForValidValue() {
+        assertEquals(0xA0, Alu.testBit(0x20, 5));
+        assertEquals(0x20, Alu.testBit(0x08, 5));
+    }
 }

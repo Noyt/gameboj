@@ -59,7 +59,7 @@ public final class Alu {
 
     public static int unpackFlags(int valueFlags) {
         Preconditions.checkBits16(unpackValue(valueFlags));
-        
+
         return Bits.clip(Byte.SIZE, valueFlags);
     }
 
@@ -141,15 +141,15 @@ public final class Alu {
     }
 
     public static int bcdAdjust(int v, boolean n, boolean h, boolean c) {
-        
+
         Preconditions.checkBits8(v);
-        
-        int fixL = (h || (!n && Bits.clip(4, v) > 0x9)) ? 1 : 0;
-        int fixH = (c || (!n && (v > 0x99))) ? 1 : 0;
-        int fix = 0x60 * fixH + 0x6 * fixL;
+
+        boolean fixL = (h || (!n && Bits.clip(4, v) > 0x9));
+        boolean fixH = (c || (!n && (v > 0x99)));
+        int fix = 0x60 * (fixH ? 1 : 0) + 0x6 * (fixL ? 1 : 0);
         int Va = n ? v - fix : v + fix;
 
-        return packValueZNHC(Va, false, false, false, false);
+        return packValueZNHC(Va, Va == 0, n, false, fixH);
     }
 
     public static int and(int l, int r) {
@@ -181,16 +181,16 @@ public final class Alu {
     public static int shiftLeft(int v) {
         Preconditions.checkBits8(v);
 
-        int value = v << 1;
+        int value = Bits.clip(Byte.SIZE, v << 1);
         boolean z = (value == 0);
-        boolean c = Bits.test(v, Integer.SIZE - 1);
+        boolean c = Bits.test(v, Byte.SIZE - 1);
         return packValueZNHC(value, z, false, false, c);
     }
 
     public static int shiftRightA(int v) {
         Preconditions.checkBits8(v);
-
-        int value = v >> 1;
+        
+        int value = Bits.clip(Byte.SIZE, Bits.signExtend8(v) >> 1);
         boolean z = (value == 0);
         boolean c = Bits.test(v, 0);
         return packValueZNHC(value, z, false, false, c);
@@ -200,6 +200,7 @@ public final class Alu {
         Preconditions.checkBits8(v);
 
         int value = v >>> 1;
+        // int value = v / 2;
         boolean z = (value == 0);
         boolean c = Bits.test(v, 0);
         return packValueZNHC(value, z, false, false, c);
@@ -209,7 +210,8 @@ public final class Alu {
         Preconditions.checkBits8(v);
         // TODO precondition on RotDir?
 
-        int rotValue = rotateForAnyInt(d, v);
+        int rotValue = rotateFor9or8Int(d, v, false);
+
         boolean c = Bits.test(rotValue, (d == RotDir.LEFT) ? 0 : Byte.SIZE - 1);
 
         return packValueZNHC(rotValue, rotValue == 0, false, false, c);
@@ -220,43 +222,44 @@ public final class Alu {
 
         int nineBitsValue = v | (c ? Bits.mask(Byte.SIZE) : 0);
 
-        int rotValue = rotateForAnyInt(d, nineBitsValue);
+        int rotValue = rotateFor9or8Int(d, nineBitsValue, true);
+        int clippedRotValue = Bits.clip(Byte.SIZE, rotValue);
 
-        return packValueZNHC(Bits.clip(Byte.SIZE, rotValue), rotValue == 0,
-                false, false, Bits.test(rotValue, Byte.SIZE));
+        return packValueZNHC(clippedRotValue, clippedRotValue == 0, false,
+                false, Bits.test(rotValue, Byte.SIZE));
+
     }
 
-    //TODO swap and testBit
-    
-    private static int rotateForAnyInt(RotDir d, int v) {
+
+    private static int rotateFor9or8Int(RotDir d, int v, boolean nineOrNot) {
 
         int rotValue = 0;
 
         if (d == RotDir.LEFT) {
-            rotValue = Bits.rotate(Byte.SIZE, v, 1);
+            rotValue = Bits.rotate(Byte.SIZE + (nineOrNot ? 1 : 0), v, 1);
         } else {
-            rotValue = Bits.rotate(Byte.SIZE, v, -1);
+            rotValue = Bits.rotate(Byte.SIZE + (nineOrNot ? 1 : 0), v, -1);
         }
 
         return rotValue;
     }
-    
+
     public static int swap(int v) {
         Preconditions.checkBits8(v);
-        
-        int lowBits = Bits.clip(4,v) << 4;
+
+        int lowBits = Bits.clip(4, v) << 4;
         int highBits = Bits.extract(v, 4, 4);
-       
+
         boolean z = (v == 0);
-        
+
         return packValueZNHC(highBits | lowBits, z, false, false, false);
     }
-    
+
     public static int testBit(int v, int bitIndex) {
         Preconditions.checkBits8(v);
         Objects.checkIndex(bitIndex, Byte.SIZE);
-        
+
         return packValueZNHC(0, Bits.test(v, bitIndex), false, true, false);
     }
-    
+
 }
