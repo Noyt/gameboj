@@ -67,7 +67,7 @@ public final class Bits {
     
     public static int signExtend8(int b) {
         Preconditions.checkBits8(b);
-        return (b << 24) >> 24;
+        return (b << Integer.SIZE - Byte.SIZE) >> (Integer.SIZE - Byte.SIZE);
     };
 
     
