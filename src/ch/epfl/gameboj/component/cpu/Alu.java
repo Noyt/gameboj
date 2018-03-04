@@ -260,7 +260,7 @@ public final class Alu {
         Preconditions.checkBits8(v);
         Objects.checkIndex(bitIndex, Byte.SIZE);
 
-        return packValueZNHC(0, Bits.test(v, bitIndex), false, true, false);
+        return packValueZNHC(0, !Bits.test(v, bitIndex), false, true, false);
     }
 
 }
