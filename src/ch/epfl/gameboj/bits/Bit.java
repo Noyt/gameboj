@@ -2,6 +2,7 @@ package ch.epfl.gameboj.bits;
 
 public interface Bit {
     
+    //TODO public, private pour ces méthodes ?
     int ordinal();
     
     default int index() {
