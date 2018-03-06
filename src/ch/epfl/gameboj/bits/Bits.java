@@ -5,27 +5,65 @@ import java.util.Objects;
 import ch.epfl.gameboj.Preconditions;
 
 public final class Bits {
-    private Bits() {}
 
+    private Bits() {
+    }
+
+    /**
+     * returns a value which the only "1" in the binary representation is the
+     * bit that corresponds to the index
+     * 
+     * @param index
+     *            an int : the position of the "1"
+     * @return an int : the masked value
+     */
     public static int mask(int index) {
         Objects.checkIndex(index, Integer.SIZE);
         int a = 0b1;
         return a << index;
     }
 
-    
+    /**
+     * tests if the bit at the given index of a value is "1"
+     * 
+     * @param bits
+     *            an int : the value we want to test
+     * @param index
+     *            an int : the index of the bit in the value
+     * @return a boolean : true if there is a 1 at the given index, false if not
+     */
     public static boolean test(int bits, int index) {
 
         int maskIndex = mask(index);
         return ((bits & maskIndex) != 0);
     }
 
-    
+    /**
+     * tests if a given Bit of a value is "1"
+     * 
+     * @param bits
+     *            an int : the value we want to test
+     * @param bit
+     *            a Bit : a constant of the enum type Bit
+     * @return a boolean : true if there is a 1 at the given Bit, false if not
+     */
     public static boolean test(int bits, Bit bit) {
         return test(bits, bit.index());
     }
 
-    
+    /**
+     * Returns an integer which the binary representation is the same as the
+     * given value, except one bit at the given index, which equals to another
+     * given value
+     * 
+     * @param bits
+     *            an int : the value which we want to copy and modify
+     * @param index
+     *            an int: the position of the bit that will take the new value
+     * @param newValue
+     *            a boolean : bit will take value "1" if true, "0" if false
+     * @return an int : the value with potentially one bit inverted
+     */
     public static int set(int bits, int index, boolean newValue) {
         if (test(bits, index)) {
             if (!newValue) {
@@ -37,10 +75,19 @@ public final class Bits {
         return bits;
     }
 
-    
+    /**
+     * Keeps only a given number of the low bits of a given value
+     * 
+     * @param size
+     *            an int : the number of low bits we want to keep
+     * @param bits
+     *            an int : the original value
+     * @return an int : a value which the low bits corresponds to the low bits
+     *         of "bits", the rest of the bits are only 0's
+     */
     public static int clip(int size, int bits) {
         Preconditions.checkArgument(size >= 0 && size <= Integer.SIZE);
-        
+
         if (Integer.SIZE == size) {
             return bits;
         } else {
@@ -48,29 +95,70 @@ public final class Bits {
         }
     }
 
-    
+    /**
+     * Keeps only a given part of the bits of a given value
+     * 
+     * @param bits
+     *            an int : the original value
+     * @param start
+     *            an int : the first bit of bits we want to keep
+     * @param size
+     *            an int : the size of the part of bits we want to keep (the bit
+     *            start + size is not included)
+     * @return an int : a value which the low bits corresponds to the given part
+     *         of bits, the rest of the bits are only 0's
+     */
     public static int extract(int bits, int start, int size) {
-        //TODO Integer.SIZE ici ?
-        Objects.checkFromIndexSize(start, size, Integer.SIZE);     
+        // TODO Integer.SIZE ici ?
+        Objects.checkFromIndexSize(start, size, Integer.SIZE);
         return clip(size, bits >>> start);
     };
 
-    
+    /**
+     * Returns a value which a given number of low bits are the same as the
+     * orgininal value, except that there was a rotation of a given distance on
+     * these bits
+     * 
+     * @param size
+     *            an int : the number of low bits we want to keep from the
+     *            original value
+     * @param bits
+     *            an int : the value which we want to extract the bits
+     * @param distance
+     *            an int : the distance of the rotation
+     * @return an int : a value whith the rotated low bits of "bits"
+     */
     public static int rotate(int size, int bits, int distance) {
-        Preconditions.checkArgument(size > 0 && size <= 32 && bits == clip(size, bits));
+        Preconditions.checkArgument(
+                size > 0 && size <= 32 && bits == clip(size, bits));
 
         distance = Math.floorMod(distance, size);
 
         return clip(size, (bits << distance | bits >>> size - distance));
     };
 
-    
+    /**
+     * Extends the sign of a eight-bits value. Throws IllegalArgumentException
+     * if the value is not an eight-bits value.
+     * 
+     * @param b
+     *            an int : the value which we want to extend the sign
+     * @return an int : the bit of index 7 is copied in the bits from 8 to 31
+     */
     public static int signExtend8(int b) {
         Preconditions.checkBits8(b);
         return (b << Integer.SIZE - Byte.SIZE) >> (Integer.SIZE - Byte.SIZE);
     };
 
-    
+    /**
+     * Reverse the lowest bits with the highest bits of a given value. Throws
+     * IllegalArgumentException if the value is not an eight-bits value.
+     * 
+     * @param b
+     *            an int : the value which we want to reverse the bits
+     * @return an int : the bits of index 7 ans 0 has been exchanged, same for 1
+     *         and 6, 2 and 5, 3 and 4
+     */
     public static int reverse8(int b) {
         Preconditions.checkBits8(b);
         int[] tab = new int[] { 0x00, 0x80, 0x40, 0xC0, 0x20, 0xA0, 0x60, 0xE0,
@@ -103,13 +191,24 @@ public final class Bits {
         return tab[b];
     };
 
-    
+    /**
+     * Returns the complements of the original value : every 1 bits become 0 and every 0 become 1
+     * 
+     * @param b an int : the original value
+     * @return an int : the complement of b
+     */
     public static int complement8(int b) {
         Preconditions.checkBits8(b);
         return b ^ 0b11111111;
     };
 
-    
+    /**
+     * Use highB and lowB to make a 16-bits integer
+     * 
+     * @param highB an int : the 8 lowest bits of highB will become the high bits of the result
+     * @param lowB an int : the 8 lowest bits of lowB will become the low bits of the result
+     * @return an int : a kind of concatenation of highB and lowB
+     */
     public static int make16(int highB, int lowB) {
         Preconditions.checkBits8(highB);
         Preconditions.checkBits8(lowB);

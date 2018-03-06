@@ -11,7 +11,6 @@ import ch.epfl.gameboj.Preconditions;
  */
 public class Ram {
     
-    //private ArrayList<Byte> memory;
     private byte[] memory;
     
     /**

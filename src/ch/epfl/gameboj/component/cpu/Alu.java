@@ -259,10 +259,10 @@ public final class Alu {
 
         Preconditions.checkBits8(v);
 
-        boolean fixL = (h || (!n && Bits.clip(4, v) > 0x9));
-        boolean fixH = (c || (!n && (v > 0x99)));
+        boolean fixL = h || (!n && (Bits.clip(4, v) > 0x9));
+        boolean fixH = c || (!n && (v > 0x99));
         int fix = 0x60 * (fixH ? 1 : 0) + 0x6 * (fixL ? 1 : 0);
-        int Va = n ? v - fix : v + fix;
+        int Va = n ? (v - fix) : (v + fix);
 
         return packValueZNHC(Va, Va == 0, n, false, fixH);
     }
