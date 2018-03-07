@@ -39,6 +39,7 @@ public final class Cpu implements Component, Clocked {
             return;
         } else {
             // TODO get next instruction and execute it
+            
         }
     }
 
@@ -60,73 +61,105 @@ public final class Cpu implements Component, Clocked {
         case NOP: {
         }
             break;
-        case LD_R8_HLR: {
+        case LD_R8_HLR: {    
+            file.set(extractReg(instruction, 3), read8AtHl());
         }
             break;
         case LD_A_HLRU: {
+            file.set(Reg.A, read8AtHl());
+            incrementOrDecrementHl(instruction);
         }
             break;
         case LD_A_N8R: {
+            file.set(Reg.A, read(0xFF00 + read8AfterOpcode()));
         }
             break;
         case LD_A_CR: {
+            file.set(Reg.A, read(0xFF00 + file.get(Reg.C)));
         }
             break;
         case LD_A_N16R: {
+            file.set(Reg.A, read(read16AfterOpcode()));
         }
             break;
         case LD_A_BCR: {
+            file.set(Reg.A, read(reg16(Reg16.BC)));
         }
             break;
         case LD_A_DER: {
+            file.set(Reg.A, read(reg16(Reg16.DE)));
         }
             break;
         case LD_R8_N8: {
+            file.set(extractReg(instruction, 3), read8AfterOpcode());
         }
             break;
         case LD_R16SP_N16: {
+            setReg16SP(extractReg16(instruction), read16AfterOpcode());
         }
             break;
         case POP_R16: {
+            setReg16(extractReg16(instruction), pop16());
         }
             break;
         case LD_HLR_R8: {
+            write8AtHl(file.get(extractReg(instruction, 0)));
         }
             break;
         case LD_HLRU_A: {
+            write8AtHl(file.get(Reg.A));
+            incrementOrDecrementHl(instruction);
         }
             break;
         case LD_N8R_A: {
+            write8(0xFF00 + read8AfterOpcode(), file.get(Reg.A));
         }
             break;
         case LD_CR_A: {
+            write8(0xFF00 + file.get(Reg.C), file.get(Reg.A));
         }
             break;
         case LD_N16R_A: {
+            write8(read16AfterOpcode(), file.get(Reg.A));
         }
             break;
         case LD_BCR_A: {
+            write8(reg16(Reg16.BC), file.get(Reg.A));
         }
             break;
         case LD_DER_A: {
+            write8(reg16(Reg16.DE), file.get(Reg.A));
         }
             break;
         case LD_HLR_N8: {
+            write8AtHl(read8AfterOpcode());
         }
             break;
         case LD_N16R_SP: {
+            write(read16AfterOpcode(), SP);
         }
             break;
         case LD_R8_R8: {
+            Reg r1 = extractReg(instruction, 3);
+            Reg r2 = extractReg(instruction, 0);
+            
+            if ( file.get(r1) != file.get(r2))
+            file.set(r1, file.get(r2));
         }
             break;
         case LD_SP_HL: {
+            SP = reg16(Reg16.HL);
         }
             break;
         case PUSH_R16: {
+            write(SP, read(reg16(extractReg16(instruction))));
         }
             break;
+        default:
+            throw new IllegalArgumentException("TODO");
         }
+        
+        update(instruction);
     }
 
     /*
@@ -253,6 +286,10 @@ public final class Cpu implements Component, Clocked {
         }
         return 1;
     };
+    
+    private void incrementOrDecrementHl(Opcode opcode) {
+       setReg16(Reg16.HL, reg16(Reg16.HL) + extractHlIncrement(opcode));
+    }
 
     /*
      * -------------------------- Registers Managements
@@ -287,6 +324,11 @@ public final class Cpu implements Component, Clocked {
             setReg16(r, newV);
         }
 
+    }
+
+    private void update(Opcode opcode) {
+        nextNonIdleCycle += opcode.cycles;
+        SP += opcode.totalBytes;
     }
 
     // TODO
