@@ -1,5 +1,8 @@
 package ch.epfl.gameboj.component.cpu;
 
+import java.util.ArrayList;
+import java.util.Objects;
+
 import ch.epfl.gameboj.Bus;
 import ch.epfl.gameboj.Preconditions;
 import ch.epfl.gameboj.Register;
@@ -15,6 +18,7 @@ public final class Cpu implements Component, Clocked {
     private int SP;
     private int PC;
     private Bus bus; // TODO arraylist ou bus tout seul?
+    private static final Opcode[] DIRECT_OPCODE_TABLE = buildOpcodeTable(Opcode.Kind.DIRECT);
 
     private long nextNonIdleCycle;
 
@@ -38,8 +42,17 @@ public final class Cpu implements Component, Clocked {
         if (cycle < nextNonIdleCycle) {
             return;
         } else {
-            // TODO get next instruction and execute it
+            int nextInstruction = bus.read(PC);
             
+            Opcode instruction = null;
+            
+            for (Opcode o : DIRECT_OPCODE_TABLE) {
+                if (o.encoding == nextInstruction) {
+                    instruction = o;
+                }
+            }
+            
+            dispatch(Objects.requireNonNull(instruction));
         }
     }
 
@@ -330,6 +343,20 @@ public final class Cpu implements Component, Clocked {
     private void update(Opcode opcode) {
         nextNonIdleCycle += opcode.cycles;
         SP += opcode.totalBytes;
+    }
+    
+    private static Opcode[] buildOpcodeTable(Opcode.Kind kind) {
+        Opcode[] allOpcodes = Opcode.values();
+        
+        ArrayList<Opcode> opcodesOfAKind = new ArrayList<Opcode> ();
+        
+        for (Opcode o : allOpcodes) {
+            if (o.kind == kind) {
+                opcodesOfAKind.add(o);
+            }
+        }
+        
+        return opcodesOfAKind.toArray(new Opcode[opcodesOfAKind.size()]);
     }
 
     // TODO
