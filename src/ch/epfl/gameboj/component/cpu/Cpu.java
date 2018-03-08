@@ -17,7 +17,7 @@ public final class Cpu implements Component, Clocked {
     // TODO juste de déclarer SP et PC en int ?
     private int SP;
     private int PC;
-    private Bus bus; // TODO arraylist ou bus tout seul?
+    private Bus bus;
     private static final Opcode[] DIRECT_OPCODE_TABLE = buildOpcodeTable(
             Opcode.Kind.DIRECT);
 
@@ -53,7 +53,7 @@ public final class Cpu implements Component, Clocked {
     public void cycle(long cycle) {
         // System.out.println("cycle : " + cycle + " next: " + nextNonIdleCycle
         // + " PC " + PC );
-        
+
         if (cycle < nextNonIdleCycle) {
             return;
         } else {
@@ -90,9 +90,6 @@ public final class Cpu implements Component, Clocked {
             break;
         case LD_R8_HLR: {
             file.set(extractReg(instruction, 3), read8AtHl());
-
-            System.out.println(
-                    "Reg " + extractReg(instruction, 3) + " HL " + read8AtHl());
         }
             break;
         case LD_A_HLRU: {
@@ -183,7 +180,8 @@ public final class Cpu implements Component, Clocked {
         }
             break;
         case PUSH_R16: {
-            write8(SP, read8(reg16(extractReg16(instruction))));
+            push16(reg16(extractReg16(instruction)));
+
         }
             break;
         default:
@@ -213,11 +211,13 @@ public final class Cpu implements Component, Clocked {
         return read8(reg16(Reg16.HL));
     };
 
-    private int read8AfterOpcode() {
+    private int read8AfterOpcode() { // TESTER
         return read8(PC + 1);
     };
 
-    private int read16(int address) {
+    private int read16(int address) { // TESTER
+        
+        //TODO important comment faire quand address + 1 déborde de la plage disponible?
         Preconditions.checkBits16(address);
 
         int low = read8(address);
@@ -226,7 +226,7 @@ public final class Cpu implements Component, Clocked {
         return Bits.make16(high, low);
     };
 
-    private int read16AfterOpcode() {
+    private int read16AfterOpcode() { // TESTER
         Preconditions.checkBits16(PC + 1);
         return read16(PC + 1);
     };
@@ -234,26 +234,29 @@ public final class Cpu implements Component, Clocked {
     private void write8(int address, int v) {
         Preconditions.checkBits16(address);
         Preconditions.checkBits8(v);
-        
+
         bus.write(address, v);
     };
 
     private void write16(int address, int v) {
         Preconditions.checkBits16(v);
-        Preconditions.checkBits16(v);
+
         int high = Bits.extract(v, Byte.SIZE, Byte.SIZE);
-        int low = Bits.clip(v, Byte.SIZE);
+        int low = Bits.clip(Byte.SIZE, v);
+
         write8(address, low);
         write8(address + 1, high);
     };
 
     private void write8AtHl(int v) {
         Preconditions.checkBits8(v);
+
         write8(reg16(Reg16.HL), v);
     };
 
-    private void push16(int v) {
+    private void push16(int v) { // TESTER
         Preconditions.checkBits16(v);
+
         switch (SP) {
         case 1:
             SP = 0xFFFF;
@@ -266,9 +269,10 @@ public final class Cpu implements Component, Clocked {
         }
 
         write16(SP, v);
+
     };
 
-    private int pop16() {
+    private int pop16() { // TESTER
         SP += 2;
         return read16(SP - 2);
     };
@@ -278,6 +282,7 @@ public final class Cpu implements Component, Clocked {
      */
     private Reg extractReg(Opcode opcode, int startBit) {
         int reg = Bits.extract(opcode.encoding, startBit, 3);
+
         switch (reg) {
         case 0b000:
             return Reg.B;
@@ -314,7 +319,7 @@ public final class Cpu implements Component, Clocked {
         }
     }
 
-    private int extractHlIncrement(Opcode opcode) {
+    private int extractHlIncrement(Opcode opcode) { // TESTER
         boolean reg = Bits.test(opcode.encoding, 4);
         if (reg) {
             return -1;
@@ -322,7 +327,7 @@ public final class Cpu implements Component, Clocked {
         return 1;
     };
 
-    private void incrementOrDecrementHl(Opcode opcode) {
+    private void incrementOrDecrementHl(Opcode opcode) { // TESTER
         setReg16(Reg16.HL, reg16(Reg16.HL) + extractHlIncrement(opcode));
     }
 
@@ -339,6 +344,12 @@ public final class Cpu implements Component, Clocked {
 
     // TODO preconditions sur newV (16/8?)
     private void setReg16(Reg16 r, int newV) {
+        Preconditions.checkBits16(newV);
+
+        if (r == Reg16.AF && Bits.clip(4, newV) > 0) {
+            newV = (newV >>> 4) << 4;
+        }
+
         Reg r1 = Reg.values()[r.index() * 2];
         Reg r2 = Reg.values()[r.index() * 2 + 1];
 
@@ -353,6 +364,9 @@ public final class Cpu implements Component, Clocked {
     }
 
     private void setReg16SP(Reg16 r, int newV) {
+        Preconditions.checkBits16(newV);
+
+        // TODO est-ce que les 4 bits de poids faibles de SP doivent valoir 0 ??
         if (r == Reg16.AF) {
             SP = newV;
         } else {
@@ -361,12 +375,12 @@ public final class Cpu implements Component, Clocked {
 
     }
 
-    private void update(Opcode opcode) {
+    private void update(Opcode opcode) { // TESTER
         nextNonIdleCycle += opcode.cycles;
         PC += opcode.totalBytes;
     }
 
-    private static Opcode[] buildOpcodeTable(Opcode.Kind kind) {
+    private static Opcode[] buildOpcodeTable(Opcode.Kind kind) { // TESTER
         Opcode[] allOpcodes = Opcode.values();
 
         ArrayList<Opcode> opcodesOfAKind = new ArrayList<Opcode>();
