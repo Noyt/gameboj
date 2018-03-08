@@ -30,16 +30,31 @@ public final class Cpu implements Component, Clocked {
     private enum Reg16 implements Register {
         AF, BC, DE, HL
     }
-
+    
     public Cpu() {
+        
+        System.out.println("nouvo cpu");
+        
         file = new RegisterFile<Reg>(Reg.values());
         SP = 0;
         PC = 0;
         nextNonIdleCycle = 0;
+        
+        //TODO enlever ca c'est tres important c'est pour les tests!!!!!!!!
+        file.set(Reg.A, 0xF0);
+        file.set(Reg.F, 0xF1);
+        file.set(Reg.B, 0xF2);
+        file.set(Reg.C, 0xF4);
+        file.set(Reg.D, 0xF3);
+        file.set(Reg.E, 0xF7);
+        file.set(Reg.H, 0xFA);
+        file.set(Reg.L, 0xF5);
     }
 
     @Override
-    public void cycle(long cycle) {
+    public void cycle(long cycle) { 
+        System.out.println("cycle : " + cycle + " next: " + nextNonIdleCycle + " PC " + PC );
+        
         if (cycle < nextNonIdleCycle) {
             return;
         } else {
@@ -66,7 +81,6 @@ public final class Cpu implements Component, Clocked {
     @Override
     public void write(int address, int data) {
         // TODO Auto-generated method stub
-
     }
 
     // TODO quel visibilité?
@@ -77,6 +91,8 @@ public final class Cpu implements Component, Clocked {
             break;
         case LD_R8_HLR: {
             file.set(extractReg(instruction, 3), read8AtHl());
+            
+            System.out.println("Reg " + extractReg(instruction, 3) + " HL " + read8AtHl() );
         }
             break;
         case LD_A_HLRU: {
@@ -85,23 +101,23 @@ public final class Cpu implements Component, Clocked {
         }
             break;
         case LD_A_N8R: {
-            file.set(Reg.A, read(0xFF00 + read8AfterOpcode()));
+            file.set(Reg.A, bus.read(0xFF00 + read8AfterOpcode()));
         }
             break;
         case LD_A_CR: {
-            file.set(Reg.A, read(0xFF00 + file.get(Reg.C)));
+            file.set(Reg.A, bus.read(0xFF00 + file.get(Reg.C)));
         }
             break;
         case LD_A_N16R: {
-            file.set(Reg.A, read(read16AfterOpcode()));
+            file.set(Reg.A, bus.read(read16AfterOpcode()));
         }
             break;
         case LD_A_BCR: {
-            file.set(Reg.A, read(reg16(Reg16.BC)));
+            file.set(Reg.A, bus.read(reg16(Reg16.BC)));
         }
             break;
         case LD_A_DER: {
-            file.set(Reg.A, read(reg16(Reg16.DE)));
+            file.set(Reg.A, bus.read(reg16(Reg16.DE)));
         }
             break;
         case LD_R8_N8: {
@@ -166,7 +182,7 @@ public final class Cpu implements Component, Clocked {
         }
             break;
         case PUSH_R16: {
-            write(SP, read(reg16(extractReg16(instruction))));
+            bus.write(SP, bus.read(reg16(extractReg16(instruction))));
         }
             break;
         default:
@@ -193,6 +209,7 @@ public final class Cpu implements Component, Clocked {
     };
 
     private int read8AtHl() {
+        System.out.println("valeur dans addresse HL = " + read8(reg16(Reg16.HL)));
         return read8(reg16(Reg16.HL));
     };
 
@@ -372,6 +389,7 @@ public final class Cpu implements Component, Clocked {
         int[] reg = new int[10];
         
         reg[0] = PC;
+        System.out.println("PC " + reg[0] + " "+PC);
         reg[1] = SP;
         
         Reg[] regTemp = Reg.values();
