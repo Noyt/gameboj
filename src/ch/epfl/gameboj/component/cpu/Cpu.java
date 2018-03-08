@@ -321,9 +321,8 @@ public final class Cpu implements Component, Clocked {
         boolean reg = Bits.test(opcode.encoding, 4);
         if (reg) {
             return -1;
-        } else {
-            return 1;
         }
+        return 1;
     };
 
     private void incrementOrDecrementHl(Opcode opcode) {
