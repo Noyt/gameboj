@@ -263,6 +263,8 @@ public final class Alu {
         boolean fixH = c || (!n && (v > 0x99));
         int fix = 0x60 * (fixH ? 1 : 0) + 0x6 * (fixL ? 1 : 0);
         int Va = n ? (v - fix) : (v + fix);
+        
+        Va = Bits.clip(Byte.SIZE, Va);
 
         return packValueZNHC(Va, Va == 0, n, false, fixH);
     }

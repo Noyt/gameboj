@@ -18,7 +18,8 @@ public final class Cpu implements Component, Clocked {
     private int SP;
     private int PC;
     private Bus bus; // TODO arraylist ou bus tout seul?
-    private static final Opcode[] DIRECT_OPCODE_TABLE = buildOpcodeTable(Opcode.Kind.DIRECT);
+    private static final Opcode[] DIRECT_OPCODE_TABLE = buildOpcodeTable(
+            Opcode.Kind.DIRECT);
 
     private long nextNonIdleCycle;
 
@@ -43,9 +44,9 @@ public final class Cpu implements Component, Clocked {
             return;
         } else {
             int nextInstruction = bus.read(PC);
-            
+
             Opcode instruction = null;
-            
+
             for (Opcode o : DIRECT_OPCODE_TABLE) {
                 if (o.encoding == nextInstruction) {
                     instruction = o;
@@ -74,7 +75,7 @@ public final class Cpu implements Component, Clocked {
         case NOP: {
         }
             break;
-        case LD_R8_HLR: {    
+        case LD_R8_HLR: {
             file.set(extractReg(instruction, 3), read8AtHl());
         }
             break;
@@ -155,9 +156,9 @@ public final class Cpu implements Component, Clocked {
         case LD_R8_R8: {
             Reg r1 = extractReg(instruction, 3);
             Reg r2 = extractReg(instruction, 0);
-            
-            if ( file.get(r1) != file.get(r2))
-            file.set(r1, file.get(r2));
+
+            if (file.get(r1) != file.get(r2))
+                file.set(r1, file.get(r2));
         }
             break;
         case LD_SP_HL: {
@@ -171,7 +172,7 @@ public final class Cpu implements Component, Clocked {
         default:
             throw new IllegalArgumentException("TODO");
         }
-        
+
         update(instruction);
     }
 
@@ -239,10 +240,17 @@ public final class Cpu implements Component, Clocked {
 
     void push16(int v) {
         Preconditions.checkBits16(v);
-        SP -= 2;
-        if (SP < 0) {
-            SP = 0;
+        switch (SP) {
+        case 1:
+            SP = 0xFFFF;
+            break;
+        case 0:
+            SP = 0xFFFE;
+            break;
+        default:
+            SP -= 2;
         }
+
         write16(SP, v);
     };
 
@@ -300,9 +308,9 @@ public final class Cpu implements Component, Clocked {
             return 1;
         }
     };
-    
+
     private void incrementOrDecrementHl(Opcode opcode) {
-       setReg16(Reg16.HL, reg16(Reg16.HL) + extractHlIncrement(opcode));
+        setReg16(Reg16.HL, reg16(Reg16.HL) + extractHlIncrement(opcode));
     }
 
     /*
@@ -342,26 +350,37 @@ public final class Cpu implements Component, Clocked {
 
     private void update(Opcode opcode) {
         nextNonIdleCycle += opcode.cycles;
-        SP += opcode.totalBytes;
+        PC += opcode.totalBytes;
     }
-    
+
     private static Opcode[] buildOpcodeTable(Opcode.Kind kind) {
         Opcode[] allOpcodes = Opcode.values();
-        
-        ArrayList<Opcode> opcodesOfAKind = new ArrayList<Opcode> ();
-        
+
+        ArrayList<Opcode> opcodesOfAKind = new ArrayList<Opcode>();
+
         for (Opcode o : allOpcodes) {
             if (o.kind == kind) {
                 opcodesOfAKind.add(o);
             }
         }
-        
+
         return opcodesOfAKind.toArray(new Opcode[opcodesOfAKind.size()]);
     }
 
     // TODO
     public int[] _testGetPcSpAFBCDEHL() {
-        return new int[1];
+        int[] reg = new int[10];
+        
+        reg[0] = PC;
+        reg[1] = SP;
+        
+        Reg[] regTemp = Reg.values();
+        
+        for (int i = 2; i < 10; ++i) {
+            reg[i] = file.get(regTemp[i-2]);
+        }
+        
+        return reg;
     }
 
 }
