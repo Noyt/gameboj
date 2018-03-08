@@ -57,7 +57,7 @@ public final class RamController implements Component {
     public int read(int address) {
         Preconditions.checkBits16(address);
         if (address < startAddress || address >= endAddress) {
-            return NO_DATA;
+            return NO_DATA; 
         }
 
         try {
