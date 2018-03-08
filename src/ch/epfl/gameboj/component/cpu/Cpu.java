@@ -3,6 +3,7 @@ package ch.epfl.gameboj.component.cpu;
 import java.util.ArrayList;
 import java.util.Objects;
 
+import ch.epfl.gameboj.AddressMap;
 import ch.epfl.gameboj.Bus;
 import ch.epfl.gameboj.Preconditions;
 import ch.epfl.gameboj.Register;
@@ -53,7 +54,7 @@ public final class Cpu implements Component, Clocked {
     public void cycle(long cycle) {
         // System.out.println("cycle : " + cycle + " next: " + nextNonIdleCycle
         // + " PC " + PC );
-        
+
         if (cycle < nextNonIdleCycle) {
             return;
         } else {
@@ -101,12 +102,12 @@ public final class Cpu implements Component, Clocked {
         }
             break;
         case LD_A_N8R: {
-            file.set(Reg.A, read8(0xFF00 + read8AfterOpcode()));
+            file.set(Reg.A, read8(AddressMap.REGS_START + read8AfterOpcode()));
         }
 
             break;
         case LD_A_CR: {
-            file.set(Reg.A, read8(0xFF00 + file.get(Reg.C)));
+            file.set(Reg.A, read8(AddressMap.REGS_START + file.get(Reg.C)));
         }
             break;
         case LD_A_N16R: {
@@ -143,11 +144,11 @@ public final class Cpu implements Component, Clocked {
         }
             break;
         case LD_N8R_A: {
-            write8(0xFF00 + read8AfterOpcode(), file.get(Reg.A));
+            write8(AddressMap.REGS_START + read8AfterOpcode(), file.get(Reg.A));
         }
             break;
         case LD_CR_A: {
-            write8(0xFF00 + file.get(Reg.C), file.get(Reg.A));
+            write8(AddressMap.REGS_START + file.get(Reg.C), file.get(Reg.A));
         }
             break;
         case LD_N16R_A: {
@@ -234,7 +235,7 @@ public final class Cpu implements Component, Clocked {
     private void write8(int address, int v) {
         Preconditions.checkBits16(address);
         Preconditions.checkBits8(v);
-        
+
         bus.write(address, v);
     };
 
@@ -323,7 +324,18 @@ public final class Cpu implements Component, Clocked {
     };
 
     private void incrementOrDecrementHl(Opcode opcode) {
-        setReg16(Reg16.HL, reg16(Reg16.HL) + extractHlIncrement(opcode));
+        int newValue = reg16(Reg16.HL) + extractHlIncrement(opcode);
+        if (newValue > 0xFFFF) {
+            setReg16(Reg16.HL, Bits.clip(Short.SIZE, newValue));
+        } else if (newValue < 0x0) {
+            // TODO on peut clip newValue aussi ici ? 0-1 en int ca fait
+            // ...FFFFF ?
+            // setReg16(Reg16.HL, newValue);
+            setReg16(Reg16.HL, 0xFFFF);
+        } else {
+            setReg16(Reg16.HL, newValue);
+        }
+        ;
     }
 
     /*
