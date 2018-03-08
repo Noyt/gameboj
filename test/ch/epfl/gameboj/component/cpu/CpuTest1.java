@@ -56,5 +56,5 @@ public class CpuTest1 {
         cycleCpu(c, 9);
         
         assertArrayEquals(new int[] {5,0,34,0xF1,34,34,34,34,0xFA,0xF5}, c._testGetPcSpAFBCDEHL());
-    }
+   }
 }

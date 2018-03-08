@@ -54,9 +54,6 @@ public final class Cpu implements Component, Clocked {
         // System.out.println("cycle : " + cycle + " next: " + nextNonIdleCycle
         // + " PC " + PC );
         
-        setReg16(Reg16.HL, 98);
-        write8AtHl(34);
-        
         if (cycle < nextNonIdleCycle) {
             return;
         } else {
