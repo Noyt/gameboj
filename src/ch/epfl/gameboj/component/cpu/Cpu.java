@@ -30,17 +30,15 @@ public final class Cpu implements Component, Clocked {
     private enum Reg16 implements Register {
         AF, BC, DE, HL
     }
-    
+
     public Cpu() {
-        
-        System.out.println("nouvo cpu");
-        
+
         file = new RegisterFile<Reg>(Reg.values());
         SP = 0;
         PC = 0;
         nextNonIdleCycle = 0;
-        
-        //TODO enlever ca c'est tres important c'est pour les tests!!!!!!!!
+
+        // TODO enlever ca c'est tres important c'est pour les tests!!!!!!!!
         file.set(Reg.A, 0xF0);
         file.set(Reg.F, 0xF1);
         file.set(Reg.B, 0xF2);
@@ -52,13 +50,17 @@ public final class Cpu implements Component, Clocked {
     }
 
     @Override
-    public void cycle(long cycle) { 
-        System.out.println("cycle : " + cycle + " next: " + nextNonIdleCycle + " PC " + PC );
+    public void cycle(long cycle) {
+        // System.out.println("cycle : " + cycle + " next: " + nextNonIdleCycle
+        // + " PC " + PC );
+        
+        setReg16(Reg16.HL, 98);
+        write8AtHl(34);
         
         if (cycle < nextNonIdleCycle) {
             return;
         } else {
-            int nextInstruction = bus.read(PC);
+            int nextInstruction = read8(PC);
 
             Opcode instruction = null;
 
@@ -67,7 +69,7 @@ public final class Cpu implements Component, Clocked {
                     instruction = o;
                 }
             }
-            
+
             dispatch(Objects.requireNonNull(instruction));
         }
     }
@@ -84,15 +86,16 @@ public final class Cpu implements Component, Clocked {
     }
 
     // TODO quel visibilité?
-    protected void dispatch(Opcode instruction) {
+    private void dispatch(Opcode instruction) {
         switch (instruction.family) {
         case NOP: {
         }
             break;
         case LD_R8_HLR: {
             file.set(extractReg(instruction, 3), read8AtHl());
-            
-            System.out.println("Reg " + extractReg(instruction, 3) + " HL " + read8AtHl() );
+
+            System.out.println(
+                    "Reg " + extractReg(instruction, 3) + " HL " + read8AtHl());
         }
             break;
         case LD_A_HLRU: {
@@ -101,23 +104,24 @@ public final class Cpu implements Component, Clocked {
         }
             break;
         case LD_A_N8R: {
-            file.set(Reg.A, bus.read(0xFF00 + read8AfterOpcode()));
+            file.set(Reg.A, read8(0xFF00 + read8AfterOpcode()));
         }
+
             break;
         case LD_A_CR: {
-            file.set(Reg.A, bus.read(0xFF00 + file.get(Reg.C)));
+            file.set(Reg.A, read8(0xFF00 + file.get(Reg.C)));
         }
             break;
         case LD_A_N16R: {
-            file.set(Reg.A, bus.read(read16AfterOpcode()));
+            file.set(Reg.A, read8(read16AfterOpcode()));
         }
             break;
         case LD_A_BCR: {
-            file.set(Reg.A, bus.read(reg16(Reg16.BC)));
+            file.set(Reg.A, read8(reg16(Reg16.BC)));
         }
             break;
         case LD_A_DER: {
-            file.set(Reg.A, bus.read(reg16(Reg16.DE)));
+            file.set(Reg.A, read8(reg16(Reg16.DE)));
         }
             break;
         case LD_R8_N8: {
@@ -182,7 +186,7 @@ public final class Cpu implements Component, Clocked {
         }
             break;
         case PUSH_R16: {
-            bus.write(SP, bus.read(reg16(extractReg16(instruction))));
+            write8(SP, read8(reg16(extractReg16(instruction))));
         }
             break;
         default:
@@ -209,20 +213,15 @@ public final class Cpu implements Component, Clocked {
     };
 
     private int read8AtHl() {
-        System.out.println("valeur dans addresse HL = " + read8(reg16(Reg16.HL)));
         return read8(reg16(Reg16.HL));
     };
 
-    int read8AfterOpcode() {
+    private int read8AfterOpcode() {
         return read8(PC + 1);
     };
 
-    int read16(int address) {
+    private int read16(int address) {
         Preconditions.checkBits16(address);
-
-        // int value = read8(address);
-        // int low = Bits.extract(value, Byte.SIZE, Byte.SIZE);
-        // int high = Bits.clip(value, Byte.SIZE);
 
         int low = read8(address);
         int high = read8(address + 1);
@@ -230,32 +229,33 @@ public final class Cpu implements Component, Clocked {
         return Bits.make16(high, low);
     };
 
-    int read16AfterOpcode() {
+    private int read16AfterOpcode() {
         Preconditions.checkBits16(PC + 1);
         return read16(PC + 1);
     };
 
-    void write8(int address, int v) {
+    private void write8(int address, int v) {
         Preconditions.checkBits16(address);
         Preconditions.checkBits8(v);
+        
         bus.write(address, v);
     };
 
-    void write16(int address, int v) {
+    private void write16(int address, int v) {
         Preconditions.checkBits16(v);
         Preconditions.checkBits16(v);
         int high = Bits.extract(v, Byte.SIZE, Byte.SIZE);
         int low = Bits.clip(v, Byte.SIZE);
-        bus.write(address, low);
-        bus.write(address + 1, high);
+        write8(address, low);
+        write8(address + 1, high);
     };
 
-    void write8AtHl(int v) {
+    private void write8AtHl(int v) {
         Preconditions.checkBits8(v);
         write8(reg16(Reg16.HL), v);
     };
 
-    void push16(int v) {
+    private void push16(int v) {
         Preconditions.checkBits16(v);
         switch (SP) {
         case 1:
@@ -271,7 +271,7 @@ public final class Cpu implements Component, Clocked {
         write16(SP, v);
     };
 
-    int pop16() {
+    private int pop16() {
         SP += 2;
         return read16(SP - 2);
     };
@@ -387,17 +387,16 @@ public final class Cpu implements Component, Clocked {
     // TODO
     public int[] _testGetPcSpAFBCDEHL() {
         int[] reg = new int[10];
-        
+
         reg[0] = PC;
-        System.out.println("PC " + reg[0] + " "+PC);
         reg[1] = SP;
-        
+
         Reg[] regTemp = Reg.values();
-        
+
         for (int i = 2; i < 10; ++i) {
-            reg[i] = file.get(regTemp[i-2]);
+            reg[i] = file.get(regTemp[i - 2]);
         }
-        
+
         return reg;
     }
 
