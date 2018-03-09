@@ -128,7 +128,9 @@ public final class Cpu implements Component, Clocked {
         }
             break;
         case POP_R16: {
+            System.out.println(file.get(Reg.A));
             setReg16(extractReg16(instruction), pop16());
+           
         }
             break;
         case LD_HLR_R8: {
@@ -186,7 +188,7 @@ public final class Cpu implements Component, Clocked {
         }
             break;
         default:
-            throw new IllegalArgumentException("TODO"); //TODO
+            throw new IllegalArgumentException("TODO"); // TODO
         }
 
         update(instruction);
@@ -217,8 +219,9 @@ public final class Cpu implements Component, Clocked {
     };
 
     private int read16(int address) { // TESTER
-        
-        //TODO important comment faire quand address + 1 déborde de la plage disponible?
+
+        // TODO important comment faire quand address + 1 déborde de la plage
+        // disponible? lancer une exception ?
         Preconditions.checkBits16(address);
 
         int low = read8(address);
@@ -274,8 +277,19 @@ public final class Cpu implements Component, Clocked {
     };
 
     private int pop16() { // TESTER
-        SP += 2;
-        return read16(SP - 2);
+
+        switch (SP) {
+        case 0xFFFE:
+            SP = 0;
+            return read16(0xFFFE);
+        case 0xFFFF:
+            SP = 1;
+            // TODO rate a chaque fois ?
+            return read16(0xFFFF);
+        default:
+            SP += 2;
+            return read16(SP - 2);
+        }
     };
 
     /*
