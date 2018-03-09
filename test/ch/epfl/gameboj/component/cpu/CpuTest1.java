@@ -329,4 +329,16 @@ public class CpuTest1 {
         assertEquals(0, b.read(0x2267));
         assertEquals(0, b.read(0x2267+1));
     }
+    
+    @Test
+    void LD_HLR_N8WorksFine() {
+        Cpu c = new Cpu();
+        Ram r = new Ram(0xFFFF);
+        Bus b = connect(c, r);
+        
+        b.write(0, Opcode.LD_HLR_N8.encoding);
+        b.write(1, 0xB3);
+        cycleCpu(c, Opcode.LD_HLR_N8.cycles);
+        assertEquals(0xB3, b.read(0xFAF5));
+    }
 }
