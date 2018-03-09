@@ -186,7 +186,7 @@ public final class Cpu implements Component, Clocked {
         }
             break;
         default:
-            throw new IllegalArgumentException("TODO");
+            throw new IllegalArgumentException("TODO"); //TODO
         }
 
         update(instruction);
