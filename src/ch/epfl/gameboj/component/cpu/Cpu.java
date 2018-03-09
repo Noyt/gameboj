@@ -198,8 +198,6 @@ public final class Cpu implements Component, Clocked {
 
         }
             break;
-        default:
-            throw new IllegalArgumentException("TODO");
 
             // Add
         case ADD_A_R8: {
@@ -355,8 +353,8 @@ public final class Cpu implements Component, Clocked {
         }
             break;
 
-            update(instruction);
         }
+        update(instruction);
     }
 
     /*
