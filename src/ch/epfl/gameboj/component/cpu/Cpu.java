@@ -488,5 +488,6 @@ public final class Cpu implements Component, Clocked {
     
     private int extractOneOrZero(Opcode instruction) {
          Bits.test(instruction.encoding, 6);
+         return -1;
     }
 }
