@@ -24,21 +24,6 @@ public class CpuTest1 {
         for (long c = 0; c < cycles; ++c)
             cpu.cycle(c);
     }
-    
-    @Test
-    void LD_N16R_SPWorksFine() {
-        Cpu c = new Cpu();
-        Ram r = new Ram(10);
-        Bus b = connect(c, r);
-        
-        b.write(0, Opcode.LD_N16R_SP.encoding);
-        b.write(1, 0x67);
-        b.write(2, 0x22);
-        cycleCpu(c, Opcode.LD_N16R_SP.cycles);
-        assertEquals(0, b.read(1));
-        assertEquals(0, b.read(2));
-        
-    }
 
     @Test
     void nopDoesNothing() {
@@ -329,5 +314,19 @@ public class CpuTest1 {
         cycleCpu(c, Opcode.LD_A_A.cycles * 8);
         assertArrayEquals(new int[] { 8, 0, 0xF2, 0xF1, 0xF3, 0xF0, 0xFA, 0xFA,
                 0xF0, 0xF0 }, c._testGetPcSpAFBCDEHL());
+    }
+    
+    @Test
+    void LD_N16R_SPWorksFine() {
+        Cpu c = new Cpu();
+        Ram r = new Ram(0xFFFF);
+        Bus b = connect(c, r);
+        
+        b.write(0, Opcode.LD_N16R_SP.encoding);
+        b.write(1, 0x67);
+        b.write(2, 0x22);
+        cycleCpu(c, Opcode.LD_N16R_SP.cycles);
+        assertEquals(0, b.read(0x2267));
+        assertEquals(0, b.read(0x2267+1));
     }
 }

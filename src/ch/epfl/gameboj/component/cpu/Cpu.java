@@ -128,7 +128,6 @@ public final class Cpu implements Component, Clocked {
         }
             break;
         case POP_R16: {
-            System.out.println(file.get(Reg.A));
             setReg16(extractReg16(instruction), pop16());
            
         }
@@ -167,7 +166,7 @@ public final class Cpu implements Component, Clocked {
         }
             break;
         case LD_N16R_SP: {
-            write(read16AfterOpcode(), SP);
+            write16(read16AfterOpcode(), SP);
         }
             break;
         case LD_R8_R8: {
