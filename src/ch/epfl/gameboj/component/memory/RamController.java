@@ -54,6 +54,7 @@ public final class RamController implements Component {
      * @param address an int
      * @return an int : the data we are looking for or NO_DATA
      */
+    //TODO NO_DATA
     public int read(int address) {
         Preconditions.checkBits16(address);
         if (address < startAddress || address >= endAddress) {

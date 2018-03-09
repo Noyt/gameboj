@@ -166,8 +166,7 @@ public final class Cpu implements Component, Clocked {
         }
             break;
         case LD_N16R_SP: {
-            //TODO
-            write(read16AfterOpcode(), SP);
+            write16(read16AfterOpcode(), SP);
         }
             break;
         case LD_R8_R8: {
@@ -214,11 +213,11 @@ public final class Cpu implements Component, Clocked {
         return read8(reg16(Reg16.HL));
     };
 
-    private int read8AfterOpcode() { // TESTER
+    private int read8AfterOpcode() {
         return read8(PC + 1);
     };
 
-    private int read16(int address) { // TESTER
+    private int read16(int address) {
 
         // TODO important comment faire quand address + 1 déborde de la plage
         // disponible? lancer une exception ?
@@ -230,7 +229,7 @@ public final class Cpu implements Component, Clocked {
         return Bits.make16(high, low);
     };
 
-    private int read16AfterOpcode() { // TESTER
+    private int read16AfterOpcode() {
         Preconditions.checkBits16(PC + 1);
         return read16(PC + 1);
     };
@@ -276,7 +275,7 @@ public final class Cpu implements Component, Clocked {
 
     };
 
-    private int pop16() { // TESTER
+    private int pop16() {
 
         switch (SP) {
         case 0xFFFE:
