@@ -39,14 +39,14 @@ public final class Cpu implements Component, Clocked {
         nextNonIdleCycle = 0;
 
         // // TODO enlever ca c'est tres important c'est pour les tests!!!!!!!!
-//         file.set(Reg.A, 0xF0);
-//         file.set(Reg.F, 0xF1);
-//         file.set(Reg.B, 0xF2);
-//         file.set(Reg.C, 0xF4);
-//         file.set(Reg.D, 0xF3);
-//         file.set(Reg.E, 0xF7);
-//         file.set(Reg.H, 0xFA);
-//         file.set(Reg.L, 0xF5);
+        // file.set(Reg.A, 0xF0);
+        // file.set(Reg.F, 0xF1);
+        // file.set(Reg.B, 0xF2);
+        // file.set(Reg.C, 0xF4);
+        // file.set(Reg.D, 0xF3);
+        // file.set(Reg.E, 0xF7);
+        // file.set(Reg.H, 0xFA);
+        // file.set(Reg.L, 0xF5);
     }
 
     @Override
@@ -315,7 +315,7 @@ public final class Cpu implements Component, Clocked {
         }
     }
 
-    private int extractHlIncrement(Opcode opcode) { // TESTER
+    private int extractHlIncrement(Opcode opcode) {
         boolean reg = Bits.test(opcode.encoding, 4);
         if (reg) {
             return -1;
@@ -329,8 +329,7 @@ public final class Cpu implements Component, Clocked {
     }
 
     /*
-     * -------------------------- Registers Managements
-     * -------------------------
+     * --------------------- Registers Managements -------------------------
      */
     private int reg16(Reg16 r) {
         Reg r1 = Reg.values()[r.index() * 2];
