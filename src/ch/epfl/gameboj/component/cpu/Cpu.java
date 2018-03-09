@@ -198,7 +198,7 @@ public final class Cpu implements Component, Clocked {
 
         }
             break;
-
+            
             // Add
         case ADD_A_R8: {
         }
@@ -346,10 +346,12 @@ public final class Cpu implements Component, Clocked {
 
         // Misc. ALU
         case DAA: {
-
+            file.set(Reg.A, Alu.bcdAdjust(file.get(Reg.A), n(), h(), c()));
         }
             break;
         case SCCF: {
+            FlagSrc C = combineCAndBit3(instruction) ? FlagSrc.V1 : FlagSrc.V0;   
+            combineAluFlags(0, FlagSrc.CPU, FlagSrc.V0, FlagSrc.V0, C);
         }
             break;
 
@@ -466,7 +468,7 @@ public final class Cpu implements Component, Clocked {
             throw new IllegalArgumentException("ceci est faux, 110 registre");
         }
     };
-
+    
     private Reg16 extractReg16(Opcode opcode) {
         int reg = Bits.extract(opcode.encoding, 4, 2);
         switch (reg) {
@@ -645,5 +647,25 @@ public final class Cpu implements Component, Clocked {
     private int extractOneOrZero(Opcode instruction) {
         Bits.test(instruction.encoding, 6);
         return -1;
+    }
+    
+    private boolean combineCAndBit3(Opcode instruction) {
+        return !(Bits.test(instruction.encoding, 3) && c());
+    }
+    
+    private boolean z() {
+        return Bits.test(file.get(Reg.F), 7);
+    }
+    
+    private boolean n() {
+        return Bits.test(file.get(Reg.F), 6);
+    }
+    
+    private boolean h() {
+        return Bits.test(file.get(Reg.F), 5);
+    }
+    
+    private boolean c() {
+        return Bits.test(file.get(Reg.F), 4);
     }
 }
