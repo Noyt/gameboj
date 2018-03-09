@@ -346,7 +346,9 @@ public final class Cpu implements Component, Clocked {
 
         // Misc. ALU
         case DAA: {
-            file.set(Reg.A, Alu.bcdAdjust(file.get(Reg.A), n(), h(), c()));
+            int aluResult = Alu.bcdAdjust(file.get(Reg.A), n(), h(), c());
+            setRegFromAlu(Reg.A, aluResult);
+            combineAluFlags(aluResult, FlagSrc.ALU, FlagSrc.CPU, FlagSrc.V0, FlagSrc.ALU);
         }
             break;
         case SCCF: {
