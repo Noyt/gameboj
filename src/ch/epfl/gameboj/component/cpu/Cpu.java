@@ -45,15 +45,15 @@ public final class Cpu implements Component, Clocked {
         PC = 0;
         nextNonIdleCycle = 0;
 
-//         // TODO enlever ca c'est tres important c'est pour les tests!!!!!!!!
-//         file.set(Reg.A, 0xF0);
-//         file.set(Reg.F, 0xF1);
-//         file.set(Reg.B, 0xF2);
-//         file.set(Reg.C, 0xF4);
-//         file.set(Reg.D, 0xF3);
-//         file.set(Reg.E, 0xF7);
-//         file.set(Reg.H, 0xFA);
-//         file.set(Reg.L, 0xF5);
+        // // TODO enlever ca c'est tres important c'est pour les tests!!!!!!!!
+        // file.set(Reg.A, 0xF0);
+        // file.set(Reg.F, 0xF1);
+        // file.set(Reg.B, 0xF2);
+        // file.set(Reg.C, 0xF4);
+        // file.set(Reg.D, 0xF3);
+        // file.set(Reg.E, 0xF7);
+        // file.set(Reg.H, 0xFA);
+        // file.set(Reg.L, 0xF5);
 
     }
 
@@ -200,9 +200,163 @@ public final class Cpu implements Component, Clocked {
             break;
         default:
             throw new IllegalArgumentException("TODO");
-        }
 
-        update(instruction);
+            // Add
+        case ADD_A_R8: {
+        }
+            break;
+        case ADD_A_N8: {
+        }
+            break;
+        case ADD_A_HLR: {
+        }
+            break;
+        case INC_R8: {
+        }
+            break;
+        case INC_HLR: {
+        }
+            break;
+        case INC_R16SP: {
+        }
+            break;
+        case ADD_HL_R16SP: {
+        }
+            break;
+        case LD_HLSP_S8: {
+        }
+            break;
+
+        // Subtract
+        case SUB_A_R8: {
+        }
+            break;
+        case SUB_A_N8: {
+        }
+            break;
+        case SUB_A_HLR: {
+        }
+            break;
+        case DEC_R8: {
+        }
+            break;
+        case DEC_HLR: {
+        }
+            break;
+        case CP_A_R8: {
+        }
+            break;
+        case CP_A_N8: {
+        }
+            break;
+        case CP_A_HLR: {
+        }
+            break;
+        case DEC_R16SP: {
+        }
+            break;
+
+        // And, or, xor, complement
+        case AND_A_N8: {
+        }
+            break;
+        case AND_A_R8: {
+        }
+            break;
+        case AND_A_HLR: {
+        }
+            break;
+        case OR_A_R8: {
+        }
+            break;
+        case OR_A_N8: {
+        }
+            break;
+        case OR_A_HLR: {
+        }
+            break;
+        case XOR_A_R8: {
+        }
+            break;
+        case XOR_A_N8: {
+        }
+            break;
+        case XOR_A_HLR: {
+        }
+            break;
+        case CPL: {
+        }
+            break;
+
+        // Rotate, shift
+        case ROTCA: {
+        }
+            break;
+        case ROTA: {
+        }
+            break;
+        case ROTC_R8: {
+        }
+            break;
+        case ROT_R8: {
+        }
+            break;
+        case ROTC_HLR: {
+        }
+            break;
+        case ROT_HLR: {
+        }
+            break;
+        case SWAP_R8: {
+        }
+            break;
+        case SWAP_HLR: {
+        }
+            break;
+        case SLA_R8: {
+        }
+            break;
+        case SRA_R8: {
+        }
+            break;
+        case SRL_R8: {
+        }
+            break;
+        case SLA_HLR: {
+        }
+            break;
+        case SRA_HLR: {
+        }
+            break;
+        case SRL_HLR: {
+        }
+            break;
+
+        // Bit test and set
+        case BIT_U3_R8: {
+        }
+            break;
+        case BIT_U3_HLR: {
+        }
+            break;
+        case CHG_U3_R8: {
+        }
+            break;
+        case CHG_U3_HLR: {
+        }
+            break;
+
+        // Misc. ALU
+        case DAA: {
+
+        }
+            break;
+        case SCCF: {
+        }
+            break;
+
+            update(instruction);
+        }
     }
 
     /*
@@ -439,17 +593,21 @@ public final class Cpu implements Component, Clocked {
             FlagSrc c) {
         int aluFlags = Alu.unpackFlags(vf);
         int cpuFlags = file.get(Reg.F);
-        
-        int maskZ = flagMask(Bits.test(cpuFlags,7), Bits.test(aluFlags,7), z, 7);
-        int maskN = flagMask(Bits.test(cpuFlags, 6), Bits.test(aluFlags, 6), n, 6);
-        int maskH = flagMask(Bits.test(cpuFlags, 5), Bits.test(aluFlags, 5), h, 5);
-        int maskC = flagMask(Bits.test(cpuFlags, 4), Bits.test(aluFlags, 4), c, 4);
-        
+
+        int maskZ = flagMask(Bits.test(cpuFlags, 7), Bits.test(aluFlags, 7), z,
+                7);
+        int maskN = flagMask(Bits.test(cpuFlags, 6), Bits.test(aluFlags, 6), n,
+                6);
+        int maskH = flagMask(Bits.test(cpuFlags, 5), Bits.test(aluFlags, 5), h,
+                5);
+        int maskC = flagMask(Bits.test(cpuFlags, 4), Bits.test(aluFlags, 4), c,
+                4);
+
         file.set(Reg.F, maskZ | maskN | maskH | maskC);
     }
 
-      
-    private int flagMask(boolean cpuFlag, boolean aluFlag, FlagSrc i, int index) {
+    private int flagMask(boolean cpuFlag, boolean aluFlag, FlagSrc i,
+            int index) {
         Preconditions.checkArgument(index > 3 && index < 8);
 
         int bit = 3;
@@ -474,20 +632,20 @@ public final class Cpu implements Component, Clocked {
         }
         return 0;
     }
-    
+
     private RotDir extractRotDir(Opcode instruction) {
         if (Bits.test(instruction.encoding, 3)) {
             return RotDir.RIGHT;
         }
         return RotDir.LEFT;
     }
-    
+
     private int extractBitIndex(Opcode instruction) {
         return Bits.extract(instruction.encoding, 3, 3);
     }
-    
+
     private int extractOneOrZero(Opcode instruction) {
-         Bits.test(instruction.encoding, 6);
-         return -1;
+        Bits.test(instruction.encoding, 6);
+        return -1;
     }
 }
