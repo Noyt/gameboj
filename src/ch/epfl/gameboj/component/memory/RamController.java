@@ -54,7 +54,6 @@ public final class RamController implements Component {
      * @param address an int
      * @return an int : the data we are looking for or NO_DATA
      */
-    //TODO NO_DATA
     public int read(int address) {
         Preconditions.checkBits16(address);
         if (address < startAddress || address >= endAddress) {
@@ -65,7 +64,6 @@ public final class RamController implements Component {
             return ram.read(address - startAddress);      
         }
 
-        // TODO do we have to catch this exception?
         catch (IndexOutOfBoundsException e) {
             return NO_DATA;
         }
@@ -75,7 +73,6 @@ public final class RamController implements Component {
         }
     }
 
-    // TODO et du coup ici on catch aussi ?
     /**
      * implements the method write of component : store the data in the ram at the address
      * does nothing if the address doesn't below to the ramController

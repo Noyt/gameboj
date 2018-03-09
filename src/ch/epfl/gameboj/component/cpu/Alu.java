@@ -150,8 +150,6 @@ public final class Alu {
         return add(l, r, false);
     }
 
-    // TODO guerre de la mise en forme
-
     /**
      * Returns the sum of the two given 16 bits values and flags 00HC, where H
      * and C are flags corresponding to the addition of the lower 8 bits of both
@@ -220,7 +218,6 @@ public final class Alu {
         Preconditions.checkBits8(r);
 
         int borrow = (b0 ? 1 : 0);
-        // TODO coder les 4 avec une static final
         boolean c = l < r + borrow;
         boolean h = Bits.clip(4, l) < Bits.clip(4, r) + borrow;
         int result = l - r - borrow;
@@ -390,7 +387,6 @@ public final class Alu {
      */
     public static int rotate(RotDir d, int v) {
         Preconditions.checkBits8(v);
-        // TODO precondition on RotDir?
 
         int rotValue = rotateFor9or8Int(d, v, false);
 

@@ -15,7 +15,6 @@ import ch.epfl.gameboj.component.Component;
 public final class Cpu implements Component, Clocked {
 
     private RegisterFile<Reg> file;
-    // TODO juste de déclarer SP et PC en int ?
     private int SP;
     private int PC;
     private Bus bus;
@@ -39,21 +38,19 @@ public final class Cpu implements Component, Clocked {
         PC = 0;
         nextNonIdleCycle = 0;
 
-        // TODO enlever ca c'est tres important c'est pour les tests!!!!!!!!
-        file.set(Reg.A, 0xF0);
-        file.set(Reg.F, 0xF1);
-        file.set(Reg.B, 0xF2);
-        file.set(Reg.C, 0xF4);
-        file.set(Reg.D, 0xF3);
-        file.set(Reg.E, 0xF7);
-        file.set(Reg.H, 0xFA);
-        file.set(Reg.L, 0xF5);
+        // // TODO enlever ca c'est tres important c'est pour les tests!!!!!!!!
+//         file.set(Reg.A, 0xF0);
+//         file.set(Reg.F, 0xF1);
+//         file.set(Reg.B, 0xF2);
+//         file.set(Reg.C, 0xF4);
+//         file.set(Reg.D, 0xF3);
+//         file.set(Reg.E, 0xF7);
+//         file.set(Reg.H, 0xFA);
+//         file.set(Reg.L, 0xF5);
     }
 
     @Override
     public void cycle(long cycle) {
-        // System.out.println("cycle : " + cycle + " next: " + nextNonIdleCycle
-        // + " PC " + PC );
 
         if (cycle < nextNonIdleCycle) {
             return;
@@ -83,7 +80,6 @@ public final class Cpu implements Component, Clocked {
         // TODO Auto-generated method stub
     }
 
-    // TODO quel visibilité?
     private void dispatch(Opcode instruction) {
         switch (instruction.family) {
         case NOP: {
@@ -129,7 +125,7 @@ public final class Cpu implements Component, Clocked {
             break;
         case POP_R16: {
             setReg16(extractReg16(instruction), pop16());
-           
+
         }
             break;
         case LD_HLR_R8: {
@@ -187,7 +183,7 @@ public final class Cpu implements Component, Clocked {
         }
             break;
         default:
-            throw new IllegalArgumentException("TODO"); // TODO
+            throw new IllegalArgumentException("TODO");
         }
 
         update(instruction);
@@ -201,7 +197,6 @@ public final class Cpu implements Component, Clocked {
         this.bus = bus;
     }
 
-    // TODO preconditions pour un résultat uniquement 8 bits
     private int read8(int address) {
         Preconditions.checkBits16(address);
         int value = bus.read(address);
@@ -219,10 +214,6 @@ public final class Cpu implements Component, Clocked {
 
     private int read16(int address) {
 
-        // TODO important comment faire quand address + 1 déborde de la plage
-        // disponible? lancer une exception ?
-        Preconditions.checkBits16(address);
-
         int low = read8(address);
         int high = read8(address + 1);
 
@@ -230,20 +221,14 @@ public final class Cpu implements Component, Clocked {
     };
 
     private int read16AfterOpcode() {
-        Preconditions.checkBits16(PC + 1);
         return read16(PC + 1);
     };
 
     private void write8(int address, int v) {
-        Preconditions.checkBits16(address);
-        Preconditions.checkBits8(v);
-
         bus.write(address, v);
     };
 
     private void write16(int address, int v) {
-        Preconditions.checkBits16(v);
-
         int high = Bits.extract(v, Byte.SIZE, Byte.SIZE);
         int low = Bits.clip(Byte.SIZE, v);
 
@@ -252,8 +237,6 @@ public final class Cpu implements Component, Clocked {
     };
 
     private void write8AtHl(int v) {
-        Preconditions.checkBits8(v);
-
         write8(reg16(Reg16.HL), v);
     };
 
@@ -283,7 +266,6 @@ public final class Cpu implements Component, Clocked {
             return read16(0xFFFE);
         case 0xFFFF:
             SP = 1;
-            // TODO rate a chaque fois ?
             return read16(0xFFFF);
         default:
             SP += 2;
@@ -343,17 +325,7 @@ public final class Cpu implements Component, Clocked {
 
     private void incrementOrDecrementHl(Opcode opcode) {
         int newValue = reg16(Reg16.HL) + extractHlIncrement(opcode);
-        if (newValue > 0xFFFF) {
-            setReg16(Reg16.HL, Bits.clip(Short.SIZE, newValue));
-        } else if (newValue < 0x0) {
-            // TODO on peut clip newValue aussi ici ? 0-1 en int ca fait
-            // ...FFFFF ?
-            // setReg16(Reg16.HL, newValue);
-            setReg16(Reg16.HL, 0xFFFF);
-        } else {
-            setReg16(Reg16.HL, newValue);
-        }
-        ;
+        setReg16(Reg16.HL, Bits.clip(Short.SIZE, newValue));
     }
 
     /*
@@ -367,7 +339,6 @@ public final class Cpu implements Component, Clocked {
         return Bits.make16(file.get(r1), file.get(r2));
     }
 
-    // TODO preconditions sur newV (16/8?)
     private void setReg16(Reg16 r, int newV) {
         Preconditions.checkBits16(newV);
 
@@ -383,15 +354,10 @@ public final class Cpu implements Component, Clocked {
 
         file.set(r1, highV);
         file.set(r2, lowV);
-
-        // TODO pour les 4 premiers zeros en cas AF, mieux vaut utiliser des
-        // méthodes de BIts comme set ou des << >>> ?
     }
 
     private void setReg16SP(Reg16 r, int newV) {
         Preconditions.checkBits16(newV);
-
-        // TODO est-ce que les 4 bits de poids faibles de SP doivent valoir 0 ??
         if (r == Reg16.AF) {
             SP = newV;
         } else {
@@ -400,12 +366,12 @@ public final class Cpu implements Component, Clocked {
 
     }
 
-    private void update(Opcode opcode) { // TESTER
+    private void update(Opcode opcode) {
         nextNonIdleCycle += opcode.cycles;
         PC += opcode.totalBytes;
     }
 
-    private static Opcode[] buildOpcodeTable(Opcode.Kind kind) { // TESTER
+    private static Opcode[] buildOpcodeTable(Opcode.Kind kind) {
         Opcode[] allOpcodes = Opcode.values();
 
         ArrayList<Opcode> opcodesOfAKind = new ArrayList<Opcode>();
@@ -419,7 +385,6 @@ public final class Cpu implements Component, Clocked {
         return opcodesOfAKind.toArray(new Opcode[opcodesOfAKind.size()]);
     }
 
-    // TODO
     public int[] _testGetPcSpAFBCDEHL() {
         int[] reg = new int[10];
 

@@ -109,7 +109,6 @@ public final class Bits {
      *         of bits, the rest of the bits are only 0's
      */
     public static int extract(int bits, int start, int size) {
-        // TODO Integer.SIZE ici ?
         Objects.checkFromIndexSize(start, size, Integer.SIZE);
         return clip(size, bits >>> start);
     };

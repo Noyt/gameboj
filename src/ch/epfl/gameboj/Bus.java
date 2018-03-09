@@ -26,7 +26,6 @@ public final class Bus {
         components.add(Objects.requireNonNull(component));
     }
     
-    //TODO variable pour le read ?
     /**
      * returns the value stored at the address if at least one component has a data at the address
      * 

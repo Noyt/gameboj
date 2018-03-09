@@ -16,7 +16,6 @@ public interface Preconditions {
         }
     }
     
-    // TODO "throws IllegalArgument" ?????
     /**
      * checks that the argument is positive and that it can be represented by an octet
      * 
