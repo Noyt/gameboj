@@ -11,6 +11,7 @@ import ch.epfl.gameboj.RegisterFile;
 import ch.epfl.gameboj.bits.Bits;
 import ch.epfl.gameboj.component.Clocked;
 import ch.epfl.gameboj.component.Component;
+import ch.epfl.gameboj.component.cpu.Alu.RotDir;
 
 public final class Cpu implements Component, Clocked {
 
@@ -20,6 +21,8 @@ public final class Cpu implements Component, Clocked {
     private Bus bus;
     private static final Opcode[] DIRECT_OPCODE_TABLE = buildOpcodeTable(
             Opcode.Kind.DIRECT);
+    private static final Opcode[] PREFIXED_OPCODE_TABLE = buildOpcodeTable(
+            Opcode.Kind.PREFIXED);
 
     private long nextNonIdleCycle;
 
@@ -31,6 +34,10 @@ public final class Cpu implements Component, Clocked {
         AF, BC, DE, HL
     }
 
+    private enum FlagSrc {
+        V0, V1, ALU, CPU
+    }
+
     public Cpu() {
 
         file = new RegisterFile<Reg>(Reg.values());
@@ -39,14 +46,14 @@ public final class Cpu implements Component, Clocked {
         nextNonIdleCycle = 0;
 
         // // TODO enlever ca c'est tres important c'est pour les tests!!!!!!!!
-//         file.set(Reg.A, 0xF0);
-//         file.set(Reg.F, 0xF1);
-//         file.set(Reg.B, 0xF2);
-//         file.set(Reg.C, 0xF4);
-//         file.set(Reg.D, 0xF3);
-//         file.set(Reg.E, 0xF7);
-//         file.set(Reg.H, 0xFA);
-//         file.set(Reg.L, 0xF5);
+        // file.set(Reg.A, 0xF0);
+        // file.set(Reg.F, 0xF1);
+        // file.set(Reg.B, 0xF2);
+        // file.set(Reg.C, 0xF4);
+        // file.set(Reg.D, 0xF3);
+        // file.set(Reg.E, 0xF7);
+        // file.set(Reg.H, 0xFA);
+        // file.set(Reg.L, 0xF5);
     }
 
     @Override
@@ -59,12 +66,20 @@ public final class Cpu implements Component, Clocked {
 
             Opcode instruction = null;
 
-            for (Opcode o : DIRECT_OPCODE_TABLE) {
-                if (o.encoding == nextInstruction) {
-                    instruction = o;
+            if (nextInstruction != 0xCB) {
+                for (Opcode o : DIRECT_OPCODE_TABLE) {
+                    if (o.encoding == nextInstruction) {
+                        instruction = o;
+                    }
+                }
+            } else {
+                nextInstruction = read8(++PC);
+                for (Opcode o : PREFIXED_OPCODE_TABLE) {
+                    if (o.encoding == nextInstruction) {
+                        instruction = o;
+                    }
                 }
             }
-
             dispatch(Objects.requireNonNull(instruction));
         }
     }
@@ -400,4 +415,78 @@ public final class Cpu implements Component, Clocked {
         return reg;
     }
 
+    // ---Flags ToolBox----
+
+    private void setRegFromAlu(Reg r, int vf) {
+        file.set(r, Alu.unpackValue(vf));
+    }
+
+    private void setFlags(int valueFlags) {
+        file.set(Reg.F, Alu.unpackFlags(valueFlags));
+    }
+
+    private void setRegFlags(Reg r, int vf) {
+        setRegFromAlu(r, vf);
+        setFlags(vf);
+    }
+
+    private void write8AtHlAndSetFlags(int vf) {
+        write8AtHl(Alu.unpackValue(vf));
+        setFlags(vf);
+    }
+
+    private void combineAluFlags(int vf, FlagSrc z, FlagSrc n, FlagSrc h,
+            FlagSrc c) {
+        int aluFlags = Alu.unpackFlags(vf);
+        int cpuFlags = file.get(Reg.F);
+        
+        int maskZ = flagMask(Bits.test(cpuFlags,7), Bits.test(aluFlags,7), z, 7);
+        int maskN = flagMask(Bits.test(cpuFlags, 6), Bits.test(aluFlags, 6), n, 6);
+        int maskH = flagMask(Bits.test(cpuFlags, 5), Bits.test(aluFlags, 5), h, 5);
+        int maskC = flagMask(Bits.test(cpuFlags, 4), Bits.test(aluFlags, 4), c, 4);
+        
+        file.set(Reg.F, maskZ | maskN | maskH | maskC);
+    }
+
+      
+    private int flagMask(boolean cpuFlag, boolean aluFlag, FlagSrc i, int index) {
+        Preconditions.checkArgument(index > 3 && index < 8);
+
+        int bit = 3;
+
+        switch (i) {
+        case V0:
+            bit = 0;
+            break;
+        case V1:
+            bit = 1;
+            break;
+        case ALU:
+            bit = aluFlag ? 1 : 0;
+            break;
+        case CPU:
+            bit = cpuFlag ? 1 : 0;
+            break;
+        }
+
+        if (bit == 1) {
+            return Bits.mask(index);
+        }
+        return 0;
+    }
+    
+    private RotDir extractRotDir(Opcode instruction) {
+        if (Bits.test(instruction.encoding, 3)) {
+            return RotDir.RIGHT;
+        }
+        return RotDir.LEFT;
+    }
+    
+    private int extractBitIndex(Opcode instruction) {
+        return Bits.extract(instruction.encoding, 3, 3);
+    }
+    
+    private int extractOneOrZero(Opcode instruction) {
+         Bits.test(instruction.encoding, 6);
+    }
 }
