@@ -165,7 +165,6 @@ public final class Cpu implements Component, Clocked {
         }
             break;
         case LD_N16R_SP: {
-            //TODO
             write(read16AfterOpcode(), SP);
         }
             break;
