@@ -53,8 +53,8 @@ public final class Bits {
 
     /**
      * Returns an integer which the binary representation is the same as the
-     * given value, except one bit at the given index, which equals to another
-     * given value
+     * given value, except one bit at the given index, which will be set to 1 or
+     * 0
      * 
      * @param bits
      *            an int : the value which we want to copy and modify
@@ -191,9 +191,11 @@ public final class Bits {
     };
 
     /**
-     * Returns the complements of the original value : every 1 bits become 0 and every 0 become 1
+     * Returns the complements of the original value : every 1 bits become 0 and
+     * every 0 become 1
      * 
-     * @param b an int : the original value
+     * @param b
+     *            an int : the original value
      * @return an int : the complement of b
      */
     public static int complement8(int b) {
@@ -204,8 +206,12 @@ public final class Bits {
     /**
      * Use highB and lowB to make a 16-bits integer
      * 
-     * @param highB an int : the 8 lowest bits of highB will become the high bits of the result
-     * @param lowB an int : the 8 lowest bits of lowB will become the low bits of the result
+     * @param highB
+     *            an int : the 8 lowest bits of highB will become the high bits
+     *            of the result
+     * @param lowB
+     *            an int : the 8 lowest bits of lowB will become the low bits of
+     *            the result
      * @return an int : a kind of concatenation of highB and lowB
      */
     public static int make16(int highB, int lowB) {

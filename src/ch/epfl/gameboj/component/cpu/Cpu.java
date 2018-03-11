@@ -198,8 +198,8 @@ public final class Cpu implements Component, Clocked {
 
         }
             break;
-            
-            // Add
+
+        // Add
         case ADD_A_R8: {
         }
             break;
@@ -309,38 +309,60 @@ public final class Cpu implements Component, Clocked {
         }
             break;
         case SWAP_HLR: {
+            
         }
             break;
         case SLA_R8: {
+            Reg reg = extractReg(instruction, 0);
+            setRegFlags(reg, Alu.shiftLeft(file.get(reg)));
         }
             break;
         case SRA_R8: {
+            Reg reg = extractReg(instruction, 0);
+            setRegFlags(reg, Alu.shiftRightA(file.get(reg)));
         }
             break;
         case SRL_R8: {
+            Reg reg = extractReg(instruction, 0);
+            setRegFlags(reg, Alu.shiftRightA(file.get(reg)));
         }
             break;
         case SLA_HLR: {
+            write8AtHlAndSetFlags(Alu.shiftLeft(read8AtHl()));
         }
             break;
         case SRA_HLR: {
+            write8AtHlAndSetFlags(Alu.shiftRightA(read8AtHl()));
         }
             break;
         case SRL_HLR: {
+            write8AtHlAndSetFlags(Alu.shiftRightL(read8AtHl()));
         }
             break;
 
         // Bit test and set
         case BIT_U3_R8: {
+            combineAluFlags(
+                    Alu.testBit(file.get(extractReg(instruction, 0)),
+                            extractBitIndex(instruction)),
+                    FlagSrc.ALU, FlagSrc.ALU, FlagSrc.ALU, FlagSrc.CPU);
         }
             break;
         case BIT_U3_HLR: {
+            combineAluFlags(
+                    Alu.testBit(read8AtHl(), extractBitIndex(instruction)),
+                    FlagSrc.ALU, FlagSrc.ALU, FlagSrc.ALU, FlagSrc.CPU);
         }
             break;
         case CHG_U3_R8: {
+            Reg reg = extractReg(instruction, 0);
+            file.set(reg, Bits.set(file.get(reg), extractBitIndex(instruction),
+                    extractOneOrZero(instruction)));
         }
             break;
         case CHG_U3_HLR: {
+            write8AtHl(Bits.set(read8AtHl(), extractBitIndex(instruction),
+                    extractOneOrZero(instruction)));
         }
             break;
 
@@ -348,11 +370,12 @@ public final class Cpu implements Component, Clocked {
         case DAA: {
             int aluResult = Alu.bcdAdjust(file.get(Reg.A), n(), h(), c());
             setRegFromAlu(Reg.A, aluResult);
-            combineAluFlags(aluResult, FlagSrc.ALU, FlagSrc.CPU, FlagSrc.V0, FlagSrc.ALU);
+            combineAluFlags(aluResult, FlagSrc.ALU, FlagSrc.CPU, FlagSrc.V0,
+                    FlagSrc.ALU);
         }
             break;
         case SCCF: {
-            FlagSrc C = combineCAndBit3(instruction) ? FlagSrc.V1 : FlagSrc.V0;   
+            FlagSrc C = combineCAndBit3(instruction) ? FlagSrc.V1 : FlagSrc.V0;
             combineAluFlags(0, FlagSrc.CPU, FlagSrc.V0, FlagSrc.V0, C);
         }
             break;
@@ -470,7 +493,7 @@ public final class Cpu implements Component, Clocked {
             throw new IllegalArgumentException("ceci est faux, 110 registre");
         }
     };
-    
+
     private Reg16 extractReg16(Opcode opcode) {
         int reg = Bits.extract(opcode.encoding, 4, 2);
         switch (reg) {
@@ -635,6 +658,8 @@ public final class Cpu implements Component, Clocked {
         return 0;
     }
 
+    // --- instruction informations ---
+
     private RotDir extractRotDir(Opcode instruction) {
         if (Bits.test(instruction.encoding, 3)) {
             return RotDir.RIGHT;
@@ -646,27 +671,26 @@ public final class Cpu implements Component, Clocked {
         return Bits.extract(instruction.encoding, 3, 3);
     }
 
-    private int extractOneOrZero(Opcode instruction) {
-        Bits.test(instruction.encoding, 6);
-        return -1;
+    private boolean extractOneOrZero(Opcode instruction) {
+        return Bits.test(instruction.encoding, 6);
     }
-    
+
     private boolean combineCAndBit3(Opcode instruction) {
         return !(Bits.test(instruction.encoding, 3) && c());
     }
-    
+
     private boolean z() {
         return Bits.test(file.get(Reg.F), 7);
     }
-    
+
     private boolean n() {
         return Bits.test(file.get(Reg.F), 6);
     }
-    
+
     private boolean h() {
         return Bits.test(file.get(Reg.F), 5);
     }
-    
+
     private boolean c() {
         return Bits.test(file.get(Reg.F), 4);
     }
