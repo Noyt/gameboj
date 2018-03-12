@@ -201,38 +201,79 @@ public final class Cpu implements Component, Clocked {
 
         // Add
         case ADD_A_R8: {
+            setRegFlags(Reg.A,
+                    Alu.add(file.get(Reg.A),
+                            file.get(extractReg(instruction, 0)),
+                            !combineCAndBit3(instruction)));
         }
             break;
         case ADD_A_N8: {
+            setRegFlags(Reg.A, Alu.add(file.get(Reg.A), read8AfterOpcode(),
+                    !combineCAndBit3(instruction)));
         }
             break;
         case ADD_A_HLR: {
+            setRegFlags(Reg.A, Alu.add(file.get(Reg.A), read8AtHl(),
+                    !combineCAndBit3(instruction)));
         }
             break;
         case INC_R8: {
+            Reg reg = extractReg(instruction, 3);
+            int valueFlags = Alu.add(file.get(reg), 1);
+            file.set(reg, Alu.unpackValue(valueFlags));
+            combineAluFlags(valueFlags, FlagSrc.ALU, FlagSrc.V0, FlagSrc.ALU,
+                    FlagSrc.CPU);
         }
             break;
         case INC_HLR: {
+            int valueFlags = Alu.add(read8AtHl(), 1);
+            write8AtHl(Alu.unpackValue(valueFlags));
+            combineAluFlags(valueFlags, FlagSrc.ALU, FlagSrc.V0, FlagSrc.ALU,
+                    FlagSrc.CPU);
         }
             break;
         case INC_R16SP: {
+            Reg16 reg = extractReg16(instruction);
+            setReg16SP(reg, Alu.unpackValue(Alu.add16H(reg16(reg), 1)));
         }
             break;
         case ADD_HL_R16SP: {
+            Reg16 reg = extractReg16(instruction);
+            int valueFlags = Alu.add16H(reg16(Reg16.HL), reg16(reg));
+            setReg16SP(Reg16.HL, Alu.unpackValue(valueFlags));
+            combineAluFlags(valueFlags, FlagSrc.CPU, FlagSrc.V0, FlagSrc.ALU, FlagSrc.ALU);
         }
             break;
         case LD_HLSP_S8: {
+            int signedValue = Bits.clip(16, Bits.signExtend8(read8AfterOpcode()));
+            int valueFlags = Alu.add16L(SP, signedValue);
+            
+            if(Bits.test(instruction.encoding, 4)) {
+                setReg16(Reg16.HL, Alu.unpackValue(valueFlags));
+            } else {
+                setReg16SP(Reg16.AF, Alu.unpackValue(valueFlags));
+            }
+            
+            combineAluFlags(valueFlags, FlagSrc.V0, FlagSrc.V0, FlagSrc.ALU, FlagSrc.ALU);
         }
             break;
 
         // Subtract
         case SUB_A_R8: {
+            setRegFlags(Reg.A,
+                    Alu.sub(file.get(Reg.A),
+                            file.get(extractReg(instruction, 0)),
+                            !combineCAndBit3(instruction)));
         }
             break;
         case SUB_A_N8: {
+            setRegFlags(Reg.A, Alu.sub(file.get(Reg.A), read8AfterOpcode(),
+                    !combineCAndBit3(instruction)));
         }
             break;
         case SUB_A_HLR: {
+            setRegFlags(Reg.A, Alu.sub(file.get(Reg.A), read8AtHl(),
+                    !combineCAndBit3(instruction)));
         }
             break;
         case DEC_R8: {
@@ -260,7 +301,8 @@ public final class Cpu implements Component, Clocked {
         }
             break;
         case AND_A_R8: {
-            setRegFlags(Reg.A, Alu.and(file.get(Reg.A), file.get(extractReg(instruction, 0))));
+            setRegFlags(Reg.A, Alu.and(file.get(Reg.A),
+                    file.get(extractReg(instruction, 0))));
         }
             break;
         case AND_A_HLR: {
@@ -268,7 +310,9 @@ public final class Cpu implements Component, Clocked {
         }
             break;
         case OR_A_R8: {
-            setRegFlags(Reg.A, Alu.xor(file.get(Reg.A), file.get(extractReg(instruction, 0))));
+            // TODO xor ou or ?
+            setRegFlags(Reg.A, Alu.xor(file.get(Reg.A),
+                    file.get(extractReg(instruction, 0))));
         }
             break;
         case OR_A_N8: {
@@ -280,53 +324,66 @@ public final class Cpu implements Component, Clocked {
         }
             break;
         case XOR_A_R8: {
-            setRegFlags(Reg.A, Alu.xor(file.get(Reg.A), file.get(extractReg(instruction, 0))));
-            combineAluFlags(0, FlagSrc.CPU, FlagSrc.CPU, FlagSrc.V1, FlagSrc.CPU);
+            setRegFlags(Reg.A, Alu.xor(file.get(Reg.A),
+                    file.get(extractReg(instruction, 0))));
+            combineAluFlags(0, FlagSrc.CPU, FlagSrc.CPU, FlagSrc.V1,
+                    FlagSrc.CPU);
         }
             break;
         case XOR_A_N8: {
             setRegFlags(Reg.A, Alu.xor(file.get(Reg.A), read8AfterOpcode()));
-            combineAluFlags(0, FlagSrc.CPU, FlagSrc.CPU, FlagSrc.V1, FlagSrc.CPU);
+            combineAluFlags(0, FlagSrc.CPU, FlagSrc.CPU, FlagSrc.V1,
+                    FlagSrc.CPU);
         }
             break;
         case XOR_A_HLR: {
             setRegFlags(Reg.A, Alu.xor(file.get(Reg.A), read8AtHl()));
-            combineAluFlags(0, FlagSrc.CPU, FlagSrc.CPU, FlagSrc.V1, FlagSrc.CPU);
+            combineAluFlags(0, FlagSrc.CPU, FlagSrc.CPU, FlagSrc.V1,
+                    FlagSrc.CPU);
         }
             break;
         case CPL: {
             file.set(Reg.A, Bits.complement8(file.get(Reg.A)));
-            combineAluFlags(0, FlagSrc.CPU, FlagSrc.V1, FlagSrc.V1, FlagSrc.CPU);
+            combineAluFlags(0, FlagSrc.CPU, FlagSrc.V1, FlagSrc.V1,
+                    FlagSrc.CPU);
         }
             break;
 
         // Rotate, shift
         case ROTCA: {
-            setRegFlags(Reg.A, Alu.rotate(extractRotDir(instruction), file.get(Reg.A)));
-            combineAluFlags(0, FlagSrc.V0, FlagSrc.CPU, FlagSrc.CPU, FlagSrc.CPU);
+            setRegFlags(Reg.A,
+                    Alu.rotate(extractRotDir(instruction), file.get(Reg.A)));
+            combineAluFlags(0, FlagSrc.V0, FlagSrc.CPU, FlagSrc.CPU,
+                    FlagSrc.CPU);
         }
             break;
         case ROTA: {
-            setRegFlags(Reg.A, Alu.rotate(extractRotDir(instruction), file.get(Reg.A), c()));
-            combineAluFlags(0, FlagSrc.V0, FlagSrc.CPU, FlagSrc.CPU, FlagSrc.CPU);
+            setRegFlags(Reg.A, Alu.rotate(extractRotDir(instruction),
+                    file.get(Reg.A), c()));
+            combineAluFlags(0, FlagSrc.V0, FlagSrc.CPU, FlagSrc.CPU,
+                    FlagSrc.CPU);
         }
             break;
         case ROTC_R8: {
             Reg reg = extractReg(instruction, 0);
-            setRegFlags(reg, Alu.rotate(extractRotDir(instruction), file.get(reg)));
+            setRegFlags(reg,
+                    Alu.rotate(extractRotDir(instruction), file.get(reg)));
         }
             break;
         case ROT_R8: {
             Reg reg = extractReg(instruction, 0);
-            setRegFlags(reg, Alu.rotate(extractRotDir(instruction), file.get(reg), c()));
+            setRegFlags(reg,
+                    Alu.rotate(extractRotDir(instruction), file.get(reg), c()));
         }
             break;
         case ROTC_HLR: {
-            write8AtHlAndSetFlags(Alu.rotate(extractRotDir(instruction), read8AtHl()));
+            write8AtHlAndSetFlags(
+                    Alu.rotate(extractRotDir(instruction), read8AtHl()));
         }
             break;
         case ROT_HLR: {
-            write8AtHlAndSetFlags(Alu.rotate(extractRotDir(instruction), read8AtHl(), c()));
+            write8AtHlAndSetFlags(
+                    Alu.rotate(extractRotDir(instruction), read8AtHl(), c()));
         }
             break;
         case SWAP_R8: {
