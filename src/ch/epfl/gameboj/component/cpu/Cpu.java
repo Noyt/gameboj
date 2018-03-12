@@ -241,20 +241,22 @@ public final class Cpu implements Component, Clocked {
             Reg16 reg = extractReg16(instruction);
             int valueFlags = Alu.add16H(reg16(Reg16.HL), reg16(reg));
             setReg16SP(Reg16.HL, Alu.unpackValue(valueFlags));
-            combineAluFlags(valueFlags, FlagSrc.CPU, FlagSrc.V0, FlagSrc.ALU, FlagSrc.ALU);
+            combineAluFlags(valueFlags, FlagSrc.CPU, FlagSrc.V0, FlagSrc.ALU,
+                    FlagSrc.ALU);
         }
             break;
         case LD_HLSP_S8: {
-            int signedValue = Bits.clip(16, Bits.signExtend8(read8AfterOpcode()));
+            int signedValue = Bits.clip(16,
+                    Bits.signExtend8(read8AfterOpcode()));
             int valueFlags = Alu.add16L(SP, signedValue);
-            
-            if(Bits.test(instruction.encoding, 4)) {
+
+            if (Bits.test(instruction.encoding, 4)) {
                 setReg16(Reg16.HL, Alu.unpackValue(valueFlags));
             } else {
                 setReg16SP(Reg16.AF, Alu.unpackValue(valueFlags));
             }
-            
-            combineAluFlags(valueFlags, FlagSrc.V0, FlagSrc.V0, FlagSrc.ALU, FlagSrc.ALU);
+            combineAluFlags(valueFlags, FlagSrc.V0, FlagSrc.V0, FlagSrc.ALU,
+                    FlagSrc.ALU);
         }
             break;
 
@@ -277,21 +279,45 @@ public final class Cpu implements Component, Clocked {
         }
             break;
         case DEC_R8: {
+            Reg reg = extractReg(instruction, 3);
+            int valueFlags = Alu.sub(file.get(reg), 1);
+            file.set(reg, Alu.unpackValue(valueFlags));
+            combineAluFlags(valueFlags, FlagSrc.ALU, FlagSrc.V1, FlagSrc.ALU,
+                    FlagSrc.CPU);
         }
             break;
         case DEC_HLR: {
+            int valueFlags = Alu.sub(read8AtHl(), 1);
+            write8AtHl(Alu.unpackValue(valueFlags));
+            combineAluFlags(valueFlags, FlagSrc.ALU, FlagSrc.V1, FlagSrc.ALU,
+                    FlagSrc.CPU);
         }
             break;
         case CP_A_R8: {
+            // TODO aussi priendre en compte les potentiels SBC ou seulement les
+            // SUB ?
+            int valueFlags = Alu.sub(file.get(Reg.A),
+                    file.get(extractReg(instruction, 0)));
+            combineAluFlags(valueFlags, FlagSrc.ALU, FlagSrc.ALU, FlagSrc.ALU,
+                    FlagSrc.ALU);
         }
             break;
         case CP_A_N8: {
+            int valueFlags = Alu.sub(file.get(Reg.A), read8AfterOpcode());
+            combineAluFlags(valueFlags, FlagSrc.ALU, FlagSrc.ALU, FlagSrc.ALU,
+                    FlagSrc.ALU);
+
         }
             break;
         case CP_A_HLR: {
+            int valueFlags = Alu.sub(file.get(Reg.A), read8AtHl());
+            combineAluFlags(valueFlags, FlagSrc.ALU, FlagSrc.ALU, FlagSrc.ALU,
+                    FlagSrc.ALU);
         }
             break;
         case DEC_R16SP: {
+            Reg16 reg = extractReg16(instruction);
+            setReg16SP(reg, Alu.unpackValue(Alu.add16H(reg16(reg), -1)));
         }
             break;
 
