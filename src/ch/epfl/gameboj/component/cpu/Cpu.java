@@ -337,7 +337,7 @@ public final class Cpu implements Component, Clocked {
             break;
         case OR_A_R8: {
             // TODO xor ou or ?
-            setRegFlags(Reg.A, Alu.xor(file.get(Reg.A),
+            setRegFlags(Reg.A, Alu.or(file.get(Reg.A),
                     file.get(extractReg(instruction, 0))));
         }
             break;
