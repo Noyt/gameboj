@@ -425,7 +425,7 @@ public class CpuTest1 {
     }
     
     @Test
-    void LD_DER_AWorksForValidValue() {
+    void LD_DER_A_WorksForValidValue() {
         Cpu c = new Cpu();
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
@@ -441,7 +441,7 @@ public class CpuTest1 {
     }
     
     @Test
-    void LD_BCR_AWorksForValidValue() {
+    void LD_BCR_A_WorksForValidValue() {
         Cpu c = new Cpu();
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
@@ -454,5 +454,50 @@ public class CpuTest1 {
         assertArrayEquals(new int[] { 3, 0, 0x8, 0xF1, 0xF2, 0xF4, 0xF3, 0xF7,
                 0xFA, 0xF5 }, c._testGetPcSpAFBCDEHL());
         assertEquals(0x8, b.read(0xF2F4));
+    }
+    
+    @Test
+    void AND_A_N8_WorksForValidValue() {
+        Cpu c = new Cpu();
+        Ram r = new Ram(0xFFFF);
+        Bus b = connect(c, r);
+        
+        b.write(0, Opcode.LD_A_N8.encoding);
+        b.write(1, 0x23);
+        b.write(2, Opcode.AND_A_N8.encoding);
+        b.write(3, 0xDC);
+        cycleCpu(c, Opcode.LD_A_N8.cycles + Opcode.AND_A_N8.cycles);
+        
+        assertArrayEquals(new int[] { 4, 0, 0, 0xA0, 0xF2, 0xF4, 0xF3, 0xF7,
+                0xFA, 0xF5 }, c._testGetPcSpAFBCDEHL());
+    }
+    
+    @Test
+    void AND_A_R8_WorksForValidValue() {
+        Cpu c = new Cpu();
+        Ram r = new Ram(0xFFFF);
+        Bus b = connect(c, r);
+        
+        b.write(0, Opcode.LD_A_N8.encoding);
+        b.write(1, 0x3B);
+        b.write(2, Opcode.LD_B_N8.encoding);
+        b.write(3, 0x55);
+        b.write(4, Opcode.LD_L_N8.encoding);
+        b.write(5, 0xAC);
+        b.write(6, Opcode.AND_A_B.encoding);
+        b.write(7, Opcode.AND_A_L.encoding);
+        cycleCpu(c, Opcode.LD_A_N8.cycles*3 + Opcode.AND_A_B.cycles*2);
+        
+        assertArrayEquals(new int[] { 8, 0, 0, 0xA0, 0x55, 0xF4, 0xF3, 0xF7,
+                0xFA, 0xAC }, c._testGetPcSpAFBCDEHL());
+    }
+    
+    @Test
+    void AND_A_HLR_WorksForValidValue() {
+        Cpu c = new Cpu();
+        Ram r = new Ram(0xFFFF);
+        Bus b = connect(c, r);
+        
+        b.write()
     }
 }

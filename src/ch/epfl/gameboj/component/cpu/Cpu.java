@@ -46,14 +46,14 @@ public final class Cpu implements Component, Clocked {
         nextNonIdleCycle = 0;
 
         // // TODO enlever ca c'est tres important c'est pour les tests!!!!!!!!
-        // file.set(Reg.A, 0xF0);
-        // file.set(Reg.F, 0xF1);
-        // file.set(Reg.B, 0xF2);
-        // file.set(Reg.C, 0xF4);
-        // file.set(Reg.D, 0xF3);
-        // file.set(Reg.E, 0xF7);
-        // file.set(Reg.H, 0xFA);
-        // file.set(Reg.L, 0xF5);
+         file.set(Reg.A, 0xF0);
+         file.set(Reg.F, 0xF1);
+         file.set(Reg.B, 0xF2);
+         file.set(Reg.C, 0xF4);
+         file.set(Reg.D, 0xF3);
+         file.set(Reg.E, 0xF7);
+         file.set(Reg.H, 0xFA);
+         file.set(Reg.L, 0xF5);
 
     }
 
@@ -294,8 +294,6 @@ public final class Cpu implements Component, Clocked {
         }
             break;
         case CP_A_R8: {
-            // TODO aussi priendre en compte les potentiels SBC ou seulement les
-            // SUB ?
             int valueFlags = Alu.sub(file.get(Reg.A),
                     file.get(extractReg(instruction, 0)));
             combineAluFlags(valueFlags, FlagSrc.ALU, FlagSrc.ALU, FlagSrc.ALU,
@@ -323,7 +321,7 @@ public final class Cpu implements Component, Clocked {
 
         // And, or, xor, complement
         case AND_A_N8: {
-            setRegFlags(Reg.A, Alu.or(file.get(Reg.A), read8AfterOpcode()));
+            setRegFlags(Reg.A, Alu.and(file.get(Reg.A), read8AfterOpcode()));
         }
             break;
         case AND_A_R8: {
@@ -336,8 +334,7 @@ public final class Cpu implements Component, Clocked {
         }
             break;
         case OR_A_R8: {
-            // TODO xor ou or ?
-            setRegFlags(Reg.A, Alu.xor(file.get(Reg.A),
+            setRegFlags(Reg.A, Alu.or(file.get(Reg.A),
                     file.get(extractReg(instruction, 0))));
         }
             break;
