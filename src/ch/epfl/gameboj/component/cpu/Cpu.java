@@ -315,7 +315,7 @@ public final class Cpu implements Component, Clocked {
             break;
         case DEC_R16SP: {
             Reg16 reg = extractReg16(instruction);
-            setReg16SP(reg, Alu.unpackValue(Alu.add16H(reg16(reg), -1)));
+            setReg16SP(reg, Alu.unpackValue(Alu.add16H(reg16(reg), Bits.clip(16, -1))));
         }
             break;
 
