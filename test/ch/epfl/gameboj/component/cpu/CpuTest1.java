@@ -498,6 +498,5 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
         
-        b.write()
     }
 }
