@@ -59,7 +59,7 @@ public final class Cpu implements Component, Clocked {
 
     @Override
     public void cycle(long cycle) {
-        
+
         if (cycle < nextNonIdleCycle) {
             return;
         } else {
@@ -198,8 +198,7 @@ public final class Cpu implements Component, Clocked {
         }
             break;
 
-        // Arnaud
-        // Add
+        
         case ADD_A_R8: {
             setRegFlags(Reg.A,
                     Alu.add(file.get(Reg.A),
@@ -217,7 +216,7 @@ public final class Cpu implements Component, Clocked {
                     !combineCAndBit3(instruction)));
         }
             break;
-        case INC_R8: {
+        case INC_R8: {//TESTER
             Reg reg = extractReg(instruction, 3);
             int valueFlags = Alu.add(file.get(reg), 1);
             file.set(reg, Alu.unpackValue(valueFlags));
@@ -225,19 +224,19 @@ public final class Cpu implements Component, Clocked {
                     FlagSrc.CPU);
         }
             break;
-        case INC_HLR: {
+        case INC_HLR: {//TESTER
             int valueFlags = Alu.add(read8AtHl(), 1);
             write8AtHl(Alu.unpackValue(valueFlags));
             combineAluFlags(valueFlags, FlagSrc.ALU, FlagSrc.V0, FlagSrc.ALU,
                     FlagSrc.CPU);
         }
             break;
-        case INC_R16SP: {
+        case INC_R16SP: {//TESTER
             Reg16 reg = extractReg16(instruction);
             setReg16SP(reg, Alu.unpackValue(Alu.add16H(reg16(reg), 1)));
         }
             break;
-        case ADD_HL_R16SP: {
+        case ADD_HL_R16SP: {//TESTER
             Reg16 reg = extractReg16(instruction);
             int valueFlags = Alu.add16H(reg16(Reg16.HL), reg16(reg));
             setReg16SP(Reg16.HL, Alu.unpackValue(valueFlags));
@@ -245,7 +244,7 @@ public final class Cpu implements Component, Clocked {
                     FlagSrc.ALU);
         }
             break;
-        case LD_HLSP_S8: {
+        case LD_HLSP_S8: {//TESTER
             int signedValue = Bits.clip(16,
                     Bits.signExtend8(read8AfterOpcode()));
             int valueFlags = Alu.add16L(SP, signedValue);
@@ -261,24 +260,24 @@ public final class Cpu implements Component, Clocked {
             break;
 
         // Subtract
-        case SUB_A_R8: {
+        case SUB_A_R8: {//TESTER
             setRegFlags(Reg.A,
                     Alu.sub(file.get(Reg.A),
                             file.get(extractReg(instruction, 0)),
                             !combineCAndBit3(instruction)));
         }
             break;
-        case SUB_A_N8: {
+        case SUB_A_N8: {//TESTER
             setRegFlags(Reg.A, Alu.sub(file.get(Reg.A), read8AfterOpcode(),
                     !combineCAndBit3(instruction)));
         }
             break;
-        case SUB_A_HLR: {
+        case SUB_A_HLR: {//TESTER
             setRegFlags(Reg.A, Alu.sub(file.get(Reg.A), read8AtHl(),
                     !combineCAndBit3(instruction)));
         }
             break;
-        case DEC_R8: {
+        case DEC_R8: {//TESTER
             Reg reg = extractReg(instruction, 3);
             int valueFlags = Alu.sub(file.get(reg), 1);
             file.set(reg, Alu.unpackValue(valueFlags));
@@ -286,34 +285,34 @@ public final class Cpu implements Component, Clocked {
                     FlagSrc.CPU);
         }
             break;
-        case DEC_HLR: {
+        case DEC_HLR: {//TESTER
             int valueFlags = Alu.sub(read8AtHl(), 1);
             write8AtHl(Alu.unpackValue(valueFlags));
             combineAluFlags(valueFlags, FlagSrc.ALU, FlagSrc.V1, FlagSrc.ALU,
                     FlagSrc.CPU);
         }
             break;
-        case CP_A_R8: {
+        case CP_A_R8: {//TESTER
             int valueFlags = Alu.sub(file.get(Reg.A),
                     file.get(extractReg(instruction, 0)));
             combineAluFlags(valueFlags, FlagSrc.ALU, FlagSrc.ALU, FlagSrc.ALU,
                     FlagSrc.ALU);
         }
             break;
-        case CP_A_N8: {
+        case CP_A_N8: {//TESTER
             int valueFlags = Alu.sub(file.get(Reg.A), read8AfterOpcode());
             combineAluFlags(valueFlags, FlagSrc.ALU, FlagSrc.ALU, FlagSrc.ALU,
                     FlagSrc.ALU);
 
         }
             break;
-        case CP_A_HLR: {
+        case CP_A_HLR: {//TESTER
             int valueFlags = Alu.sub(file.get(Reg.A), read8AtHl());
             combineAluFlags(valueFlags, FlagSrc.ALU, FlagSrc.ALU, FlagSrc.ALU,
                     FlagSrc.ALU);
         }
             break;
-        case DEC_R16SP: {
+        case DEC_R16SP: {//TESTER
             Reg16 reg = extractReg16(instruction);
             setReg16SP(reg,
                     Alu.unpackValue(Alu.add16H(reg16(reg), Bits.clip(16, -1))));
@@ -537,7 +536,7 @@ public final class Cpu implements Component, Clocked {
         write8(reg16(Reg16.HL), v);
     };
 
-    private void push16(int v) { // TESTER
+    private void push16(int v) {
         Preconditions.checkBits16(v);
 
         switch (SP) {
