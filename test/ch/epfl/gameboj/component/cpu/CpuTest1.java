@@ -701,7 +701,21 @@ public class CpuTest1 {
         assertEquals(b.read(0xFAF5), 16);
     }
 
-    void 
+    void INC_R16SP_WorksForValidValues() {
+        
+        Cpu c = new Cpu();
+        Ram r = new Ram(0xFFFF);
+        Bus b = connect(c, r);
+        
+        b.write(0, Opcode.LD_BC_N16.encoding);
+        b.write(1, 0xFFFF);
+        
+        b.write(2, Opcode.LD_DE_N16.encoding);
+        b.write(3, 0);
+        
+        b.write(4, Opcode.LD_HL_N16.encoding);
+        b.write(5, 15);
+    }
 
     @Test
     void AND_A_N8_WorksForValidValues() {
