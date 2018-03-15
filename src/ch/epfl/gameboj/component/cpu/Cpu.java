@@ -295,8 +295,6 @@ public final class Cpu implements Component, Clocked {
         }
             break;
         case CP_A_R8: {
-            // TODO aussi priendre en compte les potentiels SBC ou seulement les
-            // SUB ?
             int valueFlags = Alu.sub(file.get(Reg.A),
                     file.get(extractReg(instruction, 0)));
             combineAluFlags(valueFlags, FlagSrc.ALU, FlagSrc.ALU, FlagSrc.ALU,
@@ -318,14 +316,14 @@ public final class Cpu implements Component, Clocked {
             break;
         case DEC_R16SP: {
             Reg16 reg = extractReg16(instruction);
-            setReg16SP(reg, Alu.unpackValue(Alu.add16H(reg16(reg), -1)));
+            setReg16SP(reg, Alu.unpackValue(Alu.add16H(reg16(reg), Bits.clip(16, -1))));
         }
             break;
 
         // Sophie
         // And, or, xor, complement
         case AND_A_N8: {
-            setRegFlags(Reg.A, Alu.or(file.get(Reg.A), read8AfterOpcode()));
+            setRegFlags(Reg.A, Alu.and(file.get(Reg.A), read8AfterOpcode()));
         }
             break;
         case AND_A_R8: {
@@ -338,7 +336,6 @@ public final class Cpu implements Component, Clocked {
         }
             break;
         case OR_A_R8: {
-            // TODO xor ou or ?
             setRegFlags(Reg.A, Alu.or(file.get(Reg.A),
                     file.get(extractReg(instruction, 0))));
         }
