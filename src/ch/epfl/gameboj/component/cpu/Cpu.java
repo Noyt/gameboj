@@ -216,7 +216,7 @@ public final class Cpu implements Component, Clocked {
                     !combineCAndBit3(instruction)));
         }
             break;
-        case INC_R8: {//TESTER
+        case INC_R8: {
             Reg reg = extractReg(instruction, 3);
             int valueFlags = Alu.add(file.get(reg), 1);
             file.set(reg, Alu.unpackValue(valueFlags));
@@ -224,7 +224,7 @@ public final class Cpu implements Component, Clocked {
                     FlagSrc.CPU);
         }
             break;
-        case INC_HLR: {//TESTER
+        case INC_HLR: {
             int valueFlags = Alu.add(read8AtHl(), 1);
             write8AtHl(Alu.unpackValue(valueFlags));
             combineAluFlags(valueFlags, FlagSrc.ALU, FlagSrc.V0, FlagSrc.ALU,
