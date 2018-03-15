@@ -349,19 +349,19 @@ public final class Cpu implements Component, Clocked {
         case XOR_A_R8: {
             setRegFlags(Reg.A, Alu.xor(file.get(Reg.A),
                     file.get(extractReg(instruction, 0))));
-            combineAluFlags(0, FlagSrc.CPU, FlagSrc.CPU, FlagSrc.V1,
+            combineAluFlags(0, FlagSrc.CPU, FlagSrc.CPU, FlagSrc.CPU,
                     FlagSrc.CPU);
         }
             break;
         case XOR_A_N8: {
             setRegFlags(Reg.A, Alu.xor(file.get(Reg.A), read8AfterOpcode()));
-            combineAluFlags(0, FlagSrc.CPU, FlagSrc.CPU, FlagSrc.V1,
+            combineAluFlags(0, FlagSrc.CPU, FlagSrc.CPU, FlagSrc.CPU,
                     FlagSrc.CPU);
         }
             break;
         case XOR_A_HLR: {
             setRegFlags(Reg.A, Alu.xor(file.get(Reg.A), read8AtHl()));
-            combineAluFlags(0, FlagSrc.CPU, FlagSrc.CPU, FlagSrc.V1,
+            combineAluFlags(0, FlagSrc.CPU, FlagSrc.CPU, FlagSrc.CPU,
                     FlagSrc.CPU);
         }
             break;
@@ -430,7 +430,7 @@ public final class Cpu implements Component, Clocked {
             break;
         case SRL_R8: {
             Reg reg = extractReg(instruction, 0);
-            setRegFlags(reg, Alu.shiftRightA(file.get(reg)));
+            setRegFlags(reg, Alu.shiftRightL(file.get(reg)));
         }
             break;
         case SLA_HLR: {
