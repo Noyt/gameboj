@@ -399,7 +399,7 @@ public class CpuTest1 {
     }
     
     @Test
-    void LD_N16R_SPWorksForValidValue() {
+    void LD_N16R_SP_WorksForValidValue() {
         Cpu c = new Cpu();
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
@@ -413,7 +413,7 @@ public class CpuTest1 {
     }
     
     @Test
-    void LD_HLR_N8WorksForValidValue() {
+    void LD_HLR_N8_WorksForValidValue() {
         Cpu c = new Cpu();
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
@@ -425,7 +425,7 @@ public class CpuTest1 {
     }
     
     @Test
-    void LD_DER_AWorksForValidValue() {
+    void LD_DER_A_WorksForValidValue() {
         Cpu c = new Cpu();
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
@@ -441,7 +441,7 @@ public class CpuTest1 {
     }
     
     @Test
-    void LD_BCR_AWorksForValidValue() {
+    void LD_BCR_A_WorksForValidValue() {
         Cpu c = new Cpu();
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
@@ -454,5 +454,33 @@ public class CpuTest1 {
         assertArrayEquals(new int[] { 3, 0, 0x8, 0xF1, 0xF2, 0xF4, 0xF3, 0xF7,
                 0xFA, 0xF5 }, c._testGetPcSpAFBCDEHL());
         assertEquals(0x8, b.read(0xF2F4));
+    }
+    
+    @Test
+    void ADD_A_R8_WorksForValidValues() {
+        Cpu c = new Cpu();
+        Ram r = new Ram(0xFFFF);
+        Bus b = connect(c, r);
+        
+        b.write(0, Opcode.LD_A_N8.encoding);
+        b.write(1, 52);
+        b.write(2, Opcode.LD_B_N8.encoding);
+        b.write(3, 148);
+        b.write(4, Opcode.LD_C_N8.encoding);
+        b.write(5, 0);
+        b.write(6, Opcode.LD_D_N8.encoding);
+        b.write(7, 255);
+        b.write(8, Opcode.LD_E_N8.encoding);
+        b.write(9,12);
+        b.write(10, Opcode.LD_H_N8.encoding);
+        b.write(11, 3);
+        b.write(12, Opcode.LD_L_N8.encoding);
+        b.write(13, 224);
+        
+        b.write(14, Opcode.ADD_A_A.encoding);
+        
+        cycleCpu(c, Opcode.LD_A_N8.cycles * 7 + Opcode.ADD_A_A.cycles);
+        assertArrayEquals(new int[] { 15, 0, 0xF0 , 0xF1, 148, 0, 255, 12,
+                3, 224 }, c._testGetPcSpAFBCDEHL());
     }
 }

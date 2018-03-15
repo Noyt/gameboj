@@ -46,14 +46,14 @@ public final class Cpu implements Component, Clocked {
         nextNonIdleCycle = 0;
 
         // // TODO enlever ca c'est tres important c'est pour les tests!!!!!!!!
-        // file.set(Reg.A, 0xF0);
-        // file.set(Reg.F, 0xF1);
-        // file.set(Reg.B, 0xF2);
-        // file.set(Reg.C, 0xF4);
-        // file.set(Reg.D, 0xF3);
-        // file.set(Reg.E, 0xF7);
-        // file.set(Reg.H, 0xFA);
-        // file.set(Reg.L, 0xF5);
+         file.set(Reg.A, 0xF0);
+         file.set(Reg.F, 0xF1);
+         file.set(Reg.B, 0xF2);
+         file.set(Reg.C, 0xF4);
+         file.set(Reg.D, 0xF3);
+         file.set(Reg.E, 0xF7);
+         file.set(Reg.H, 0xFA);
+         file.set(Reg.L, 0xF5);
 
     }
 
@@ -195,16 +195,17 @@ public final class Cpu implements Component, Clocked {
             break;
         case PUSH_R16: {
             push16(reg16(extractReg16(instruction)));
-
         }
             break;
 
+            //Arnaud
         // Add
         case ADD_A_R8: {
             setRegFlags(Reg.A,
                     Alu.add(file.get(Reg.A),
                             file.get(extractReg(instruction, 0)),
                             !combineCAndBit3(instruction)));
+            System.out.println("a += a ");
         }
             break;
         case ADD_A_N8: {
@@ -321,6 +322,7 @@ public final class Cpu implements Component, Clocked {
         }
             break;
 
+        // Sophie
         // And, or, xor, complement
         case AND_A_N8: {
             setRegFlags(Reg.A, Alu.or(file.get(Reg.A), read8AfterOpcode()));
@@ -352,20 +354,14 @@ public final class Cpu implements Component, Clocked {
         case XOR_A_R8: {
             setRegFlags(Reg.A, Alu.xor(file.get(Reg.A),
                     file.get(extractReg(instruction, 0))));
-            combineAluFlags(0, FlagSrc.CPU, FlagSrc.CPU, FlagSrc.V1,
-                    FlagSrc.CPU);
         }
             break;
         case XOR_A_N8: {
             setRegFlags(Reg.A, Alu.xor(file.get(Reg.A), read8AfterOpcode()));
-            combineAluFlags(0, FlagSrc.CPU, FlagSrc.CPU, FlagSrc.V1,
-                    FlagSrc.CPU);
         }
             break;
         case XOR_A_HLR: {
             setRegFlags(Reg.A, Alu.xor(file.get(Reg.A), read8AtHl()));
-            combineAluFlags(0, FlagSrc.CPU, FlagSrc.CPU, FlagSrc.V1,
-                    FlagSrc.CPU);
         }
             break;
         case CPL: {
