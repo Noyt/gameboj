@@ -42,6 +42,7 @@ public class CpuTest1 {
         assertArrayEquals(new int[] { 1, 0, 0xF0, 0xF1, 0xF2, 0xF4, 0xF3, 0xF7,
                 0xFA, 0xF5 }, c._testGetPcSpAFBCDEHL());
     }
+
     @Test
     void LD_R8_HLRWorksForValidValues() {
         Cpu c = new Cpu();
@@ -65,6 +66,7 @@ public class CpuTest1 {
                 new int[] { 5, 0, 34, 0xF1, 34, 34, 34, 34, 0xFA, 0xF5 },
                 c._testGetPcSpAFBCDEHL());
     }
+
     @Test
     void LD_A_HLRU_WorksForValidValues() {
         Cpu c = new Cpu();
@@ -78,6 +80,7 @@ public class CpuTest1 {
         assertArrayEquals(new int[] { 1, 0, 34, 0xF1, 0xF2, 0xF4, 0xF3, 0xF7,
                 0xFA, 0xF5 - 1 }, c._testGetPcSpAFBCDEHL());
     }
+
     @Test
     void PUSH_R16_WorksForValidValues() {
         Cpu c = new Cpu();
@@ -469,18 +472,16 @@ public class CpuTest1 {
         b.write(3, 242);
 
         cycleCpu(c, 4);
-        assertArrayEquals(
-                new int[] { 4, 0, 35, 0b0001 << 4, 0xF2, 0xF4, 0xF3, 0xF7, 0xFA, 0xF5 },
-                c._testGetPcSpAFBCDEHL());
-        
+        assertArrayEquals(new int[] { 4, 0, 35, 0b0001 << 4, 0xF2, 0xF4, 0xF3,
+                0xF7, 0xFA, 0xF5 }, c._testGetPcSpAFBCDEHL());
+
         b.write(4, Opcode.ADC_A_N8.encoding);
         b.write(5, 12);
         cycleCpu(c, 4, 2);
-        assertArrayEquals(
-                new int[] { 6, 0, 48, 0b0010 << 4, 0xF2, 0xF4, 0xF3, 0xF7, 0xFA, 0xF5 },
-                c._testGetPcSpAFBCDEHL());
+        assertArrayEquals(new int[] { 6, 0, 48, 0b0010 << 4, 0xF2, 0xF4, 0xF3,
+                0xF7, 0xFA, 0xF5 }, c._testGetPcSpAFBCDEHL());
     }
-    
+
     @Test
     void ADD_A_HLR_WorksForValidValues() {
         Cpu c = new Cpu();
@@ -497,17 +498,15 @@ public class CpuTest1 {
         b.write(7, Opcode.ADD_A_HLR.encoding);
 
         cycleCpu(c, 9);
-        assertArrayEquals(
-                new int[] { 8, 0, 7, 0b001 << 4, 0xF2, 0xF4, 0xF3, 0xF7, 0xAB, 0x8C },
-                c._testGetPcSpAFBCDEHL());
-        
+        assertArrayEquals(new int[] { 8, 0, 7, 0b001 << 4, 0xF2, 0xF4, 0xF3,
+                0xF7, 0xAB, 0x8C }, c._testGetPcSpAFBCDEHL());
+
         b.write(8, Opcode.LD_HLR_N8.encoding);
         b.write(9, 253);
         b.write(10, Opcode.ADC_A_HLR.encoding);
         cycleCpu(c, 9, 5);
-        assertArrayEquals(
-                new int[] { 11, 0, 5, 0b0011 << 4, 0xF2, 0xF4, 0xF3, 0xF7, 0xAB, 0x8C },
-                c._testGetPcSpAFBCDEHL());
+        assertArrayEquals(new int[] { 11, 0, 5, 0b0011 << 4, 0xF2, 0xF4, 0xF3,
+                0xF7, 0xAB, 0x8C }, c._testGetPcSpAFBCDEHL());
     }
 
     @Test
@@ -600,70 +599,70 @@ public class CpuTest1 {
                 new int[] { 42, 0, 91, 0b010 << 4, 204, 0, 255, 12, 3, 224 },
                 c._testGetPcSpAFBCDEHL());
     }
-    
+
     @Test
     void INC_R8_WorksForValidValues() {
         Cpu c = new Cpu();
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
-        
+
         b.write(0, Opcode.LD_A_N8.encoding);
         b.write(1, 0xFF);
-        
+
         b.write(2, Opcode.LD_B_N8.encoding);
         b.write(3, 0);
-        
+
         b.write(4, Opcode.LD_C_N8.encoding);
         b.write(5, 47);
-        
+
         b.write(6, Opcode.LD_D_N8.encoding);
         b.write(7, 89);
-        
+
         b.write(8, Opcode.LD_E_N8.encoding);
         b.write(9, 1);
-        
+
         b.write(10, Opcode.LD_H_N8.encoding);
         b.write(11, 15);
-        
+
         b.write(12, Opcode.LD_L_N8.encoding);
         b.write(13, 2);
-        
+
         b.write(14, Opcode.INC_A.encoding);
         cycleCpu(c, 15);
         assertArrayEquals(
                 new int[] { 15, 0, 0, 0b1011 << 4, 0, 47, 89, 1, 15, 2 },
                 c._testGetPcSpAFBCDEHL());
-        
+
         b.write(15, Opcode.INC_B.encoding);
         cycleCpu(c, 15, 1);
         assertArrayEquals(
                 new int[] { 16, 0, 0, 0b0001 << 4, 1, 47, 89, 1, 15, 2 },
                 c._testGetPcSpAFBCDEHL());
-        
+
         b.write(16, Opcode.INC_C.encoding);
         cycleCpu(c, 16, 1);
         assertArrayEquals(
                 new int[] { 17, 0, 0, 0b0011 << 4, 1, 48, 89, 1, 15, 2 },
                 c._testGetPcSpAFBCDEHL());
-        
+
         b.write(17, Opcode.INC_E.encoding);
         cycleCpu(c, 17, 1);
         assertArrayEquals(
                 new int[] { 18, 0, 0, 0b0001 << 4, 1, 48, 89, 2, 15, 2 },
                 c._testGetPcSpAFBCDEHL());
-        
+
         b.write(18, Opcode.INC_D.encoding);
         cycleCpu(c, 18, 1);
         assertArrayEquals(
                 new int[] { 19, 0, 0, 0b0001 << 4, 1, 48, 90, 2, 15, 2 },
                 c._testGetPcSpAFBCDEHL());
-        
+
         b.write(19, Opcode.INC_H.encoding);
         cycleCpu(c, 19, 1);
         assertArrayEquals(
                 new int[] { 20, 0, 0, 0b0011 << 4, 1, 48, 90, 2, 16, 2 },
                 c._testGetPcSpAFBCDEHL());
-        
+
         b.write(20, Opcode.INC_L.encoding);
         cycleCpu(c, 20, 1);
         assertArrayEquals(
@@ -676,82 +675,80 @@ public class CpuTest1 {
         Cpu c = new Cpu();
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
-        
+
         b.write(0xFAF5, 0xFF);
         b.write(0, Opcode.INC_HLR.encoding);
         cycleCpu(c, 3);
-        assertArrayEquals(
-                new int[] { 1, 0, 0xF0, 0b1011 << 4, 0xF2, 0xF4, 0xF3, 0xF7, 0xFA, 0xF5 },
-                c._testGetPcSpAFBCDEHL());
+        assertArrayEquals(new int[] { 1, 0, 0xF0, 0b1011 << 4, 0xF2, 0xF4, 0xF3,
+                0xF7, 0xFA, 0xF5 }, c._testGetPcSpAFBCDEHL());
         assertEquals(b.read(0xFAF5), 0);
-        
+
         b.write(1, Opcode.INC_HLR.encoding);
         cycleCpu(c, 3, 3);
-        assertArrayEquals(
-                new int[] { 2, 0, 0xF0, 0b0001 << 4, 0xF2, 0xF4, 0xF3, 0xF7, 0xFA, 0xF5 },
-                c._testGetPcSpAFBCDEHL());
+        assertArrayEquals(new int[] { 2, 0, 0xF0, 0b0001 << 4, 0xF2, 0xF4, 0xF3,
+                0xF7, 0xFA, 0xF5 }, c._testGetPcSpAFBCDEHL());
         assertEquals(b.read(0xFAF5), 1);
-        
+
         b.write(0xFAF5, 15);
         b.write(2, Opcode.INC_HLR.encoding);
         cycleCpu(c, 6, 3);
-        assertArrayEquals(
-                new int[] { 3, 0, 0xF0, 0b0011 << 4, 0xF2, 0xF4, 0xF3, 0xF7, 0xFA, 0xF5 },
-                c._testGetPcSpAFBCDEHL());
+        assertArrayEquals(new int[] { 3, 0, 0xF0, 0b0011 << 4, 0xF2, 0xF4, 0xF3,
+                0xF7, 0xFA, 0xF5 }, c._testGetPcSpAFBCDEHL());
         assertEquals(b.read(0xFAF5), 16);
     }
 
     @Test
     void INC_R16SP_WorksForValidValues() {
-        
+
         Cpu c = new Cpu();
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
-        
+
         b.write(0, Opcode.LD_BC_N16.encoding);
         b.write(1, 0xFF);
         b.write(2, 0xFF);
-        
+
         b.write(3, Opcode.LD_DE_N16.encoding);
         b.write(4, 0);
         b.write(5, 0);
-        
+
         b.write(6, Opcode.LD_HL_N16.encoding);
         b.write(7, 15);
         b.write(8, 0);
-        
+
         b.write(9, Opcode.LD_SP_N16.encoding);
         b.write(10, 0xFF);
         b.write(11, 0);
-        
+
         b.write(12, Opcode.INC_BC.encoding);
         b.write(13, Opcode.INC_DE.encoding);
         b.write(14, Opcode.INC_HL.encoding);
         b.write(15, Opcode.INC_SP.encoding);
-  
-        
-        int totalCycles1 = Opcode.LD_BC_N16.cycles * 4 + Opcode.INC_BC.cycles * 4;
+
+        int totalCycles1 = Opcode.LD_BC_N16.cycles * 4
+                + Opcode.INC_BC.cycles * 4;
         cycleCpu(c, totalCycles1);
         assertArrayEquals(
                 new int[] { 16, 0x100, 0xF0, 0xF1, 0, 0, 0, 1, 0, 0x10 },
                 c._testGetPcSpAFBCDEHL());
-        
+
         b.write(16, Opcode.INC_HL.encoding);
         cycleCpu(c, totalCycles1, 2);
         assertArrayEquals(
                 new int[] { 17, 0x100, 0xF0, 0xF1, 0, 0, 0, 1, 0, 0x11 },
                 c._testGetPcSpAFBCDEHL());
-        
+
         b.write(17, Opcode.LD_A_N8.encoding);
         b.write(18, 58);
         b.write(19, Opcode.ADD_A_A.encoding);
         b.write(20, Opcode.INC_HL.encoding);
-        int totalCycles2 = Opcode.LD_A_N8.cycles + Opcode.ADD_A_A.cycles + Opcode.INC_HL.cycles;
+        int totalCycles2 = Opcode.LD_A_N8.cycles + Opcode.ADD_A_A.cycles
+                + Opcode.INC_HL.cycles;
         cycleCpu(c, totalCycles1 + 2, totalCycles2);
         assertArrayEquals(
                 new int[] { 21, 0x100, 116, 0b0010 << 4, 0, 0, 0, 1, 0, 0x12 },
                 c._testGetPcSpAFBCDEHL());
-        
+
         b.write(21, Opcode.LD_HL_N16.encoding);
         b.write(22, 254);
         b.write(23, 210);
@@ -760,123 +757,248 @@ public class CpuTest1 {
         assertArrayEquals(
                 new int[] { 25, 0x100, 116, 0b0010 << 4, 0, 0, 0, 1, 210, 255 },
                 c._testGetPcSpAFBCDEHL());
-        
+
         b.write(25, Opcode.INC_HL.encoding);
         cycleCpu(c, totalCycles1 + totalCycles2 + 7, 2);
         assertArrayEquals(
                 new int[] { 26, 0x100, 116, 0b0010 << 4, 0, 0, 0, 1, 211, 0 },
                 c._testGetPcSpAFBCDEHL());
     }
-    
+
     @Test
     void ADD_HL_R16SP_WorksForValidValues() {
         Cpu c = new Cpu();
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
-        
+
         b.write(0, Opcode.LD_BC_N16.encoding);
         b.write(1, 20);
         b.write(2, 0);
-        
+
         b.write(3, Opcode.LD_DE_N16.encoding);
         b.write(4, 228);
         b.write(5, 10);
-        
+
         b.write(6, Opcode.LD_HL_N16.encoding);
         b.write(7, 15);
         b.write(8, 0);
-        
+
         b.write(9, Opcode.LD_SP_N16.encoding);
         b.write(10, 64);
         b.write(11, 76);
-        
+
         int cyclesLD = 4 * Opcode.LD_BC_N16.cycles;
-        
+
         b.write(12, Opcode.ADD_HL_BC.encoding);
-        
+
         cycleCpu(c, cyclesLD + Opcode.ADD_HL_BC.cycles);
-        assertArrayEquals(
-                new int[] { 13, 19520, 0xF0, 0b1000 << 4, 0, 20, 10, 228, 0, 35 },
-                c._testGetPcSpAFBCDEHL());
-        
-        //maintenant HL = 35
-        
+        assertArrayEquals(new int[] { 13, 19520, 0xF0, 0b1000 << 4, 0, 20, 10,
+                228, 0, 35 }, c._testGetPcSpAFBCDEHL());
+
+        // maintenant HL = 35
+
         b.write(13, Opcode.ADD_HL_DE.encoding);
-        
-        cycleCpu(c, cyclesLD + Opcode.ADD_HL_BC.cycles, Opcode.ADD_HL_BC.cycles );
-        assertArrayEquals(
-                new int[] { 14, 19520, 0xF0, 0b1000 << 4, 0, 20, 10, 228, 11, 7 },
-                c._testGetPcSpAFBCDEHL());
-        
-        //maintenant HL = 2823
-        
+
+        cycleCpu(c, cyclesLD + Opcode.ADD_HL_BC.cycles,
+                Opcode.ADD_HL_BC.cycles);
+        assertArrayEquals(new int[] { 14, 19520, 0xF0, 0b1000 << 4, 0, 20, 10,
+                228, 11, 7 }, c._testGetPcSpAFBCDEHL());
+
+        // maintenant HL = 2823
+
         b.write(14, Opcode.ADD_HL_SP.encoding);
-        
-        cycleCpu(c, cyclesLD + Opcode.ADD_HL_BC.cycles * 2, Opcode.ADD_HL_SP.cycles);
-        assertArrayEquals(
-                new int[] { 15, 19520, 0xF0, 0b1010 << 4, 0, 20, 10, 228, 87, 71 },
-                c._testGetPcSpAFBCDEHL());
-        
-        //maintenant HL = 22343
+
+        cycleCpu(c, cyclesLD + Opcode.ADD_HL_BC.cycles * 2,
+                Opcode.ADD_HL_SP.cycles);
+        assertArrayEquals(new int[] { 15, 19520, 0xF0, 0b1010 << 4, 0, 20, 10,
+                228, 87, 71 }, c._testGetPcSpAFBCDEHL());
+
+        // maintenant HL = 22343
         b.write(15, Opcode.ADD_HL_HL.encoding);
         b.write(16, Opcode.ADD_HL_HL.encoding);
-        
-        cycleCpu(c, cyclesLD + Opcode.ADD_HL_BC.cycles * 3, Opcode.ADD_HL_BC.cycles * 4);
-        assertArrayEquals(
-                new int[] { 21, 19520, 0xF0, 0b1011 << 4, 0, 20, 10, 228, 93, 28 },
-                c._testGetPcSpAFBCDEHL());
+
+        cycleCpu(c, cyclesLD + Opcode.ADD_HL_BC.cycles * 3,
+                Opcode.ADD_HL_BC.cycles * 4);
+        assertArrayEquals(new int[] { 21, 19520, 0xF0, 0b1011 << 4, 0, 20, 10,
+                228, 93, 28 }, c._testGetPcSpAFBCDEHL());
     }
-    
+
     @Test
     void LD_HLSP_S8_WorksForValidValues() {
+        Cpu c = new Cpu();
+        Ram r = new Ram(0xFFFF);
+        Bus b = connect(c, r);
+
+        b.write(0, Opcode.LD_A_N8.encoding);
+        b.write(1, 0);
+
+        b.write(2, Opcode.LD_B_N8.encoding);
+        b.write(3, 0);
+
+        b.write(4, Opcode.LD_C_N8.encoding);
+        b.write(5, 0);
+
+        b.write(6, Opcode.LD_D_N8.encoding);
+        b.write(7, 0);
+
+        b.write(8, Opcode.LD_E_N8.encoding);
+        b.write(9, 0);
+        cycleCpu(c, 10);
+
+        b.write(13, Opcode.LD_SP_N16.encoding);
+        b.write(14, 0b1001000);
+        b.write(15, 0b1111011);
+        cycleCpu(c, 13);
+
+        b.write(16, Opcode.LD_HL_SP_N8.encoding);
+        b.write(17, 92);
+        cycleCpu(c, 16, 3);
+        assertArrayEquals(new int[] { 18, 31560, 0, 0b0010 << 4, 0, 0, 0,
+                0, 0b1111011, 0b10100100 }, c._testGetPcSpAFBCDEHL());
         
+        b.write(18, Opcode.LD_SP_N16.encoding);
+        b.write(19, 0b11001000);
+        b.write(20, 0b1111011);
+        cycleCpu(c, 19, 3);
+        
+        //maintenant SP = 31688
+        
+        b.write(21, Opcode.LD_HL_SP_N8.encoding);
+        b.write(22, 92);
+        cycleCpu(c, 22, 3);
+        assertArrayEquals(new int[] { 23, 31688, 0, 0b0011 << 4, 0, 0, 0,
+                0, 0b1111100, 0b100100 }, c._testGetPcSpAFBCDEHL());
+
+        b.write(23, Opcode.ADD_SP_N.encoding);
+        b.write(24, 237);
+        cycleCpu(c, 25, 4);
+        assertArrayEquals(new int[] { 25, 31669, 0, 0b0011 << 4, 0, 0, 0,
+                0, 0b1111100, 0b100100 }, c._testGetPcSpAFBCDEHL());
+        
+        b.write(25, Opcode.LD_SP_N16.encoding);
+        b.write(26, 0b11001000);
+        b.write(27, 0b1111011);
+        cycleCpu(c, 29, 3);
+        
+        b.write(28, Opcode.ADD_SP_N.encoding);
+        b.write(29, 213);
+        cycleCpu(c, 31, 4);
+        assertArrayEquals(new int[] { 30, 31645, 0, 0b0001 << 4, 0, 0, 0,
+                0, 0b1111100, 0b100100 }, c._testGetPcSpAFBCDEHL());
     }
-    
+
     @Test
     void SUB_A_R8_WorksForValidValues() {
+        Cpu c = new Cpu();
+        Ram r = new Ram(0xFFFF);
+        Bus b = connect(c, r);
+
+        b.write(0, Opcode.LD_A_N8.encoding);
+        b.write(1, 0);
+
+        b.write(2, Opcode.LD_B_N8.encoding);
+        b.write(3, 0);
+
+        b.write(4, Opcode.LD_C_N8.encoding);
+        b.write(5, 0);
+
+        b.write(6, Opcode.LD_D_N8.encoding);
+        b.write(7, 0);
+
+        b.write(8, Opcode.LD_E_N8.encoding);
+        b.write(9, 0);
         
+        b.write(10, Opcode.LD_H_N8.encoding);
+        b.write(11, 0);
+        
+        b.write(12, Opcode.LD_L_N8.encoding);
+        b.write(13, 0);
+        
+        cycleCpu(c, 14);
+        
+        b.write(14, Opcode.SUB_A_A.encoding);
+        cycleCpu(c, 14, 1);
+        
+        assertArrayEquals(new int[] { 15, 0, 0, 0b1100 << 4, 0, 0, 0,
+                0, 0, 0 }, c._testGetPcSpAFBCDEHL());
+        
+        b.write(15, Opcode.LD_B_N8.encoding);
+        b.write(16, 5);
+        b.write(17, Opcode.SUB_A_B.encoding);
+        cycleCpu(c, 15, 3);
+        assertArrayEquals(new int[] { 18, 0, 251, 0b0111 << 4, 5, 0, 0,
+                0, 0, 0 }, c._testGetPcSpAFBCDEHL());
+        
+        b.write(18, Opcode.LD_C_N8.encoding);
+        b.write(19, 3);
+        b.write(20, Opcode.SBC_A_C.encoding);
+        cycleCpu(c, 18, 3);
+        assertArrayEquals(new int[] { 21, 0, 247, 0b0100 << 4, 5, 3, 0,
+                0, 0, 0 }, c._testGetPcSpAFBCDEHL());
+        
+        b.write(21, Opcode.LD_D_N8.encoding);
+        b.write(22, 94);
+        b.write(23, Opcode.SBC_A_D.encoding);
+        cycleCpu(c, 21, 3);
+        assertArrayEquals(new int[] { 24, 0, 153, 0b0110 << 4, 5, 3, 94,
+                0, 0, 0 }, c._testGetPcSpAFBCDEHL());
+        
+        b.write(24, Opcode.LD_E_N8.encoding);
+        b.write(25, 77);
+        b.write(26, Opcode.SBC_A_E.encoding);
+        cycleCpu(c, 24, 3);
+        assertArrayEquals(new int[] { 27, 0, 76, 0b0110 << 4, 5, 3, 94,
+                77, 0, 0 }, c._testGetPcSpAFBCDEHL());
+        
+        b.write(27, Opcode.LD_H_N8.encoding);
+        b.write(28, 76);
+        b.write(29, Opcode.SBC_A_H.encoding);
+        cycleCpu(c, 27, 3);
+        assertArrayEquals(new int[] { 30, 0, 185, 0b0101 << 4, 5, 3, 94,
+                77, 76, 0 }, c._testGetPcSpAFBCDEHL());
     }
-    
+
     @Test
     void SUB_A_N8_WorksForValidValues() {
+
         
     }
 
     @Test
     void SUB_A_HLR_WorksForValidValues() {
-        
+
     }
-    
+
     @Test
     void DEC_R8_WorksForValidValues() {
-        
+
     }
-    
+
     @Test
     void DEC_HLR_VowrksForValidValues() {
-        
+
     }
-    
+
     @Test
     void CP_A_R8_WorksForValidValues() {
-        
+
     }
-    
+
     @Test
     void CP_A_N8_WorksForValidValues() {
-        
+
     }
-    
+
     @Test
     void CP_A_HLR_WorksForValidValues() {
-        
+
     }
-    
+
     @Test
     void DEC_R16_SP_WorksForValidValues() {
-        
+
     }
-    
+
     @Test
     void AND_A_N8_WorksForValidValues() {
         Cpu c = new Cpu();

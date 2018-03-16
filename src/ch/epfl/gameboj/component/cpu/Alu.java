@@ -170,7 +170,7 @@ public final class Alu {
         int lowFlags = unpackFlags(lowResult);
         boolean h = Bits.test(lowFlags, Flag.H.index());
         boolean c = Bits.test(lowFlags, Flag.C.index());
-
+        
         return packValueZNHC(result, false, false, h, c);
     }
 

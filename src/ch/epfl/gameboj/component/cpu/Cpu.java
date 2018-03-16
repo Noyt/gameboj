@@ -54,7 +54,7 @@ public final class Cpu implements Component, Clocked {
         file.set(Reg.E, 0xF7);
         file.set(Reg.H, 0xFA);
         file.set(Reg.L, 0xF5);
-        
+
     }
 
     @Override
@@ -198,7 +198,6 @@ public final class Cpu implements Component, Clocked {
         }
             break;
 
-        
         case ADD_A_R8: {
             setRegFlags(Reg.A,
                     Alu.add(file.get(Reg.A),
@@ -233,7 +232,7 @@ public final class Cpu implements Component, Clocked {
             break;
         case INC_R16SP: {
             Reg16 reg = extractReg16(instruction);
-            
+
             if (reg == Reg16.AF) {
                 SP += 1;
             } else {
@@ -243,13 +242,14 @@ public final class Cpu implements Component, Clocked {
             break;
         case ADD_HL_R16SP: {
             Reg16 reg = extractReg16(instruction);
-            int valueFlags = Alu.add16H(reg16(Reg16.HL), reg == Reg16.AF ? SP : reg16(reg));
+            int valueFlags = Alu.add16H(reg16(Reg16.HL),
+                    reg == Reg16.AF ? SP : reg16(reg));
             setReg16SP(Reg16.HL, Alu.unpackValue(valueFlags));
             combineAluFlags(valueFlags, FlagSrc.CPU, FlagSrc.V0, FlagSrc.ALU,
                     FlagSrc.ALU);
         }
             break;
-        case LD_HLSP_S8: {//TESTER
+        case LD_HLSP_S8: {
             int signedValue = Bits.clip(16,
                     Bits.signExtend8(read8AfterOpcode()));
             int valueFlags = Alu.add16L(SP, signedValue);
@@ -265,24 +265,24 @@ public final class Cpu implements Component, Clocked {
             break;
 
         // Subtract
-        case SUB_A_R8: {//TESTER
+        case SUB_A_R8: {// TESTER
             setRegFlags(Reg.A,
                     Alu.sub(file.get(Reg.A),
                             file.get(extractReg(instruction, 0)),
                             !combineCAndBit3(instruction)));
         }
             break;
-        case SUB_A_N8: {//TESTER
+        case SUB_A_N8: {// TESTER
             setRegFlags(Reg.A, Alu.sub(file.get(Reg.A), read8AfterOpcode(),
                     !combineCAndBit3(instruction)));
         }
             break;
-        case SUB_A_HLR: {//TESTER
+        case SUB_A_HLR: {// TESTER
             setRegFlags(Reg.A, Alu.sub(file.get(Reg.A), read8AtHl(),
                     !combineCAndBit3(instruction)));
         }
             break;
-        case DEC_R8: {//TESTER
+        case DEC_R8: {// TESTER
             Reg reg = extractReg(instruction, 3);
             int valueFlags = Alu.sub(file.get(reg), 1);
             file.set(reg, Alu.unpackValue(valueFlags));
@@ -290,34 +290,34 @@ public final class Cpu implements Component, Clocked {
                     FlagSrc.CPU);
         }
             break;
-        case DEC_HLR: {//TESTER
+        case DEC_HLR: {// TESTER
             int valueFlags = Alu.sub(read8AtHl(), 1);
             write8AtHl(Alu.unpackValue(valueFlags));
             combineAluFlags(valueFlags, FlagSrc.ALU, FlagSrc.V1, FlagSrc.ALU,
                     FlagSrc.CPU);
         }
             break;
-        case CP_A_R8: {//TESTER
+        case CP_A_R8: {// TESTER
             int valueFlags = Alu.sub(file.get(Reg.A),
                     file.get(extractReg(instruction, 0)));
             combineAluFlags(valueFlags, FlagSrc.ALU, FlagSrc.ALU, FlagSrc.ALU,
                     FlagSrc.ALU);
         }
             break;
-        case CP_A_N8: {//TESTER
+        case CP_A_N8: {// TESTER
             int valueFlags = Alu.sub(file.get(Reg.A), read8AfterOpcode());
             combineAluFlags(valueFlags, FlagSrc.ALU, FlagSrc.ALU, FlagSrc.ALU,
                     FlagSrc.ALU);
 
         }
             break;
-        case CP_A_HLR: {//TESTER
+        case CP_A_HLR: {// TESTER
             int valueFlags = Alu.sub(file.get(Reg.A), read8AtHl());
             combineAluFlags(valueFlags, FlagSrc.ALU, FlagSrc.ALU, FlagSrc.ALU,
                     FlagSrc.ALU);
         }
             break;
-        case DEC_R16SP: {//TESTER
+        case DEC_R16SP: {// TESTER
             Reg16 reg = extractReg16(instruction);
             setReg16SP(reg,
                     Alu.unpackValue(Alu.add16H(reg16(reg), Bits.clip(16, -1))));
