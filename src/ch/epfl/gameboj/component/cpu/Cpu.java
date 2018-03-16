@@ -37,6 +37,25 @@ public final class Cpu implements Component, Clocked {
     private enum FlagSrc {
         V0, V1, ALU, CPU
     }
+    
+//    public void _testSetRegisters(int A, int B, int C, int D, int E, int F, int H, int L) {
+//        file.set(Reg.A, A);
+//        file.set(Reg.B, B);
+//        file.set(Reg.C, C);
+//        file.set(Reg.D, D);
+//        file.set(Reg.E, E);
+//        file.set(Reg.F, F);
+//        file.set(Reg.H, H);
+//        file.set(Reg.L, L);
+//    }
+//
+//    public void _testWriteAtAddressInBus(int address, int v) {
+//        bus.write(address, v);
+//    }
+//
+//    public int _testGetValueAtAddressInBus(int address) {
+//        return bus.read(address);
+//    }
 
     public Cpu() {
 
@@ -45,15 +64,15 @@ public final class Cpu implements Component, Clocked {
         PC = 0;
         nextNonIdleCycle = 0;
 
-        // // TODO enlever ca c'est tres important c'est pour les tests!!!!!!!!
-        file.set(Reg.A, 0xF0);
-        file.set(Reg.F, 0xF1);
-        file.set(Reg.B, 0xF2);
-        file.set(Reg.C, 0xF4);
-        file.set(Reg.D, 0xF3);
-        file.set(Reg.E, 0xF7);
-        file.set(Reg.H, 0xFA);
-        file.set(Reg.L, 0xF5);
+//        // TODO enlever ca c'est tres important c'est pour les tests!!!!!!!!
+//        file.set(Reg.A, 0xF0);
+//        file.set(Reg.F, 0xF1);
+//        file.set(Reg.B, 0xF2);
+//        file.set(Reg.C, 0xF4);
+//        file.set(Reg.D, 0xF3);
+//        file.set(Reg.E, 0xF7);
+//        file.set(Reg.H, 0xFA);
+//        file.set(Reg.L, 0xF5);
 
     }
 
@@ -74,7 +93,7 @@ public final class Cpu implements Component, Clocked {
                     }
                 }
             } else {
-                nextInstruction = read8(++PC);
+                nextInstruction = read8(PC + 1);
                 for (Opcode o : PREFIXED_OPCODE_TABLE) {
                     if (o.encoding == nextInstruction) {
                         instruction = o;
@@ -317,10 +336,10 @@ public final class Cpu implements Component, Clocked {
                     FlagSrc.ALU);
         }
             break;
-        case DEC_R16SP: {// TESTER
-            Reg16 reg = extractReg16(instruction);
+        case DEC_R16SP: {
+            Reg16 reg = extractReg16(instruction); 
             setReg16SP(reg,
-                    Alu.unpackValue(Alu.add16H(reg16(reg), Bits.clip(16, -1))));
+                    Alu.unpackValue(Alu.add16H(reg == Reg16.AF ? SP : reg16(reg), Bits.clip(16, -1))));
         }
             break;
 
