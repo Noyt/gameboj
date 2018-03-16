@@ -231,7 +231,7 @@ public final class Cpu implements Component, Clocked {
                     FlagSrc.CPU);
         }
             break;
-        case INC_R16SP: {//TESTER
+        case INC_R16SP: {
             Reg16 reg = extractReg16(instruction);
             setReg16SP(reg, Alu.unpackValue(Alu.add16H(reg16(reg), 1)));
         }

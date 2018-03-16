@@ -715,6 +715,41 @@ public class CpuTest1 {
         
         b.write(4, Opcode.LD_HL_N16.encoding);
         b.write(5, 15);
+        
+        b.write(6, Opcode.LD_SP_N16.encoding);
+        b.write(7, 0xFF);
+        
+        b.write(8, Opcode.INC_BC.encoding);
+        b.write(9, Opcode.INC_DE.encoding);
+        b.write(10, Opcode.INC_HL.encoding);
+        b.write(11, Opcode.INC_SP.encoding);
+        
+        b.write(12, Opcode.LD_N16R_SP.encoding);
+        b.write(13, 0xBB);
+        b.write(14, 0xAA);
+        
+        int totalCycles1 = Opcode.LD_BC_N16.cycles * 4 + Opcode.INC_BC.cycles * 4 + Opcode.LD_N16R_SP.cycles;
+        cycleCpu(c, totalCycles1);
+        assertArrayEquals(
+                new int[] { 14, 0, 0xF0, 0xF1, 0, 0, 0, 1, 1, 0 },
+                c._testGetPcSpAFBCDEHL());
+        assertEquals(0x0100, b.read(0xAABB));
+        
+        b.write(15, Opcode.INC_HL.encoding);
+        cycleCpu(c, totalCycles1, 2);
+        assertArrayEquals(
+                new int[] { 14, 0, 0xF0, 0xF1, 0, 0, 0, 1, 1, 1 },
+                c._testGetPcSpAFBCDEHL());
+        
+        b.write(16, Opcode.LD_A_N8.encoding);
+        b.write(17, 58);
+        b.write(18, Opcode.ADD_A_A.encoding);
+        b.write(19, Opcode.INC_HL.encoding);
+        int totalCycles2 = Opcode.LD_A_N8.cycles + Opcode.ADD_A_A.cycles + Opcode.INC_HL.cycles;
+        cycleCpu(c, totalCycles1 + 2, totalCycles2);
+        assertArrayEquals(
+                new int[] { 20, 0, 116, 0b0010 << 4, 0, 0, 0, 1, 1, 1 },
+                c._testGetPcSpAFBCDEHL());
     }
 
     @Test
