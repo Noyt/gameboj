@@ -265,7 +265,7 @@ public final class Cpu implements Component, Clocked {
             break;
 
         // Subtract
-        case SUB_A_R8: {// TESTER
+        case SUB_A_R8: {
             setRegFlags(Reg.A,
                     Alu.sub(file.get(Reg.A),
                             file.get(extractReg(instruction, 0)),
