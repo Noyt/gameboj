@@ -233,12 +233,17 @@ public final class Cpu implements Component, Clocked {
             break;
         case INC_R16SP: {
             Reg16 reg = extractReg16(instruction);
-            setReg16SP(reg, Alu.unpackValue(Alu.add16H(reg16(reg), 1)));
+            
+            if (reg == Reg16.AF) {
+                SP += 1;
+            } else {
+                setReg16SP(reg, Alu.unpackValue(Alu.add16H(reg16(reg), 1)));
+            }
         }
             break;
-        case ADD_HL_R16SP: {//TESTER
+        case ADD_HL_R16SP: {
             Reg16 reg = extractReg16(instruction);
-            int valueFlags = Alu.add16H(reg16(Reg16.HL), reg16(reg));
+            int valueFlags = Alu.add16H(reg16(Reg16.HL), reg == Reg16.AF ? SP : reg16(reg));
             setReg16SP(Reg16.HL, Alu.unpackValue(valueFlags));
             combineAluFlags(valueFlags, FlagSrc.CPU, FlagSrc.V0, FlagSrc.ALU,
                     FlagSrc.ALU);

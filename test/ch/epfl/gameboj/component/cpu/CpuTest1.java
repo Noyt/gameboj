@@ -701,6 +701,7 @@ public class CpuTest1 {
         assertEquals(b.read(0xFAF5), 16);
     }
 
+    @Test
     void INC_R16SP_WorksForValidValues() {
         
         Cpu c = new Cpu();
@@ -708,50 +709,174 @@ public class CpuTest1 {
         Bus b = connect(c, r);
         
         b.write(0, Opcode.LD_BC_N16.encoding);
-        b.write(1, 0xFFFF);
+        b.write(1, 0xFF);
+        b.write(2, 0xFF);
         
-        b.write(2, Opcode.LD_DE_N16.encoding);
-        b.write(3, 0);
+        b.write(3, Opcode.LD_DE_N16.encoding);
+        b.write(4, 0);
+        b.write(5, 0);
         
-        b.write(4, Opcode.LD_HL_N16.encoding);
-        b.write(5, 15);
+        b.write(6, Opcode.LD_HL_N16.encoding);
+        b.write(7, 15);
+        b.write(8, 0);
         
-        b.write(6, Opcode.LD_SP_N16.encoding);
-        b.write(7, 0xFF);
+        b.write(9, Opcode.LD_SP_N16.encoding);
+        b.write(10, 0xFF);
+        b.write(11, 0);
         
-        b.write(8, Opcode.INC_BC.encoding);
-        b.write(9, Opcode.INC_DE.encoding);
-        b.write(10, Opcode.INC_HL.encoding);
-        b.write(11, Opcode.INC_SP.encoding);
+        b.write(12, Opcode.INC_BC.encoding);
+        b.write(13, Opcode.INC_DE.encoding);
+        b.write(14, Opcode.INC_HL.encoding);
+        b.write(15, Opcode.INC_SP.encoding);
+  
         
-        b.write(12, Opcode.LD_N16R_SP.encoding);
-        b.write(13, 0xBB);
-        b.write(14, 0xAA);
-        
-        int totalCycles1 = Opcode.LD_BC_N16.cycles * 4 + Opcode.INC_BC.cycles * 4 + Opcode.LD_N16R_SP.cycles;
+        int totalCycles1 = Opcode.LD_BC_N16.cycles * 4 + Opcode.INC_BC.cycles * 4;
         cycleCpu(c, totalCycles1);
         assertArrayEquals(
-                new int[] { 14, 0, 0xF0, 0xF1, 0, 0, 0, 1, 1, 0 },
+                new int[] { 16, 0x100, 0xF0, 0xF1, 0, 0, 0, 1, 0, 0x10 },
                 c._testGetPcSpAFBCDEHL());
-        assertEquals(0x0100, b.read(0xAABB));
         
-        b.write(15, Opcode.INC_HL.encoding);
+        b.write(16, Opcode.INC_HL.encoding);
         cycleCpu(c, totalCycles1, 2);
         assertArrayEquals(
-                new int[] { 14, 0, 0xF0, 0xF1, 0, 0, 0, 1, 1, 1 },
+                new int[] { 17, 0x100, 0xF0, 0xF1, 0, 0, 0, 1, 0, 0x11 },
                 c._testGetPcSpAFBCDEHL());
         
-        b.write(16, Opcode.LD_A_N8.encoding);
-        b.write(17, 58);
-        b.write(18, Opcode.ADD_A_A.encoding);
-        b.write(19, Opcode.INC_HL.encoding);
+        b.write(17, Opcode.LD_A_N8.encoding);
+        b.write(18, 58);
+        b.write(19, Opcode.ADD_A_A.encoding);
+        b.write(20, Opcode.INC_HL.encoding);
         int totalCycles2 = Opcode.LD_A_N8.cycles + Opcode.ADD_A_A.cycles + Opcode.INC_HL.cycles;
         cycleCpu(c, totalCycles1 + 2, totalCycles2);
         assertArrayEquals(
-                new int[] { 20, 0, 116, 0b0010 << 4, 0, 0, 0, 1, 1, 1 },
+                new int[] { 21, 0x100, 116, 0b0010 << 4, 0, 0, 0, 1, 0, 0x12 },
+                c._testGetPcSpAFBCDEHL());
+        
+        b.write(21, Opcode.LD_HL_N16.encoding);
+        b.write(22, 254);
+        b.write(23, 210);
+        b.write(24, Opcode.INC_HL.encoding);
+        cycleCpu(c, totalCycles1 + totalCycles2 + 2, 5);
+        assertArrayEquals(
+                new int[] { 25, 0x100, 116, 0b0010 << 4, 0, 0, 0, 1, 210, 255 },
+                c._testGetPcSpAFBCDEHL());
+        
+        b.write(25, Opcode.INC_HL.encoding);
+        cycleCpu(c, totalCycles1 + totalCycles2 + 7, 2);
+        assertArrayEquals(
+                new int[] { 26, 0x100, 116, 0b0010 << 4, 0, 0, 0, 1, 211, 0 },
                 c._testGetPcSpAFBCDEHL());
     }
+    
+    @Test
+    void ADD_HL_R16SP_WorksForValidValues() {
+        Cpu c = new Cpu();
+        Ram r = new Ram(0xFFFF);
+        Bus b = connect(c, r);
+        
+        b.write(0, Opcode.LD_BC_N16.encoding);
+        b.write(1, 20);
+        b.write(2, 0);
+        
+        b.write(3, Opcode.LD_DE_N16.encoding);
+        b.write(4, 228);
+        b.write(5, 10);
+        
+        b.write(6, Opcode.LD_HL_N16.encoding);
+        b.write(7, 15);
+        b.write(8, 0);
+        
+        b.write(9, Opcode.LD_SP_N16.encoding);
+        b.write(10, 64);
+        b.write(11, 76);
+        
+        int cyclesLD = 4 * Opcode.LD_BC_N16.cycles;
+        
+        b.write(12, Opcode.ADD_HL_BC.encoding);
+        
+        cycleCpu(c, cyclesLD + Opcode.ADD_HL_BC.cycles);
+        assertArrayEquals(
+                new int[] { 13, 19520, 0xF0, 0b1000 << 4, 0, 20, 10, 228, 0, 35 },
+                c._testGetPcSpAFBCDEHL());
+        
+        //maintenant HL = 35
+        
+        b.write(13, Opcode.ADD_HL_DE.encoding);
+        
+        cycleCpu(c, cyclesLD + Opcode.ADD_HL_BC.cycles, Opcode.ADD_HL_BC.cycles );
+        assertArrayEquals(
+                new int[] { 14, 19520, 0xF0, 0b1000 << 4, 0, 20, 10, 228, 11, 7 },
+                c._testGetPcSpAFBCDEHL());
+        
+        //maintenant HL = 2823
+        
+        b.write(14, Opcode.ADD_HL_SP.encoding);
+        
+        cycleCpu(c, cyclesLD + Opcode.ADD_HL_BC.cycles * 2, Opcode.ADD_HL_SP.cycles);
+        assertArrayEquals(
+                new int[] { 15, 19520, 0xF0, 0b1010 << 4, 0, 20, 10, 228, 87, 71 },
+                c._testGetPcSpAFBCDEHL());
+        
+        //maintenant HL = 22343
+        b.write(15, Opcode.ADD_HL_HL.encoding);
+        b.write(16, Opcode.ADD_HL_HL.encoding);
+        
+        cycleCpu(c, cyclesLD + Opcode.ADD_HL_BC.cycles * 3, Opcode.ADD_HL_BC.cycles * 4);
+        assertArrayEquals(
+                new int[] { 21, 19520, 0xF0, 0b1011 << 4, 0, 20, 10, 228, 93, 28 },
+                c._testGetPcSpAFBCDEHL());
+    }
+    
+    @Test
+    void LD_HLSP_S8_WorksForValidValues() {
+        
+    }
+    
+    @Test
+    void SUB_A_R8_WorksForValidValues() {
+        
+    }
+    
+    @Test
+    void SUB_A_N8_WorksForValidValues() {
+        
+    }
 
+    @Test
+    void SUB_A_HLR_WorksForValidValues() {
+        
+    }
+    
+    @Test
+    void DEC_R8_WorksForValidValues() {
+        
+    }
+    
+    @Test
+    void DEC_HLR_VowrksForValidValues() {
+        
+    }
+    
+    @Test
+    void CP_A_R8_WorksForValidValues() {
+        
+    }
+    
+    @Test
+    void CP_A_N8_WorksForValidValues() {
+        
+    }
+    
+    @Test
+    void CP_A_HLR_WorksForValidValues() {
+        
+    }
+    
+    @Test
+    void DEC_R16_SP_WorksForValidValues() {
+        
+    }
+    
     @Test
     void AND_A_N8_WorksForValidValues() {
         Cpu c = new Cpu();
