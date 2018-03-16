@@ -195,10 +195,10 @@ public final class Cpu implements Component, Clocked {
             break;
         case PUSH_R16: {
             push16(reg16(extractReg16(instruction)));
-
         }
             break;
 
+            //Arnaud
         // Add
         case ADD_A_R8: {
             setRegFlags(Reg.A,
@@ -319,6 +319,7 @@ public final class Cpu implements Component, Clocked {
         }
             break;
 
+        // Sophie
         // And, or, xor, complement
         case AND_A_N8: {
             setRegFlags(Reg.A, Alu.and(file.get(Reg.A), read8AfterOpcode()));
@@ -349,20 +350,14 @@ public final class Cpu implements Component, Clocked {
         case XOR_A_R8: {
             setRegFlags(Reg.A, Alu.xor(file.get(Reg.A),
                     file.get(extractReg(instruction, 0))));
-            combineAluFlags(0, FlagSrc.CPU, FlagSrc.CPU, FlagSrc.CPU,
-                    FlagSrc.CPU);
         }
             break;
         case XOR_A_N8: {
             setRegFlags(Reg.A, Alu.xor(file.get(Reg.A), read8AfterOpcode()));
-            combineAluFlags(0, FlagSrc.CPU, FlagSrc.CPU, FlagSrc.CPU,
-                    FlagSrc.CPU);
         }
             break;
         case XOR_A_HLR: {
             setRegFlags(Reg.A, Alu.xor(file.get(Reg.A), read8AtHl()));
-            combineAluFlags(0, FlagSrc.CPU, FlagSrc.CPU, FlagSrc.CPU,
-                    FlagSrc.CPU);
         }
             break;
         case CPL: {
