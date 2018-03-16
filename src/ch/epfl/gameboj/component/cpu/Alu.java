@@ -470,7 +470,7 @@ public final class Alu {
 
     /**
      * Returns value 0 and flags Z010 with Z true if and only if the bit on the
-     * given index of the given value is 1
+     * given index of the given value is 0
      * 
      * @param v
      * @param bitIndex

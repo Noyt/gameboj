@@ -430,7 +430,7 @@ public final class Cpu implements Component, Clocked {
             break;
         case SRL_R8: {
             Reg reg = extractReg(instruction, 0);
-            setRegFlags(reg, Alu.shiftRightA(file.get(reg)));
+            setRegFlags(reg, Alu.shiftRightL(file.get(reg)));
         }
             break;
         case SLA_HLR: {
