@@ -253,9 +253,9 @@ public final class Cpu implements Component, Clocked {
             Reg16 reg = extractReg16(instruction);
 
             if (reg == Reg16.AF) {
-                SP += 1;
+                SP = Bits.clip(16, SP += 1);
             } else {
-                setReg16SP(reg, Alu.unpackValue(Alu.add16H(reg16(reg), 1)));
+                setReg16(reg, Alu.unpackValue(Alu.add16H(reg16(reg), 1)));
             }
         }
             break;
@@ -678,7 +678,7 @@ public final class Cpu implements Component, Clocked {
     private void setReg16SP(Reg16 r, int newV) {
         Preconditions.checkBits16(newV);
         if (r == Reg16.AF) {
-            SP = newV;
+            SP = Bits.clip(16, newV);
         } else {
             setReg16(r, newV);
         }
