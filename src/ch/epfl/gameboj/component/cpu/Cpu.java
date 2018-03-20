@@ -105,8 +105,9 @@ public final class Cpu implements Component, Clocked {
             int index = checkInterruptionIndex();
             Bits.set(IF, index, false);
             push16(PC);
-            //TODO
-            PC = 0x40 + 8 * index;
+            // TODO
+            // PC = 0x40 + 8 * index;
+            PC = AddressMap.INTERRUPTS[index];
             nextNonIdleCycle += 5;
         } else {
 
@@ -144,6 +145,24 @@ public final class Cpu implements Component, Clocked {
             }
         }
         throw new Error("no common bit equal to 1");
+
+    }
+
+    private int extractInterruptionIndex(Interrupt interrupt) {
+        switch (interrupt) {
+        case VBLANK:
+            return 0;
+        case LCD_STAT:
+            return 1;
+        case TIMER:
+            return 2;
+        case SERIAL:
+            return 3;
+        case JOYPAD:
+            return 4;
+        default:
+            throw new Error("no common bit equal to 1");
+        }
     }
 
     @Override
