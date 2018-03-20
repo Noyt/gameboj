@@ -13,7 +13,7 @@ public final class Assembler {
     
     public Assembler emit(Opcode op) {
         if (op.kind == Opcode.Kind.PREFIXED)
-            s.write(0xCB);
+        s.write(0xCB);
         s.write(op.encoding);
         cycles += op.cycles;
         return this;

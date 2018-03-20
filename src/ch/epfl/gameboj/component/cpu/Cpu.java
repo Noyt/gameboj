@@ -8,10 +8,12 @@ import ch.epfl.gameboj.Bus;
 import ch.epfl.gameboj.Preconditions;
 import ch.epfl.gameboj.Register;
 import ch.epfl.gameboj.RegisterFile;
+import ch.epfl.gameboj.bits.Bit;
 import ch.epfl.gameboj.bits.Bits;
 import ch.epfl.gameboj.component.Clocked;
 import ch.epfl.gameboj.component.Component;
 import ch.epfl.gameboj.component.cpu.Alu.RotDir;
+import ch.epfl.gameboj.component.memory.Ram;
 
 public final class Cpu implements Component, Clocked {
 
@@ -26,6 +28,11 @@ public final class Cpu implements Component, Clocked {
 
     private long nextNonIdleCycle;
 
+    private Ram highRam;
+    private boolean IME;
+    private int IE;
+    private int IF;
+
     private enum Reg implements Register {
         A, F, B, C, D, E, H, L
     }
@@ -37,42 +44,48 @@ public final class Cpu implements Component, Clocked {
     private enum FlagSrc {
         V0, V1, ALU, CPU
     }
-    
-//    public void _testSetRegisters(int A, int B, int C, int D, int E, int F, int H, int L) {
-//        file.set(Reg.A, A);
-//        file.set(Reg.B, B);
-//        file.set(Reg.C, C);
-//        file.set(Reg.D, D);
-//        file.set(Reg.E, E);
-//        file.set(Reg.F, F);
-//        file.set(Reg.H, H);
-//        file.set(Reg.L, L);
-//    }
-//
-//    public void _testWriteAtAddressInBus(int address, int v) {
-//        bus.write(address, v);
-//    }
-//
-//    public int _testGetValueAtAddressInBus(int address) {
-//        return bus.read(address);
-//    }
+
+    public enum Interrupt implements Bit {
+        VBLANK, LCD_STAT, TIMER, SERIAL, JOYPAD
+    }
+
+    // public void _testSetRegisters(int A, int B, int C, int D, int E, int F,
+    // int H, int L) {
+    // file.set(Reg.A, A);
+    // file.set(Reg.B, B);
+    // file.set(Reg.C, C);
+    // file.set(Reg.D, D);
+    // file.set(Reg.E, E);
+    // file.set(Reg.F, F);
+    // file.set(Reg.H, H);
+    // file.set(Reg.L, L);
+    // }
+    //
+    // public void _testWriteAtAddressInBus(int address, int v) {
+    // bus.write(address, v);
+    // }
+    //
+    // public int _testGetValueAtAddressInBus(int address) {
+    // return bus.read(address);
+    // }
 
     public Cpu() {
 
+        highRam = new Ram(AddressMap.HIGH_RAM_SIZE);
         file = new RegisterFile<Reg>(Reg.values());
         SP = 0;
         PC = 0;
         nextNonIdleCycle = 0;
 
-//        // TODO enlever ca c'est tres important c'est pour les tests!!!!!!!!
-//        file.set(Reg.A, 0xF0);
-//        file.set(Reg.F, 0xF1);
-//        file.set(Reg.B, 0xF2);
-//        file.set(Reg.C, 0xF4);
-//        file.set(Reg.D, 0xF3);
-//        file.set(Reg.E, 0xF7);
-//        file.set(Reg.H, 0xFA);
-//        file.set(Reg.L, 0xF5);
+        // // TODO enlever ca c'est tres important c'est pour les tests!!!!!!!!
+        // file.set(Reg.A, 0xF0);
+        // file.set(Reg.F, 0xF1);
+        // file.set(Reg.B, 0xF2);
+        // file.set(Reg.C, 0xF4);
+        // file.set(Reg.D, 0xF3);
+        // file.set(Reg.E, 0xF7);
+        // file.set(Reg.H, 0xFA);
+        // file.set(Reg.L, 0xF5);
 
     }
 
@@ -106,13 +119,36 @@ public final class Cpu implements Component, Clocked {
 
     @Override
     public int read(int address) {
-        // TODO Auto-generated method stub
-        return NO_DATA;
+
+        // TODO preconditions superflues ? Est ce que autre chose que le bus
+        // appelera (indirectment) ce read ici ?
+        Preconditions.checkBits16(address);
+        if (address < AddressMap.HIGH_RAM_START
+                || address > AddressMap.HIGH_RAM_END) {
+            return NO_DATA;
+        } else if (address == AddressMap.REG_IE) {
+            return IE;
+        } else if (address == AddressMap.REG_IF) {
+            return IF;
+        } else {
+            return highRam.read(address);
+        }
     }
 
     @Override
     public void write(int address, int data) {
-        // TODO Auto-generated method stub
+        Preconditions.checkBits16(address);
+        Preconditions.checkBits8(data);
+
+        if (address >= AddressMap.HIGH_RAM_START
+                || address < AddressMap.HIGH_RAM_END) {
+            highRam.write(address - AddressMap.HIGH_RAM_START, data);
+        }
+        if (address == AddressMap.REG_IE) {
+            IE = data;
+        } else if (address == AddressMap.REG_IF) {
+            IF = data;
+        }
     }
 
     private void dispatch(Opcode instruction) {
@@ -337,9 +373,9 @@ public final class Cpu implements Component, Clocked {
         }
             break;
         case DEC_R16SP: {
-            Reg16 reg = extractReg16(instruction); 
-            setReg16SP(reg,
-                    Alu.unpackValue(Alu.add16H(reg == Reg16.AF ? SP : reg16(reg), Bits.clip(16, -1))));
+            Reg16 reg = extractReg16(instruction);
+            setReg16SP(reg, Alu.unpackValue(Alu.add16H(
+                    reg == Reg16.AF ? SP : reg16(reg), Bits.clip(16, -1))));
         }
             break;
 
@@ -505,6 +541,54 @@ public final class Cpu implements Component, Clocked {
         }
             break;
 
+        // Jumps
+        case JP_HL: {
+        }
+            break;
+        case JP_N16: {
+        }
+            break;
+        case JP_CC_N16: {
+        }
+            break;
+        case JR_E8: {
+        }
+            break;
+        case JR_CC_E8: {
+        }
+            break;
+
+        // Calls and returns
+        case CALL_N16: {
+        }
+            break;
+        case CALL_CC_N16: {
+        }
+            break;
+        case RST_U3: {
+        }
+            break;
+        case RET: {
+        }
+            break;
+        case RET_CC: {
+        }
+            break;
+
+        // Interrupts
+        case EDI: {
+        }
+            break;
+        case RETI: {
+        }
+            break;
+
+        // Misc control
+        case HALT: {
+        }
+            break;
+        case STOP:
+            throw new Error("STOP is not implemented");
         }
         update(instruction);
     }
@@ -717,6 +801,10 @@ public final class Cpu implements Component, Clocked {
         }
 
         return reg;
+    }
+
+    public void requestInterrupt(Interrupt i) {
+        Bits.set(IF, i.index(), true);
     }
 
     // ---Flags ToolBox----
