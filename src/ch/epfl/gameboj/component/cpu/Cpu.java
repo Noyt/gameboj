@@ -75,6 +75,9 @@ public final class Cpu implements Component, Clocked {
         file = new RegisterFile<Reg>(Reg.values());
         SP = 0;
         PC = 0;
+        IME = false;
+        IF = 0;
+        IE = 0;
         nextNonIdleCycle = 0;
 
         // // TODO enlever ca c'est tres important c'est pour les tests!!!!!!!!
@@ -593,18 +596,31 @@ public final class Cpu implements Component, Clocked {
 
         // Jumps
         case JP_HL: {
+            PC = reg16(Reg16.HL);
         }
             break;
         case JP_N16: {
+            PC = read16AfterOpcode();
         }
             break;
         case JP_CC_N16: {
+            if (extractCondition(instruction)) {
+                conditionVerified = true;
+                PC = read16AfterOpcode();
+            }
         }
             break;
         case JR_E8: {
+            PC += 1 + Bits.clip(16,
+                    Bits.signExtend8(read8AfterOpcode()));
         }
             break;
         case JR_CC_E8: {
+            if (extractCondition(instruction)) {
+                conditionVerified = true;
+                PC += 1 + Bits.clip(16,
+                        Bits.signExtend8(read8AfterOpcode()));
+            }
         }
             break;
 
@@ -615,7 +631,7 @@ public final class Cpu implements Component, Clocked {
         }
             break;
         case CALL_CC_N16: {
-            if (exctractCondition(instruction)) {
+            if (extractCondition(instruction)) {
                 push16(PC + 1);
                 PC = read16AfterOpcode();
                 conditionVerified = true;
@@ -632,7 +648,7 @@ public final class Cpu implements Component, Clocked {
         }
             break;
         case RET_CC: {
-            if (exctractCondition(instruction)) {
+            if (extractCondition(instruction)) {
                 pop16();
                 conditionVerified = true;
             }
@@ -641,9 +657,16 @@ public final class Cpu implements Component, Clocked {
 
         // Interrupts
         case EDI: {
+            switch(Bits.extract(instruction.encoding, 3, 2)) {
+            case 0b10 : IME = true; break;
+            case 0b00 : IME = false; break;
+            default : throw new Error("not an EDI instruction");
+            }
         }
             break;
         case RETI: {
+            IME = true;
+            PC = pop16();
         }
             break;
 
@@ -975,7 +998,7 @@ public final class Cpu implements Component, Clocked {
         return Bits.test(file.get(Reg.F), 4);
     }
 
-    private boolean exctractCondition(Opcode opcode) {
+    private boolean extractCondition(Opcode opcode) {
         switch (Bits.extract(opcode.encoding, 3, 2)) {
         case 0b00:
             return !z();
