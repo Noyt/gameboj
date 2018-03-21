@@ -2341,4 +2341,19 @@ public class CpuTest1 {
         
         assertRegisterValue(RegList.A, c, 89);
     }
+
+    
+//    @Test
+//    void CALL_N16_WorksForValidValues() {
+//        GameBoy g = new GameBoy(null);
+//        Cpu c = g.cpu();
+//        Bus b = g.bus();
+//        
+//        b.write(0xC000,Opcode.LD_A_N8.encoding);
+//        b.write(0xC001, 3);;
+//        b.write(address, data);
+//    }
+    
+
+
 }
