@@ -74,21 +74,22 @@ public final class Cpu implements Component, Clocked {
         highRam = new Ram(AddressMap.HIGH_RAM_SIZE);
         file = new RegisterFile<Reg>(Reg.values());
         SP = 0;
-        PC = AddressMap.WORK_RAM_START;
+        //PC = AddressMap.WORK_RAM_START;
+        PC = 0;
         IME = false;
         IF = 0;
         IE = 0;
         nextNonIdleCycle = 0;
 
         // // TODO enlever ca c'est tres important c'est pour les tests!!!!!!!!
-//         file.set(Reg.A, 0xF0);
-//         file.set(Reg.F, 0xF1);
-//         file.set(Reg.B, 0xF2);
-//         file.set(Reg.C, 0xF4);
-//         file.set(Reg.D, 0xF3);
-//         file.set(Reg.E, 0xF7);
-//         file.set(Reg.H, 0xFA);
-//         file.set(Reg.L, 0xF5);
+         file.set(Reg.A, 0xF0);
+         file.set(Reg.F, 0xF1);
+         file.set(Reg.B, 0xF2);
+         file.set(Reg.C, 0xF4);
+         file.set(Reg.D, 0xF3);
+         file.set(Reg.E, 0xF7);
+         file.set(Reg.H, 0xFA);
+         file.set(Reg.L, 0xF5);
 
     }
 
@@ -597,11 +598,13 @@ public final class Cpu implements Component, Clocked {
 
         // Jumps
         case JP_HL: {
-            PC = reg16(Reg16.HL);
+            //TODO
+            nextPC = reg16(Reg16.HL);
         }
             break;
         case JP_N16: {
-            PC = read16AfterOpcode();
+            //TODO
+            nextPC = read16AfterOpcode();
         }
             break;
         case JP_CC_N16: {

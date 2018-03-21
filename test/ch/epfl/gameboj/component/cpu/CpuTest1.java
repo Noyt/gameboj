@@ -2324,28 +2324,44 @@ public class CpuTest1 {
 //        assertRegisterValue(RegList.A, g.cpu(), 89);
 //    }
     
+//    @Test
+//    void FibOld() {
+//        Cpu c = new Cpu();
+//        Ram r = new Ram(0xFFFF);
+//        Bus b = connect(c, r);
+//        
+//        for (int i = 0; i < Fib.length; i++) {
+//            b.write(1, Bits.clip(Byte.SIZE, Fib[i]));
+//        }
+//        
+//        long a = 0;
+//        while(c._testGetPcSpAFBCDEHL()[0] != 8) {
+//            System.out.println(c._testGetPcSpAFBCDEHL()[0]);
+//            if(c._testGetPcSpAFBCDEHL()[0] > 49160) {
+//                return;
+//            }
+//            c.cycle(a);
+//        }
+//        
+//        assertRegisterValue(RegList.A, c, 89);
+//    }
+
     @Test
-    void FibOld() {
+    void JP_HL_WorksForValidValue() {
         Cpu c = new Cpu();
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
         
-        for (int i = 0; i < Fib.length; i++) {
-            b.write(1, Bits.clip(Byte.SIZE, Fib[i]));
-        }
+        b.write(0, Opcode.LD_H_N8.encoding);
+        b.write(1, 0x23);
+        b.write(2, Opcode.LD_L_N8.encoding);
+        b.write(3, 0x30);
+        b.write(4, Opcode.JP_HL.encoding);
+        cycleCpu(c, Opcode.LD_A_N8.cycles*2 +Opcode.JP_HL.cycles);
         
-        long a = 0;
-        while(c._testGetPcSpAFBCDEHL()[0] != 8) {
-            System.out.println(c._testGetPcSpAFBCDEHL()[0]);
-            if(c._testGetPcSpAFBCDEHL()[0] > 49160) {
-                return;
-            }
-            c.cycle(a);
-        }
+        assertRegisterValue(RegList.PC, c, 0x2330);
         
-        assertRegisterValue(RegList.A, c, 89);
     }
-
     
 //    @Test
 //    void CALL_N16_WorksForValidValues() {
