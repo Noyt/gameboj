@@ -95,6 +95,9 @@ public final class Cpu implements Component, Clocked {
     @Override
     public void cycle(long cycle) {
 
+        if (nextNonIdleCycle == Long.MAX_VALUE && checkInterruptionIEIF()) {
+            nextNonIdleCycle = cycle;
+        }
         if (cycle < nextNonIdleCycle) {
             return;
         } else {
@@ -640,7 +643,8 @@ public final class Cpu implements Component, Clocked {
             break;
         case RST_U3: {
             push16(PC + 1);
-            PC = 8 * extractBitIndex(instruction);
+            PC = AddressMap.RESETS[extractBitIndex(instruction)];
+            
         }
             break;
         case RET: {
@@ -672,6 +676,7 @@ public final class Cpu implements Component, Clocked {
 
         // Misc control
         case HALT: {
+            nextNonIdleCycle = Long.MAX_VALUE;
         }
             break;
         case STOP:

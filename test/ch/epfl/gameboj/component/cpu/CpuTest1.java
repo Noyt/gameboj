@@ -1,12 +1,13 @@
 package ch.epfl.gameboj.component.cpu;
 
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
 
 import ch.epfl.gameboj.AddressMap;
 import ch.epfl.gameboj.Bus;
+import ch.epfl.gameboj.GameBoy;
 import ch.epfl.gameboj.component.memory.Ram;
 import ch.epfl.gameboj.component.memory.RamController;
 
@@ -2286,5 +2287,16 @@ public class CpuTest1 {
         assertEquals(0xFF, b.read(0xA5B7));  
     }
     
+//    @Test
+//    void CALL_N16_WorksForValidValues() {
+//        GameBoy g = new GameBoy(null);
+//        Cpu c = g.cpu();
+//        Bus b = g.bus();
+//        
+//        b.write(0xC000,Opcode.LD_A_N8.encoding);
+//        b.write(0xC001, 3);;
+//        b.write(address, data);
+//    }
     
+
 }
