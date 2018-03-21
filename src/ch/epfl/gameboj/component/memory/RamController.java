@@ -85,7 +85,7 @@ public final class RamController implements Component {
         Preconditions.checkBits8(data);
 
         if (address >= startAddress && address < endAddress) {
-            ram.write(address - startAddress, data); System.out.println("wrote in the ram " + data);
+            ram.write(address - startAddress, data);
         }
     }
 }

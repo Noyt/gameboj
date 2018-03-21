@@ -118,7 +118,6 @@ public final class Cpu implements Component, Clocked {
         } else {
 
             int nextInstruction = read8(PC);
-            System.out.println(nextInstruction);
 
             Opcode instruction = null;
 
@@ -174,9 +173,6 @@ public final class Cpu implements Component, Clocked {
 
     @Override
     public int read(int address) {
-
-        // TODO preconditions superflues ? Est ce que autre chose que le bus
-        // appelera (indirectment) ce read ici ?
         Preconditions.checkBits16(address);
         if (address < AddressMap.HIGH_RAM_START
                 || address > AddressMap.HIGH_RAM_END) {
@@ -208,6 +204,7 @@ public final class Cpu implements Component, Clocked {
 
     private void dispatch(Opcode instruction) {
 
+        int nextPC = PC + instruction.totalBytes;
         boolean conditionVerified = false;
         switch (instruction.family) {
         case NOP: {
@@ -610,7 +607,8 @@ public final class Cpu implements Component, Clocked {
         case JP_CC_N16: {
             if (extractCondition(instruction)) {
                 conditionVerified = true;
-                PC = read16AfterOpcode();
+                //TODO
+                nextPC = read16AfterOpcode();
             }
         }
             break;
@@ -622,7 +620,10 @@ public final class Cpu implements Component, Clocked {
         case JR_CC_E8: {
             if (extractCondition(instruction)) {
                 conditionVerified = true;
-                PC += instruction.totalBytes + Bits.clip(16,
+                //TODO
+//                PC += instruction.totalBytes + Bits.clip(16,
+//                        Bits.signExtend8(read8AfterOpcode()));
+                nextPC += Bits.clip(16,
                         Bits.signExtend8(read8AfterOpcode()));
             }
         }
@@ -630,26 +631,30 @@ public final class Cpu implements Component, Clocked {
 
         // Calls and returns
         case CALL_N16: {
-            push16(PC + instruction.totalBytes);
-            PC = read16AfterOpcode();
+            push16(nextPC);
+            //TODO
+            nextPC = read16AfterOpcode();
         }
             break;
         case CALL_CC_N16: {
             if (extractCondition(instruction)) {
-                push16(PC + instruction.totalBytes);
-                PC = read16AfterOpcode();
+                push16(nextPC);
+                //nextPC
+                nextPC = read16AfterOpcode();
                 conditionVerified = true;
             }
         }
             break;
         case RST_U3: {
-            push16(PC + instruction.totalBytes);
-            PC = AddressMap.RESETS[extractBitIndex(instruction)];
+            push16(nextPC);
+            //TODO
+            nextPC = AddressMap.RESETS[extractBitIndex(instruction)];
             
         }
             break;
         case RET: {
-            PC = pop16();
+            //TODO
+            nextPC = pop16();
         }
             break;
         case RET_CC: {
@@ -683,6 +688,9 @@ public final class Cpu implements Component, Clocked {
         case STOP:
             throw new Error("STOP is not implemented");
         }
+        
+        //TODO
+        PC = nextPC;
         update(instruction, conditionVerified);
     }
 
@@ -867,7 +875,8 @@ public final class Cpu implements Component, Clocked {
             nextNonIdleCycle += opcode.additionalCycles;
         }
         nextNonIdleCycle += opcode.cycles;
-        PC += opcode.totalBytes;
+        //TODO
+        //PC += opcode.totalBytes;
     }
 
     private static Opcode[] buildOpcodeTable(Opcode.Kind kind) {
