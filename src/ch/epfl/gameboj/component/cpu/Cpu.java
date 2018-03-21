@@ -92,6 +92,9 @@ public final class Cpu implements Component, Clocked {
     @Override
     public void cycle(long cycle) {
 
+        if (nextNonIdleCycle == Long.MAX_VALUE && checkInterruptionIEIF()) {
+            nextNonIdleCycle = cycle;
+        }
         if (cycle < nextNonIdleCycle) {
             return;
         } else {
@@ -615,7 +618,7 @@ public final class Cpu implements Component, Clocked {
         }
             break;
         case CALL_CC_N16: {
-            if (exctractCondition(instruction)) {
+            if (extractCondition(instruction)) {
                 push16(PC + 1);
                 PC = read16AfterOpcode();
                 conditionVerified = true;
@@ -624,7 +627,8 @@ public final class Cpu implements Component, Clocked {
             break;
         case RST_U3: {
             push16(PC + 1);
-            PC = 8 * extractBitIndex(instruction);
+            PC = AddressMap.RESETS[extractBitIndex(instruction)];
+            
         }
             break;
         case RET: {
@@ -632,7 +636,7 @@ public final class Cpu implements Component, Clocked {
         }
             break;
         case RET_CC: {
-            if (exctractCondition(instruction)) {
+            if (extractCondition(instruction)) {
                 pop16();
                 conditionVerified = true;
             }
@@ -649,6 +653,7 @@ public final class Cpu implements Component, Clocked {
 
         // Misc control
         case HALT: {
+            nextNonIdleCycle = Long.MAX_VALUE;
         }
             break;
         case STOP:
@@ -975,7 +980,7 @@ public final class Cpu implements Component, Clocked {
         return Bits.test(file.get(Reg.F), 4);
     }
 
-    private boolean exctractCondition(Opcode opcode) {
+    private boolean extractCondition(Opcode opcode) {
         switch (Bits.extract(opcode.encoding, 3, 2)) {
         case 0b00:
             return !z();

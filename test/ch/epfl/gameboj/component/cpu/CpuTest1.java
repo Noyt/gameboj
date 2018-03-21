@@ -2285,4 +2285,9 @@ public class CpuTest1 {
                 0xA5, 0xB7 }, c._testGetPcSpAFBCDEHL());
         assertEquals(0xFF, b.read(0xA5B7));  
     }
+    
+    @Test
+    void Fibonnaci_12th_Works() {
+        
+    }
 }
