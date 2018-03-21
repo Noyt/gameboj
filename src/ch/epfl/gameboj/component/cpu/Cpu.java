@@ -95,6 +95,22 @@ public final class Cpu implements Component, Clocked {
         if (cycle < nextNonIdleCycle) {
             return;
         } else {
+            reallyCycle();
+        }
+    }
+
+    private void reallyCycle() {
+        if (IME && checkInterruptionIEIF()) {
+            IME = false;
+            int index = checkInterruptionIndex();
+            Bits.set(IF, index, false);
+            push16(PC);
+            // TODO
+            // PC = 0x40 + 8 * index;
+            PC = AddressMap.INTERRUPTS[index];
+            nextNonIdleCycle += 5;
+        } else {
+
             int nextInstruction = read8(PC);
 
             Opcode instruction = null;
@@ -114,6 +130,38 @@ public final class Cpu implements Component, Clocked {
                 }
             }
             dispatch(Objects.requireNonNull(instruction));
+        }
+    }
+
+    private boolean checkInterruptionIEIF() {
+        return (IF & IE) > 0;
+    }
+
+    private int checkInterruptionIndex() {
+        int nb = IF & IE;
+        for (int i = 0; i < 8; i++) {
+            if (Bits.test(nb, i)) {
+                return i;
+            }
+        }
+        throw new Error("no common bit equal to 1");
+
+    }
+
+    private int extractInterruptionIndex(Interrupt interrupt) {
+        switch (interrupt) {
+        case VBLANK:
+            return 0;
+        case LCD_STAT:
+            return 1;
+        case TIMER:
+            return 2;
+        case SERIAL:
+            return 3;
+        case JOYPAD:
+            return 4;
+        default:
+            throw new Error("no common bit equal to 1");
         }
     }
 
@@ -152,6 +200,8 @@ public final class Cpu implements Component, Clocked {
     }
 
     private void dispatch(Opcode instruction) {
+
+        boolean conditionVerified = false;
         switch (instruction.family) {
         case NOP: {
         }
@@ -560,18 +610,32 @@ public final class Cpu implements Component, Clocked {
 
         // Calls and returns
         case CALL_N16: {
+            push16(PC + 1);
+            PC = read16AfterOpcode();
         }
             break;
         case CALL_CC_N16: {
+            if (exctractCondition(instruction)) {
+                push16(PC + 1);
+                PC = read16AfterOpcode();
+                conditionVerified = true;
+            }
         }
             break;
         case RST_U3: {
+            push16(PC + 1);
+            PC = 8 * extractBitIndex(instruction);
         }
             break;
         case RET: {
+            PC = pop16();
         }
             break;
         case RET_CC: {
+            if (exctractCondition(instruction)) {
+                pop16();
+                conditionVerified = true;
+            }
         }
             break;
 
@@ -590,7 +654,7 @@ public final class Cpu implements Component, Clocked {
         case STOP:
             throw new Error("STOP is not implemented");
         }
-        update(instruction);
+        update(instruction, conditionVerified);
     }
 
     /*
@@ -769,7 +833,10 @@ public final class Cpu implements Component, Clocked {
 
     }
 
-    private void update(Opcode opcode) {
+    private void update(Opcode opcode, boolean conditionVerified) {
+        if (conditionVerified) {
+            nextNonIdleCycle += opcode.additionalCycles;
+        }
         nextNonIdleCycle += opcode.cycles;
         PC += opcode.totalBytes;
     }
@@ -906,5 +973,22 @@ public final class Cpu implements Component, Clocked {
 
     private boolean c() {
         return Bits.test(file.get(Reg.F), 4);
+    }
+
+    private boolean exctractCondition(Opcode opcode) {
+        switch (Bits.extract(opcode.encoding, 3, 2)) {
+        case 0b00:
+            return !z();
+        case 0b01:
+            return z();
+        case 0b10:
+            return !c();
+        case 0b11:
+            return c();
+
+        default:
+            throw new Error("This is not a condition");
+
+        }
     }
 }
