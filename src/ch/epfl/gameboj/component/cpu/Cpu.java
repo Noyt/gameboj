@@ -201,7 +201,7 @@ public final class Cpu implements Component, Clocked {
 
     private void dispatch(Opcode instruction) {
 
-        boolean isConditional = false;
+        boolean conditionVerified = false;
         switch (instruction.family) {
         case NOP: {
         }
@@ -610,18 +610,32 @@ public final class Cpu implements Component, Clocked {
 
         // Calls and returns
         case CALL_N16: {
+            push16(PC + 1);
+            PC = read16AfterOpcode();
         }
             break;
         case CALL_CC_N16: {
+            if (exctractCondition(instruction)) {
+                push16(PC + 1);
+                PC = read16AfterOpcode();
+                conditionVerified = true;
+            }
         }
             break;
         case RST_U3: {
+            push16(PC + 1);
+            PC = 8 * extractBitIndex(instruction);
         }
             break;
         case RET: {
+            PC = pop16();
         }
             break;
         case RET_CC: {
+            if (exctractCondition(instruction)) {
+                pop16();
+                conditionVerified = true;
+            }
         }
             break;
 
@@ -640,7 +654,7 @@ public final class Cpu implements Component, Clocked {
         case STOP:
             throw new Error("STOP is not implemented");
         }
-        update(instruction, isConditional);
+        update(instruction, conditionVerified);
     }
 
     /*
