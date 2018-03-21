@@ -1,16 +1,30 @@
 package ch.epfl.gameboj.component.cpu;
 
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
 
 import ch.epfl.gameboj.AddressMap;
 import ch.epfl.gameboj.Bus;
+import ch.epfl.gameboj.GameBoy;
+import ch.epfl.gameboj.Register;
+import ch.epfl.gameboj.bits.Bits;
 import ch.epfl.gameboj.component.memory.Ram;
 import ch.epfl.gameboj.component.memory.RamController;
 
 public class CpuTest1 {
+    
+    private enum RegList implements Register {
+        PC,SP,A,F,B,C,D,E,H,L
+     }
+
+    private byte[] Fib = new byte[] { (byte) 0x31, (byte) 0xFF, (byte) 0xFF,
+            (byte) 0x3E, (byte) 0x0B, (byte) 0xCD, (byte) 0x0A, (byte) 0x00,
+            (byte) 0x76, (byte) 0x00, (byte) 0xFE, (byte) 0x02, (byte) 0xD8,
+            (byte) 0xC5, (byte) 0x3D, (byte) 0x47, (byte) 0xCD, (byte) 0x0A,
+            (byte) 0x00, (byte) 0x4F, (byte) 0x78, (byte) 0x3D, (byte) 0xCD,
+            (byte) 0x0A, (byte) 0x00, (byte) 0x81, (byte) 0xC1, (byte) 0xC9};
 
     private Bus connect(Cpu cpu, Ram ram) {
         RamController rc = new RamController(ram, 0);
@@ -29,6 +43,10 @@ public class CpuTest1 {
         for (long c = start; c < start + cycles; ++c) {
             cpu.cycle(c);
         }
+    }
+    
+    private void assertRegisterValue(RegList reg, Cpu c, int v) {
+        assertEquals(v, c._testGetPcSpAFBCDEHL()[reg.index()]);
     }
 
     @Test
@@ -274,25 +292,25 @@ public class CpuTest1 {
                 0xCC, 0xFF, 0xEE }, c._testGetPcSpAFBCDEHL());
     }
 
-    @Test
-    void POP_R16_WorksForValidValue() {
-        Cpu c = new Cpu();
-        Ram r = new Ram(0xFFFF);
-        Bus b = connect(c, r);
-
-        b.write(0, Opcode.LD_SP_N16.encoding);
-        b.write(1, 0xFE);
-        b.write(2, 0xFF);
-        b.write(0xFFFE, 0x88);
-        b.write(3, Opcode.POP_AF.encoding);
-        b.write(4, Opcode.POP_BC.encoding);
-        b.write(5, Opcode.POP_DE.encoding);
-        b.write(6, Opcode.POP_HL.encoding);
-
-        cycleCpu(c, Opcode.POP_AF.cycles * 5);
-        assertArrayEquals(new int[] { 7, 6, 0xFF, 0x80, 0xFE, 0x31, 0xF1, 0xFF,
-                0xD1, 0xC1 }, c._testGetPcSpAFBCDEHL());
-    }
+//    @Test
+//    void POP_R16_WorksForValidValue() {
+//        Cpu c = new Cpu();
+//        Ram r = new Ram(0xFFFF);
+//        Bus b = connect(c, r);
+//
+//        b.write(0, Opcode.LD_SP_N16.encoding);
+//        b.write(1, 0xFE);
+//        b.write(2, 0xFF);
+//        b.write(0xFFFE, 0x88);
+//        b.write(3, Opcode.POP_AF.encoding);
+//        b.write(4, Opcode.POP_BC.encoding);
+//        b.write(5, Opcode.POP_DE.encoding);
+//        b.write(6, Opcode.POP_HL.encoding);
+//
+//        cycleCpu(c, Opcode.POP_AF.cycles * 5);
+//        assertArrayEquals(new int[] { 7, 6, 0xFF, 0x80, 0xFE, 0x31, 0xF1, 0xFF,
+//                0xD1, 0xC1 }, c._testGetPcSpAFBCDEHL());
+//    }
 
     @Test
     void LD_HLR_R8_WorksForValidValue() {
@@ -1309,7 +1327,7 @@ public class CpuTest1 {
         assertArrayEquals(
                 new int[] { 17, 0, 13, 0b1100 << 4, 0, 0, 0, 0, 0, 0 },
                 c._testGetPcSpAFBCDEHL());
-      
+
         b.write(17, Opcode.LD_HLR_N8.encoding);
         b.write(18, 14);
         b.write(19, Opcode.CP_A_HLR.encoding);
@@ -1653,8 +1671,9 @@ public class CpuTest1 {
                         + Opcode.LD_L_N8.cycles + Opcode.LD_HLR_N8.cycles
                         + Opcode.SRA_HLR.cycles);
 
-        assertArrayEquals(new int[] { 9, 0, 0xA5, 0, 0xF2, 0xF4, 0xF3, 0xF7,
-                0xA5, 0xB7 }, c._testGetPcSpAFBCDEHL());
+        assertArrayEquals(
+                new int[] { 9, 0, 0xA5, 0, 0xF2, 0xF4, 0xF3, 0xF7, 0xA5, 0xB7 },
+                c._testGetPcSpAFBCDEHL());
         assertEquals(0xF2, b.read(0xA5B7));
     }
 
@@ -1695,8 +1714,9 @@ public class CpuTest1 {
                         + Opcode.LD_L_N8.cycles + Opcode.LD_HLR_N8.cycles
                         + Opcode.SRL_HLR.cycles);
 
-        assertArrayEquals(new int[] { 9, 0, 0xA5, 0, 0xF2, 0xF4, 0xF3, 0xF7,
-                0xA5, 0xB7 }, c._testGetPcSpAFBCDEHL());
+        assertArrayEquals(
+                new int[] { 9, 0, 0xA5, 0, 0xF2, 0xF4, 0xF3, 0xF7, 0xA5, 0xB7 },
+                c._testGetPcSpAFBCDEHL());
         assertEquals(0x72, b.read(0xA5B7));
     }
 
@@ -1899,8 +1919,9 @@ public class CpuTest1 {
         cycleCpu(c, Opcode.LD_A_A.cycles * 3 + Opcode.LD_HLR_N8.cycles
                 + Opcode.RRC_HLR.cycles);
 
-        assertArrayEquals(new int[] { 9, 0, 0xA5, 0, 0xF2, 0xF4, 0xF3, 0xF7,
-                0xA5, 0xB7 }, c._testGetPcSpAFBCDEHL());
+        assertArrayEquals(
+                new int[] { 9, 0, 0xA5, 0, 0xF2, 0xF4, 0xF3, 0xF7, 0xA5, 0xB7 },
+                c._testGetPcSpAFBCDEHL());
         assertEquals(0x72, b.read(0xA5B7));
     }
 
@@ -1945,8 +1966,9 @@ public class CpuTest1 {
         cycleCpu(c, Opcode.LD_A_A.cycles * 3 + Opcode.LD_HLR_N8.cycles
                 + Opcode.RR_HLR.cycles);
 
-        assertArrayEquals(new int[] { 9, 0, 0xA5, 0, 0xF2, 0xF4, 0xF3, 0xF7,
-                0xA5, 0xB7 }, c._testGetPcSpAFBCDEHL());
+        assertArrayEquals(
+                new int[] { 9, 0, 0xA5, 0, 0xF2, 0xF4, 0xF3, 0xF7, 0xA5, 0xB7 },
+                c._testGetPcSpAFBCDEHL());
         assertEquals(0xF2, b.read(0xA5B7));
     }
 
@@ -2002,8 +2024,9 @@ public class CpuTest1 {
         cycleCpu(c, Opcode.LD_A_A.cycles * 3 + Opcode.LD_HLR_N8.cycles
                 + Opcode.SWAP_HLR.cycles);
 
-        assertArrayEquals(new int[] { 9, 0, 0xA5, 0, 0xF2, 0xF4, 0xF3, 0xF7,
-                0xA5, 0xB7 }, c._testGetPcSpAFBCDEHL());
+        assertArrayEquals(
+                new int[] { 9, 0, 0xA5, 0, 0xF2, 0xF4, 0xF3, 0xF7, 0xA5, 0xB7 },
+                c._testGetPcSpAFBCDEHL());
         assertEquals(0x4E, b.read(0xA5B7));
     }
 
@@ -2237,17 +2260,17 @@ public class CpuTest1 {
         b.write(4, Opcode.DEC_A.encoding);
         b.write(5, Opcode.DEC_H.encoding);
         cycleCpu(c, Opcode.LD_H_N8.cycles * 2 + Opcode.DEC_A.cycles * 2);
-        
+
         assertArrayEquals(new int[] { 6, 0, 0xC6, 0x70, 0xF2, 0xF4, 0xF3, 0xF7,
                 0xFF, 0xF5 }, c._testGetPcSpAFBCDEHL());
     }
-    
+
     @Test
     void DEC_HLR_WorksForValidValue() {
         Cpu c = new Cpu();
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
-        
+
         b.write(0, Opcode.LD_A_N8.encoding);
         b.write(1, 0xA5);
         b.write(2, Opcode.LD_H_A.encoding);
@@ -2258,18 +2281,18 @@ public class CpuTest1 {
         b.write(7, Opcode.DEC_HLR.encoding);
         cycleCpu(c, Opcode.LD_A_A.cycles * 3 + Opcode.LD_HLR_N8.cycles
                 + Opcode.DEC_HLR.cycles);
-        
+
         assertArrayEquals(new int[] { 8, 0, 0xA5, 0x50, 0xF2, 0xF4, 0xF3, 0xF7,
                 0xA5, 0xB7 }, c._testGetPcSpAFBCDEHL());
-        assertEquals(0xD4, b.read(0xA5B7));  
+        assertEquals(0xD4, b.read(0xA5B7));
     }
-    
+
     @Test
     void DEC_HLR_WorksForValidValue0() {
         Cpu c = new Cpu();
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
-        
+
         b.write(0, Opcode.LD_A_N8.encoding);
         b.write(1, 0xA5);
         b.write(2, Opcode.LD_H_A.encoding);
@@ -2280,14 +2303,42 @@ public class CpuTest1 {
         b.write(7, Opcode.DEC_HLR.encoding);
         cycleCpu(c, Opcode.LD_A_A.cycles * 3 + Opcode.LD_HLR_N8.cycles
                 + Opcode.DEC_HLR.cycles);
-        
+
         assertArrayEquals(new int[] { 8, 0, 0xA5, 0x70, 0xF2, 0xF4, 0xF3, 0xF7,
                 0xA5, 0xB7 }, c._testGetPcSpAFBCDEHL());
-        assertEquals(0xFF, b.read(0xA5B7));  
+        assertEquals(0xFF, b.read(0xA5B7));
+    }
+
+    @Test
+    void Fibonnaci_12th_Works() {
+        GameBoy g = new GameBoy(null);
+        
+        System.out.println("TESSSSSSSSSSSSSSSSSSSSSSSSSSSSST");
+        for (int i = AddressMap.WORK_RAM_START; i < Fib.length + AddressMap.WORK_RAM_START; i++) {
+            g.bus().write(i, Bits.clip(Byte.SIZE, Fib[i-AddressMap.WORK_RAM_START]));
+        }
+        
+
+        g.runUntil(6000);
+        
+        assertRegisterValue(RegList.A, g.cpu(), 89);
     }
     
     @Test
-    void Fibonnaci_12th_Works() {
+    void FibOld() {
+        Cpu c = new Cpu();
+        Ram r = new Ram(0xFFFF);
+        Bus b = connect(c, r);
         
+        for (int i = 0; i < Fib.length; i++) {
+            b.write(1, Bits.clip(Byte.SIZE, Fib[i]));
+        }
+        
+        long a = 0;
+        while(c._testGetPcSpAFBCDEHL()[0] != 8) {
+            c.cycle(a);
+        }
+        
+        assertRegisterValue(RegList.A, c, 89);
     }
 }

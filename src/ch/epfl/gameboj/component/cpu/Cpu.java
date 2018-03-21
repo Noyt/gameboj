@@ -74,21 +74,21 @@ public final class Cpu implements Component, Clocked {
         highRam = new Ram(AddressMap.HIGH_RAM_SIZE);
         file = new RegisterFile<Reg>(Reg.values());
         SP = 0;
-        PC = 0;
+        PC = AddressMap.WORK_RAM_START;
         IME = false;
         IF = 0;
         IE = 0;
         nextNonIdleCycle = 0;
 
         // // TODO enlever ca c'est tres important c'est pour les tests!!!!!!!!
-        // file.set(Reg.A, 0xF0);
-        // file.set(Reg.F, 0xF1);
-        // file.set(Reg.B, 0xF2);
-        // file.set(Reg.C, 0xF4);
-        // file.set(Reg.D, 0xF3);
-        // file.set(Reg.E, 0xF7);
-        // file.set(Reg.H, 0xFA);
-        // file.set(Reg.L, 0xF5);
+//         file.set(Reg.A, 0xF0);
+//         file.set(Reg.F, 0xF1);
+//         file.set(Reg.B, 0xF2);
+//         file.set(Reg.C, 0xF4);
+//         file.set(Reg.D, 0xF3);
+//         file.set(Reg.E, 0xF7);
+//         file.set(Reg.H, 0xFA);
+//         file.set(Reg.L, 0xF5);
 
     }
 
@@ -118,6 +118,7 @@ public final class Cpu implements Component, Clocked {
         } else {
 
             int nextInstruction = read8(PC);
+            System.out.println(nextInstruction);
 
             Opcode instruction = null;
 
@@ -185,7 +186,7 @@ public final class Cpu implements Component, Clocked {
         } else if (address == AddressMap.REG_IF) {
             return IF;
         } else {
-            return highRam.read(address);
+            return highRam.read(address- AddressMap.HIGH_RAM_START);
         }
     }
 
@@ -195,7 +196,7 @@ public final class Cpu implements Component, Clocked {
         Preconditions.checkBits8(data);
 
         if (address >= AddressMap.HIGH_RAM_START
-                || address < AddressMap.HIGH_RAM_END) {
+                && address < AddressMap.HIGH_RAM_END) {
             highRam.write(address - AddressMap.HIGH_RAM_START, data);
         }
         if (address == AddressMap.REG_IE) {
@@ -614,14 +615,14 @@ public final class Cpu implements Component, Clocked {
         }
             break;
         case JR_E8: {
-            PC += 1 + Bits.clip(16,
+            PC += instruction.totalBytes + Bits.clip(16,
                     Bits.signExtend8(read8AfterOpcode()));
         }
             break;
         case JR_CC_E8: {
             if (extractCondition(instruction)) {
                 conditionVerified = true;
-                PC += 1 + Bits.clip(16,
+                PC += instruction.totalBytes + Bits.clip(16,
                         Bits.signExtend8(read8AfterOpcode()));
             }
         }
@@ -629,20 +630,20 @@ public final class Cpu implements Component, Clocked {
 
         // Calls and returns
         case CALL_N16: {
-            push16(PC + 1);
+            push16(PC + instruction.totalBytes);
             PC = read16AfterOpcode();
         }
             break;
         case CALL_CC_N16: {
             if (extractCondition(instruction)) {
-                push16(PC + 1);
+                push16(PC + instruction.totalBytes);
                 PC = read16AfterOpcode();
                 conditionVerified = true;
             }
         }
             break;
         case RST_U3: {
-            push16(PC + 1);
+            push16(PC + instruction.totalBytes);
             PC = AddressMap.RESETS[extractBitIndex(instruction)];
             
         }
