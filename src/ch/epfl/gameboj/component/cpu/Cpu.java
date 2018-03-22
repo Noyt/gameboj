@@ -80,15 +80,15 @@ public final class Cpu implements Component, Clocked {
         IE = 0;
         nextNonIdleCycle = 0;
 
-        // // TODO enlever ca c'est tres important c'est pour les tests!!!!!!!!
-        // file.set(Reg.A, 0xF0);
-        // file.set(Reg.F, 0xF1);
-        // file.set(Reg.B, 0xF2);
-        // file.set(Reg.C, 0xF4);
-        // file.set(Reg.D, 0xF3);
-        // file.set(Reg.E, 0xF7);
-        // file.set(Reg.H, 0xFA);
-        // file.set(Reg.L, 0xF5);
+         // TODO enlever ca c'est tres important c'est pour les tests!!!!!!!!
+         file.set(Reg.A, 0xF0);
+         file.set(Reg.F, 0xF1);
+         file.set(Reg.B, 0xF2);
+         file.set(Reg.C, 0xF4);
+         file.set(Reg.D, 0xF3);
+         file.set(Reg.E, 0xF7);
+         file.set(Reg.H, 0xFA);
+         file.set(Reg.L, 0xF5);
 
     }
 
@@ -177,15 +177,16 @@ public final class Cpu implements Component, Clocked {
         // TODO preconditions superflues ? Est ce que autre chose que le bus
         // appelera (indirectment) ce read ici ?
         Preconditions.checkBits16(address);
+        
         if (address < AddressMap.HIGH_RAM_START
                 || address > AddressMap.HIGH_RAM_END) {
-            return NO_DATA;
+            return NO_DATA; 
         } else if (address == AddressMap.REG_IE) {
             return IE;
         } else if (address == AddressMap.REG_IF) {
             return IF;
         } else {
-            return highRam.read(address);
+            return highRam.read(address - AddressMap.HIGH_RAM_START); 
         }
     }
 
@@ -195,7 +196,7 @@ public final class Cpu implements Component, Clocked {
         Preconditions.checkBits8(data);
 
         if (address >= AddressMap.HIGH_RAM_START
-                || address < AddressMap.HIGH_RAM_END) {
+                && address < AddressMap.HIGH_RAM_END) {
             highRam.write(address - AddressMap.HIGH_RAM_START, data);
         }
         if (address == AddressMap.REG_IE) {
@@ -252,7 +253,6 @@ public final class Cpu implements Component, Clocked {
             break;
         case POP_R16: {
             setReg16(extractReg16(instruction), pop16());
-
         }
             break;
         case LD_HLR_R8: {

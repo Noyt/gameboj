@@ -290,8 +290,8 @@ public class CpuTest1 {
         b.write(5, Opcode.POP_DE.encoding);
         b.write(6, Opcode.POP_HL.encoding);
 
-        cycleCpu(c, Opcode.POP_AF.cycles * 5);
-        assertArrayEquals(new int[] { 7, 6, 0xFF, 0x80, 0xFE, 0x31, 0xF1, 0xFF,
+        cycleCpu(c, Opcode.POP_AF.cycles * 5); 
+        assertArrayEquals(new int[] { 7, 6, 0, 0x80, 0xFE, 0x31, 0xF1, 0xFF,
                 0xD1, 0xC1 }, c._testGetPcSpAFBCDEHL());
     }
 
