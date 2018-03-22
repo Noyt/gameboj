@@ -74,7 +74,7 @@ public final class Cpu implements Component, Clocked {
         highRam = new Ram(AddressMap.HIGH_RAM_SIZE);
         file = new RegisterFile<Reg>(Reg.values());
         SP = 0;
-        //PC = AddressMap.WORK_RAM_START;
+        // PC = AddressMap.WORK_RAM_START;
         PC = 0;
         IME = false;
         IF = 0;
@@ -82,14 +82,14 @@ public final class Cpu implements Component, Clocked {
         nextNonIdleCycle = 0;
 
         // // TODO enlever ca c'est tres important c'est pour les tests!!!!!!!!
-         file.set(Reg.A, 0xF0);
-         file.set(Reg.F, 0xF1);
-         file.set(Reg.B, 0xF2);
-         file.set(Reg.C, 0xF4);
-         file.set(Reg.D, 0xF3);
-         file.set(Reg.E, 0xF7);
-         file.set(Reg.H, 0xFA);
-         file.set(Reg.L, 0xF5);
+        file.set(Reg.A, 0xF0);
+        file.set(Reg.F, 0xF1);
+        file.set(Reg.B, 0xF2);
+        file.set(Reg.C, 0xF4);
+        file.set(Reg.D, 0xF3);
+        file.set(Reg.E, 0xF7);
+        file.set(Reg.H, 0xFA);
+        file.set(Reg.L, 0xF5);
 
     }
 
@@ -183,7 +183,7 @@ public final class Cpu implements Component, Clocked {
         } else if (address == AddressMap.REG_IF) {
             return IF;
         } else {
-            return highRam.read(address- AddressMap.HIGH_RAM_START);
+            return highRam.read(address - AddressMap.HIGH_RAM_START);
         }
     }
 
@@ -598,36 +598,42 @@ public final class Cpu implements Component, Clocked {
 
         // Jumps
         case JP_HL: {
-            //TODO
+            // TODO
             nextPC = reg16(Reg16.HL);
         }
             break;
         case JP_N16: {
-            //TODO
+            // TODO
             nextPC = read16AfterOpcode();
         }
             break;
         case JP_CC_N16: {
             if (extractCondition(instruction)) {
                 conditionVerified = true;
-                //TODO
+                // TODO
                 nextPC = read16AfterOpcode();
             }
         }
             break;
         case JR_E8: {
-            PC += instruction.totalBytes + Bits.clip(16,
+            // TODO
+            // PC += instruction.totalBytes + Bits.clip(16,
+            // Bits.signExtend8(read8AfterOpcode()));
+            int signedValue = Bits.clip(16,
                     Bits.signExtend8(read8AfterOpcode()));
+
+            nextPC = Alu.unpackValue(Alu.add16H(nextPC, signedValue));
         }
             break;
         case JR_CC_E8: {
             if (extractCondition(instruction)) {
                 conditionVerified = true;
-                //TODO
-//                PC += instruction.totalBytes + Bits.clip(16,
-//                        Bits.signExtend8(read8AfterOpcode()));
-                nextPC += Bits.clip(16,
+                // TODO
+                // PC += instruction.totalBytes + Bits.clip(16,
+                // Bits.signExtend8(read8AfterOpcode()));
+                int signedValue = Bits.clip(16,
                         Bits.signExtend8(read8AfterOpcode()));
+                nextPC = Alu.unpackValue(Alu.add16H(nextPC, signedValue));
             }
         }
             break;
@@ -635,14 +641,14 @@ public final class Cpu implements Component, Clocked {
         // Calls and returns
         case CALL_N16: {
             push16(nextPC);
-            //TODO
+            // TODO
             nextPC = read16AfterOpcode();
         }
             break;
         case CALL_CC_N16: {
             if (extractCondition(instruction)) {
                 push16(nextPC);
-                //nextPC
+                // nextPC
                 nextPC = read16AfterOpcode();
                 conditionVerified = true;
             }
@@ -650,13 +656,13 @@ public final class Cpu implements Component, Clocked {
             break;
         case RST_U3: {
             push16(nextPC);
-            //TODO
+            // TODO
             nextPC = AddressMap.RESETS[extractBitIndex(instruction)];
-            
+
         }
             break;
         case RET: {
-            //TODO
+            // TODO
             nextPC = pop16();
         }
             break;
@@ -670,16 +676,23 @@ public final class Cpu implements Component, Clocked {
 
         // Interrupts
         case EDI: {
-            switch(Bits.extract(instruction.encoding, 3, 2)) {
-            case 0b10 : IME = true; break;
-            case 0b00 : IME = false; break;
-            default : throw new Error("not an EDI instruction");
+            switch (Bits.extract(instruction.encoding, 3, 2)) {
+            case 0b10:
+                IME = true;
+                break;
+            case 0b00:
+                IME = false;
+                break;
+            default:
+                throw new Error("not an EDI instruction");
             }
         }
             break;
         case RETI: {
             IME = true;
-            PC = pop16();
+            // TODO
+            // PC = pop16();
+            nextPC = pop16();
         }
             break;
 
@@ -691,8 +704,8 @@ public final class Cpu implements Component, Clocked {
         case STOP:
             throw new Error("STOP is not implemented");
         }
-        
-        //TODO
+
+        // TODO
         PC = nextPC;
         update(instruction, conditionVerified);
     }
@@ -878,8 +891,8 @@ public final class Cpu implements Component, Clocked {
             nextNonIdleCycle += opcode.additionalCycles;
         }
         nextNonIdleCycle += opcode.cycles;
-        //TODO
-        //PC += opcode.totalBytes;
+        // TODO
+        // PC += opcode.totalBytes;
     }
 
     private static Opcode[] buildOpcodeTable(Opcode.Kind kind) {
