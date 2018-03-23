@@ -97,7 +97,7 @@ public final class Cpu implements Component, Clocked {
     public void cycle(long cycle) {
 
         if (nextNonIdleCycle == Long.MAX_VALUE && checkInterruptionIEIF()) {
-            nextNonIdleCycle = cycle;
+            nextNonIdleCycle = cycle; 
         }
         if (cycle < nextNonIdleCycle) {
             return;
@@ -110,11 +110,11 @@ public final class Cpu implements Component, Clocked {
         if (IME && checkInterruptionIEIF()) {
             IME = false;
             int index = checkInterruptionIndex();
-            Bits.set(IF, index, false);
+            IF = Bits.set(IF, index, false);
             push16(PC);
             // TODO
             // PC = 0x40 + 8 * index;
-            PC = AddressMap.INTERRUPTS[index];
+            PC = AddressMap.INTERRUPTS[index]; System.out.println("PC " + PC);
             nextNonIdleCycle += 5;
         } else {
 
@@ -668,7 +668,7 @@ public final class Cpu implements Component, Clocked {
             break;
         case RET_CC: {
             if (extractCondition(instruction)) {
-                pop16();
+                nextPC = pop16();
                 conditionVerified = true;
             }
         }
@@ -676,11 +676,11 @@ public final class Cpu implements Component, Clocked {
 
         // Interrupts
         case EDI: {
-            switch (Bits.extract(instruction.encoding, 3, 2)) {
-            case 0b10:
+            switch (Bits.extract(instruction.encoding, 3, 1)) {
+            case 1:
                 IME = true;
                 break;
-            case 0b00:
+            case 0:
                 IME = false;
                 break;
             default:
@@ -925,7 +925,7 @@ public final class Cpu implements Component, Clocked {
     }
 
     public void requestInterrupt(Interrupt i) {
-        Bits.set(IF, i.index(), true);
+        IF = Bits.set(IF, i.index(), true);
     }
 
     // ---Flags ToolBox----
@@ -1044,5 +1044,29 @@ public final class Cpu implements Component, Clocked {
             throw new Error("This is not a condition");
 
         }
+    }
+
+    // TODO
+    // methode rajoutée pour les tests
+    public boolean getIME() {
+        return IME;
+    }
+
+    // TODO
+    // methode rajoutée pour les tests
+    public boolean getIFIndex(Interrupt i) {
+        return Bits.test(IF, i.index());
+    }
+    
+    //TODO
+    // methode rajoutée pour les tests
+    public void setIE(Interrupt i) {
+        IE = Bits.set(IE, i.index(), true);
+    }
+    
+    //TODO
+    // methode rajoutée pour les tests
+    public void setIME(boolean b) {
+        IME = b;
     }
 }

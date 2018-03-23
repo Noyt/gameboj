@@ -10,6 +10,7 @@ import ch.epfl.gameboj.Bus;
 import ch.epfl.gameboj.GameBoy;
 import ch.epfl.gameboj.Register;
 import ch.epfl.gameboj.bits.Bits;
+import ch.epfl.gameboj.component.cpu.Cpu.Interrupt;
 import ch.epfl.gameboj.component.memory.Ram;
 import ch.epfl.gameboj.component.memory.RamController;
 
@@ -2325,27 +2326,24 @@ public class CpuTest1 {
     // assertRegisterValue(RegList.A, g.cpu(), 89);
     // }
 
-    // @Test
-    // void FibOld() {
-    // Cpu c = new Cpu();
-    // Ram r = new Ram(0xFFFF);
-    // Bus b = connect(c, r);
-    //
-    // for (int i = 0; i < Fib.length; i++) {
-    // b.write(i, Bits.clip(Byte.SIZE, Fib[i]));
-    // }
-    //
-    // long a = 0;
-    // while(c._testGetPcSpAFBCDEHL()[0] != 8) {
-    // System.out.println(c._testGetPcSpAFBCDEHL()[0]);
-    // if(c._testGetPcSpAFBCDEHL()[0] > 2) {
-    // return;
-    //// }
-    // c.cycle(a);
-    // }
-    //
-    // assertRegisterValue(RegList.A, c, 89);
-    // }
+    @Test
+    void FibOld() {
+        Cpu c = new Cpu();
+        Ram r = new Ram(0xFFFF);
+        Bus b = connect(c, r);
+
+        for (int i = 0; i < Fib.length; i++) {
+            b.write(i, Bits.clip(Byte.SIZE, Fib[i]));
+        }
+
+        long a = 0;
+        while (c._testGetPcSpAFBCDEHL()[0] != 8) {
+            c.cycle(a);
+            a++;
+        }
+
+        assertRegisterValue(RegList.A, c, 89);
+    }
 
     @Test
     void JP_HL_WorksForValidValue() {
@@ -2425,37 +2423,148 @@ public class CpuTest1 {
 
     }
 
-//    @Test
-//    void JR_CC_E8_WorksForValidValue() {
-//        Cpu c = new Cpu();
-//        Ram r = new Ram(0xFFFF);
-//        Bus b = connect(c, r);
-//
-//        b.write(0, Opcode.JP_N16.encoding);
-//        b.write(1, 0x23);
-//        b.write(2, 0x30);
-//        b.write(0x3023, Opcode.JR_NC_E8.encoding);
-//        b.write(0x3024, 0xFE);
-//        cycleCpu(c, Opcode.JP_N16.cycles + Opcode.JR_NC_E8.cycles);
-//
-//        assertRegisterValue(RegList.PC, c, 0x3025);
-//        
-//        b.write(0x3025, Opcode.JR_NZ_E8.encoding);
-//        b.write(0x3026, 0xFE);
-//        cycleCpu(c, 5, Opcode.JR_NZ_E8.encoding);
-//        
-//        assertRegisterValue(RegList.PC, c, 0x3027);
-//    }
+    @Test
+    void JR_CC_E8_WorksForValidValue() {
+        Cpu c = new Cpu();
+        Ram r = new Ram(0xFFFF);
+        Bus b = connect(c, r);
 
-    // @Test
-    // void CALL_N16_WorksForValidValues() {
-    // GameBoy g = new GameBoy(null);
-    // Cpu c = g.cpu();
-    // Bus b = g.bus();
-    //
-    // b.write(0xC000,Opcode.LD_A_N8.encoding);
-    // b.write(0xC001, 3);;
-    // b.write(address, data);
-    // }
+        b.write(0, Opcode.JP_N16.encoding);
+        b.write(1, 0x23);
+        b.write(2, 0x30);
+        b.write(0x3023, Opcode.JR_NZ_E8.encoding);
+        b.write(0x3024, 0xFE);
+        cycleCpu(c, Opcode.JP_N16.cycles + Opcode.JR_NZ_E8.cycles);
+
+        assertRegisterValue(RegList.PC, c, 0x3025);
+    }
+
+    @Test
+    void JR_CC_E8_WorksForValidValueSimpleCondition() {
+        Cpu c = new Cpu();
+        Ram r = new Ram(0xFFFF);
+        Bus b = connect(c, r);
+
+        b.write(0, Opcode.JP_N16.encoding);
+        b.write(1, 0x23);
+        b.write(2, 0x30);
+        b.write(0x3023, Opcode.JR_C_E8.encoding);
+        b.write(0x3024, 0xFE);
+        cycleCpu(c, Opcode.JP_N16.cycles + Opcode.JR_C_E8.cycles);
+
+        assertRegisterValue(RegList.PC, c, 0x3023);
+    }
+
+    @Test
+    void EDI_WorksForValidValue() {
+        Cpu c = new Cpu();
+        Ram r = new Ram(0xFFFF);
+        Bus b = connect(c, r);
+
+        b.write(0, Opcode.EI.encoding);
+        cycleCpu(c, Opcode.EI.cycles);
+
+        assertEquals(true, c.getIME());
+
+        b.write(1, Opcode.DI.encoding);
+        cycleCpu(c, 1, Opcode.DI.cycles);
+
+        assertEquals(false, c.getIME());
+    }
+
+    @Test
+    void RETI_WorksForValidValue() {
+        Cpu c = new Cpu();
+        Ram r = new Ram(0xFFFF);
+        Bus b = connect(c, r);
+
+        b.write(0, Opcode.LD_SP_N16.encoding);
+        b.write(1, 0xFF);
+        b.write(2, 0xFF);
+        b.write(3, Opcode.CALL_N16.encoding);
+        b.write(4, 0x30);
+        b.write(5, 0xA6);
+        b.write(0xA630, Opcode.RETI.encoding);
+        cycleCpu(c, Opcode.CALL_N16.cycles + Opcode.RETI.cycles);
+        
+        assertEquals(true, c.getIME());
+        assertRegisterValue(RegList.PC, c, 6);
+    }
+    
+    @Test
+    void RequestInterrupt_Works() {
+        Cpu c = new Cpu();
+        Ram r = new Ram(0xFFFF);
+        Bus b = connect(c, r);
+        
+        c.requestInterrupt(Interrupt.VBLANK);
+        assertEquals(true, c.getIFIndex(Interrupt.VBLANK));
+        
+        c.requestInterrupt(Interrupt.LCD_STAT);
+        assertEquals(true, c.getIFIndex(Interrupt.LCD_STAT));
+        
+        c.requestInterrupt(Interrupt.TIMER);
+        assertEquals(true, c.getIFIndex(Interrupt.TIMER));
+        
+        c.requestInterrupt(Interrupt.SERIAL);
+        assertEquals(true, c.getIFIndex(Interrupt.SERIAL));
+        
+        c.requestInterrupt(Interrupt.JOYPAD);
+        assertEquals(true, c.getIFIndex(Interrupt.JOYPAD));
+    }
+    
+    @Test
+    void HALT_Works() {
+        Cpu c = new Cpu();
+        Ram r = new Ram(0xFFFF);
+        Bus b = connect(c, r);
+        
+        b.write(0, Opcode.JP_N16.encoding);
+        b.write(1, 0x00);
+        b.write(2, 0xC0);
+        b.write(0xC000, Opcode.HALT.encoding);
+        cycleCpu(c, Opcode.JP_N16.cycles + Opcode.HALT.cycles + 1);
+        
+        assertRegisterValue(RegList.PC, c, AddressMap.WORK_RAM_START + 1);
+        
+        c.setIE(Interrupt.VBLANK);
+        b.write(0xC001, Opcode.JP_N16.encoding);
+        b.write(0xC002, 0x23);
+        b.write(0xC003, 0x30);
+        cycleCpu(c, 5, Opcode.JP_N16.cycles);
+        
+        assertRegisterValue(RegList.PC, c, AddressMap.WORK_RAM_START + 1);
+        
+        c.requestInterrupt(Interrupt.VBLANK);
+        b.write(0xC001, Opcode.JP_N16.encoding);
+        b.write(0xC002, 0x23);
+        b.write(0xC003, 0x30);
+        cycleCpu(c, 5, Opcode.JP_N16.cycles);
+        
+        assertRegisterValue(RegList.PC, c, 0x3023);
+        
+        b.write(0x3023, Opcode.HALT.encoding);
+        cycleCpu(c, 9, Opcode.HALT.cycles + 1);
+        
+        assertRegisterValue(RegList.PC, c, 0x3024);
+        
+        c.setIME(true);
+        cycleCpu(c, 1);
+        
+        assertRegisterValue(RegList.PC, c, 0x40);
+        
+        b.write(0x40, Opcode.HALT.encoding);
+        cycleCpu(c, 9, Opcode.HALT.cycles + 1);
+        
+        assertRegisterValue(RegList.PC, c, 0x41);
+        
+        c.setIE(Interrupt.SERIAL);
+        c.requestInterrupt(Interrupt.SERIAL);
+        c.setIME(true);
+        cycleCpu(c, 1);
+        
+        assertRegisterValue(RegList.PC, c, 0x58);
+    }
+
 
 }
