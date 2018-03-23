@@ -49,25 +49,25 @@ public final class Cpu implements Component, Clocked {
         VBLANK, LCD_STAT, TIMER, SERIAL, JOYPAD
     }
 
-    // public void _testSetRegisters(int A, int B, int C, int D, int E, int F,
-    // int H, int L) {
-    // file.set(Reg.A, A);
-    // file.set(Reg.B, B);
-    // file.set(Reg.C, C);
-    // file.set(Reg.D, D);
-    // file.set(Reg.E, E);
-    // file.set(Reg.F, F);
-    // file.set(Reg.H, H);
-    // file.set(Reg.L, L);
-    // }
-    //
-    // public void _testWriteAtAddressInBus(int address, int v) {
-    // bus.write(address, v);
-    // }
-    //
-    // public int _testGetValueAtAddressInBus(int address) {
-    // return bus.read(address);
-    // }
+    public void _testSetRegisters(int A, int B, int C, int D, int E, int F,
+            int H, int L) {
+        file.set(Reg.A, A);
+        file.set(Reg.B, B);
+        file.set(Reg.C, C);
+        file.set(Reg.D, D);
+        file.set(Reg.E, E);
+        file.set(Reg.F, F);
+        file.set(Reg.H, H);
+        file.set(Reg.L, L);
+    }
+
+    public void _testWriteAtAddressInBus(int address, int v) {
+        bus.write(address, v);
+    }
+
+    public int _testGetValueAtAddressInBus(int address) {
+        return bus.read(address);
+    }
 
     public Cpu() {
 
@@ -81,7 +81,7 @@ public final class Cpu implements Component, Clocked {
         IE = 0;
         nextNonIdleCycle = 0;
 
-        // // TODO enlever ca c'est tres important c'est pour les tests!!!!!!!!
+        // TODO enlever ca c'est tres important c'est pour les tests!!!!!!!!
         file.set(Reg.A, 0xF0);
         file.set(Reg.F, 0xF1);
         file.set(Reg.B, 0xF2);
@@ -90,12 +90,10 @@ public final class Cpu implements Component, Clocked {
         file.set(Reg.E, 0xF7);
         file.set(Reg.H, 0xFA);
         file.set(Reg.L, 0xF5);
-
     }
 
     @Override
     public void cycle(long cycle) {
-
         if (nextNonIdleCycle == Long.MAX_VALUE && checkInterruptionIEIF()) {
             nextNonIdleCycle = cycle; 
         }
@@ -175,6 +173,7 @@ public final class Cpu implements Component, Clocked {
     @Override
     public int read(int address) {
         Preconditions.checkBits16(address);
+
         if (address < AddressMap.HIGH_RAM_START
                 || address > AddressMap.HIGH_RAM_END) {
             return NO_DATA;
@@ -251,7 +250,6 @@ public final class Cpu implements Component, Clocked {
             break;
         case POP_R16: {
             setReg16(extractReg16(instruction), pop16());
-
         }
             break;
         case LD_HLR_R8: {
@@ -656,13 +654,10 @@ public final class Cpu implements Component, Clocked {
             break;
         case RST_U3: {
             push16(nextPC);
-            // TODO
             nextPC = AddressMap.RESETS[extractBitIndex(instruction)];
-
         }
             break;
         case RET: {
-            // TODO
             nextPC = pop16();
         }
             break;
