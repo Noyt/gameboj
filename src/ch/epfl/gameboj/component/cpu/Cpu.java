@@ -48,6 +48,38 @@ public final class Cpu implements Component, Clocked {
     public enum Interrupt implements Bit {
         VBLANK, LCD_STAT, TIMER, SERIAL, JOYPAD
     }
+    
+//    public int[] _testGetPcSpAFBCDEHL() {
+//        int[] res = new int[10];
+//        res[0] = PC;
+//        res[1] = SP;
+//        res[2] = file.get(Reg.A);
+//        res[3] = file.get(Reg.F);
+//        res[4] = file.get(Reg.B);
+//        res[5] = file.get(Reg.C);
+//        res[6] = file.get(Reg.D);
+//        res[7] = file.get(Reg.E);
+//        res[8] = file.get(Reg.H);
+//        res[9] = file.get(Reg.L);
+//        return res;
+//    }
+    
+    //TODO mettre cette fonction en private
+    public void _testWriteAtAddressInBus(int address, int v) {
+        bus.write(address, v);
+    }
+    //TODO mettre cette fonction en private
+    public int _testGetValueAtAddressInBus(int address) {
+        return bus.read(address);
+    }
+    
+    public void _testSetCP(int add) {
+        PC = add;
+    }
+    
+    public void _testSetSP(int add) {
+        SP = add;
+    }
 
     public void _testSetRegisters(int A, int B, int C, int D, int E, int F,
             int H, int L) {
@@ -61,13 +93,6 @@ public final class Cpu implements Component, Clocked {
         file.set(Reg.L, L);
     }
 
-    public void _testWriteAtAddressInBus(int address, int v) {
-        bus.write(address, v);
-    }
-
-    public int _testGetValueAtAddressInBus(int address) {
-        return bus.read(address);
-    }
 
     public Cpu() {
 

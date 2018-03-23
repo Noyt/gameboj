@@ -605,17 +605,17 @@ public class CpuTest1 {
         b.write(35, Opcode.LD_A_N8.encoding);
         b.write(36, 52);
         b.write(37, Opcode.ADD_A_B.encoding);
-        cycleCpu(c, 34, 5);
+        cycleCpu(c, 33, 5);
         assertArrayEquals(
-                new int[] { 39, 0, 0, 0b1011 << 4, 204, 0, 255, 12, 3, 224 },
+                new int[] { 38, 0, 0, 0b1011 << 4, 204, 0, 255, 12, 3, 224 },
                 c._testGetPcSpAFBCDEHL());
 
-        b.write(39, Opcode.LD_A_N8.encoding);
-        b.write(40, 45);
-        b.write(41, Opcode.ADC_A_A.encoding);
-        cycleCpu(c, 39, 3);
+        b.write(38, Opcode.LD_A_N8.encoding);
+        b.write(39, 45);
+        b.write(40, Opcode.ADC_A_A.encoding);
+        cycleCpu(c, 38, 3);
         assertArrayEquals(
-                new int[] { 42, 0, 91, 0b010 << 4, 204, 0, 255, 12, 3, 224 },
+                new int[] { 41, 0, 91, 0b010 << 4, 204, 0, 255, 12, 3, 224 },
                 c._testGetPcSpAFBCDEHL());
     }
 
@@ -2426,27 +2426,27 @@ public class CpuTest1 {
 
     }
 
-    // @Test
-    // void JR_CC_E8_WorksForValidValue() {
-    // Cpu c = new Cpu();
-    // Ram r = new Ram(0xFFFF);
-    // Bus b = connect(c, r);
-    //
-    // b.write(0, Opcode.JP_N16.encoding);
-    // b.write(1, 0x23);
-    // b.write(2, 0x30);
-    // b.write(0x3023, Opcode.JR_NC_E8.encoding);
-    // b.write(0x3024, 0xFE);
-    // cycleCpu(c, Opcode.JP_N16.cycles + Opcode.JR_NC_E8.cycles);
-    //
-    // assertRegisterValue(RegList.PC, c, 0x3025);
-    //
-    // b.write(0x3025, Opcode.JR_NZ_E8.encoding);
-    // b.write(0x3026, 0xFE);
-    // cycleCpu(c, 5, Opcode.JR_NZ_E8.encoding);
-    //
-    // assertRegisterValue(RegList.PC, c, 0x3027);
-    // }
+     @Test
+     void JR_CC_E8_WorksForValidValue() {
+     Cpu c = new Cpu();
+     Ram r = new Ram(0xFFFF);
+     Bus b = connect(c, r);
+    
+     b.write(0, Opcode.JP_N16.encoding);
+     b.write(1, 0x23);
+     b.write(2, 0x30);
+     b.write(0x3023, Opcode.JR_NC_E8.encoding);
+     b.write(0x3024, 0xFE);
+     cycleCpu(c, Opcode.JP_N16.cycles + Opcode.JR_NC_E8.cycles);
+    
+     assertRegisterValue(RegList.PC, c, 0x3025);
+    
+     b.write(0x3025, Opcode.JR_NZ_E8.encoding);
+     b.write(0x3026, 0xFE);
+     cycleCpu(c, 6, Opcode.JR_NZ_E8.cycles);
+    
+     assertRegisterValue(RegList.PC, c, 0x3027);
+     }
 
     @Test
     void CALL_N16_AND_RET_WorkForValidValues() {
