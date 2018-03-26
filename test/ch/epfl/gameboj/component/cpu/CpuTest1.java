@@ -55,6 +55,9 @@ public class CpuTest1 {
         Cpu c = new Cpu();
         Ram r = new Ram(10);
         Bus b = connect(c, r);
+        
+        c.initializeRegisters();
+        
         b.write(0, Opcode.NOP.encoding);
 
         cycleCpu(c, Opcode.NOP.cycles);
@@ -67,6 +70,8 @@ public class CpuTest1 {
         Cpu c = new Cpu();
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
+        
+        c.initializeRegisters();
 
         b.write(0xFAF5, 34);
         b.write(0, Opcode.LD_B_HLR.encoding);
@@ -92,6 +97,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0xFAF5, 34);
         b.write(0, Opcode.LD_A_HLRD.encoding);
 
@@ -106,6 +113,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.PUSH_AF.encoding);
 
         b.write(1, Opcode.PUSH_BC.encoding);
@@ -135,6 +144,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_SP_HL.encoding);
         cycleCpu(c, Opcode.LD_SP_HL.cycles);
         assertArrayEquals(new int[] { 1, 0xFAF5, 0xF0, 0xF1, 0xF2, 0xF4, 0xF3,
@@ -147,6 +158,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0xFAF5, 34);
         b.write(0, Opcode.LD_A_HLRD.encoding);
 
@@ -161,6 +174,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0xFAF5, 34);
         b.write(0, Opcode.LD_A_HLRI.encoding);
 
@@ -176,6 +191,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(1, 0x55);
         b.write(AddressMap.REGS_START + 0x55, 0x23);
         b.write(0, Opcode.LD_A_N8R.encoding);
@@ -191,6 +208,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_A_CR.encoding);
         b.write(AddressMap.REGS_START + 0xF4, 0x25);
 
@@ -205,6 +224,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_A_N16R.encoding);
         b.write(1, 0xDA);
         b.write(2, 0xFA);
@@ -221,6 +242,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_A_BCR.encoding);
         b.write(0xF2F4, 0xCE);
 
@@ -235,6 +258,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_A_DER.encoding);
         b.write(0xF3F7, 0xAD);
 
@@ -249,6 +274,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_A_N8.encoding);
         b.write(1, 0x00);
         b.write(2, Opcode.LD_B_N8.encoding);
@@ -275,6 +302,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_BC_N16.encoding);
         b.write(1, 0xAA);
         b.write(2, 0xBB);
@@ -299,6 +328,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_SP_N16.encoding);
         b.write(1, 0xFE);
         b.write(2, 0xFF);
@@ -320,6 +351,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_HLR_B.encoding);
         cycleCpu(c, Opcode.LD_HLR_B.cycles);
         assertEquals(0xF2, b.read(0xFAF5));
@@ -339,6 +372,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_HLRI_A.encoding);
         cycleCpu(c, Opcode.LD_HLRI_A.cycles);
         assertEquals(0xF0, b.read(0xFAF5));
@@ -352,6 +387,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_HLRD_A.encoding);
         cycleCpu(c, Opcode.LD_HLRD_A.cycles);
         assertEquals(0xF0, b.read(0xFAF5));
@@ -365,6 +402,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_N8R_A.encoding);
         b.write(1, 0x45);
         cycleCpu(c, Opcode.LD_N8R_A.cycles);
@@ -377,6 +416,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_CR_A.encoding);
         cycleCpu(c, Opcode.LD_CR_A.cycles);
         assertEquals(0xF0, b.read(AddressMap.REGS_START + 0xF4));
@@ -388,6 +429,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_N16R_A.encoding);
         b.write(1, 0x50);
         b.write(2, 0x91);
@@ -401,6 +444,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_A_A.encoding);
         b.write(1, Opcode.LD_C_A.encoding);
         b.write(2, Opcode.LD_L_C.encoding);
@@ -428,6 +473,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_N16R_SP.encoding);
         b.write(1, 0x67);
         b.write(2, 0x22);
@@ -442,6 +489,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_HLR_N8.encoding);
         b.write(1, 0xB3);
         cycleCpu(c, Opcode.LD_HLR_N8.cycles);
@@ -454,6 +503,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_A_N8.encoding);
         b.write(1, 0xC5);
         b.write(2, Opcode.LD_DER_A.encoding);
@@ -470,6 +521,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_A_N8.encoding);
         b.write(1, 0x8);
         b.write(2, Opcode.LD_BCR_A.encoding);
@@ -486,6 +539,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_A_N8.encoding);
         b.write(1, 49);
         b.write(2, Opcode.ADD_A_N8.encoding);
@@ -508,6 +563,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_A_N8.encoding);
         b.write(1, 49);
         b.write(2, Opcode.LD_HL_N16.encoding);
@@ -535,6 +592,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_A_N8.encoding);
         b.write(1, 52);
         b.write(2, Opcode.LD_B_N8.encoding);
@@ -626,6 +685,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_A_N8.encoding);
         b.write(1, 0xFF);
 
@@ -696,6 +757,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0xFAF5, 0xFF);
         b.write(0, Opcode.INC_HLR.encoding);
         cycleCpu(c, 3);
@@ -719,11 +782,12 @@ public class CpuTest1 {
 
     @Test
     void INC_R16SP_WorksForValidValues() {
-
         Cpu c = new Cpu();
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_BC_N16.encoding);
         b.write(1, 0xFF);
         b.write(2, 0xFF);
@@ -791,6 +855,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_BC_N16.encoding);
         b.write(1, 20);
         b.write(2, 0);
@@ -849,6 +915,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_A_N8.encoding);
         b.write(1, 0);
 
@@ -913,6 +981,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_A_N8.encoding);
         b.write(1, 0);
 
@@ -1003,6 +1073,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_A_N8.encoding);
         b.write(1, 13);
 
@@ -1069,6 +1141,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_A_N8.encoding);
         b.write(1, 13);
 
@@ -1141,6 +1215,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_A_N8.encoding);
         b.write(1, 0);
 
@@ -1250,6 +1326,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_A_N8.encoding);
         b.write(1, 13);
 
@@ -1297,6 +1375,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_A_N8.encoding);
         b.write(1, 13);
 
@@ -1345,6 +1425,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_A_N8.encoding);
         b.write(1, 0x23);
         b.write(2, Opcode.AND_A_N8.encoding);
@@ -1362,6 +1444,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_A_N8.encoding);
         b.write(1, 0x3B);
         b.write(2, Opcode.LD_B_N8.encoding);
@@ -1383,6 +1467,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_A_N8.encoding);
         b.write(1, 0xA5);
         b.write(2, Opcode.LD_H_A.encoding);
@@ -1406,6 +1492,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_A_N8.encoding);
         b.write(1, 0x3B);
         b.write(2, Opcode.LD_B_N8.encoding);
@@ -1427,6 +1515,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_A_N8.encoding);
         b.write(1, 0);
         b.write(2, Opcode.LD_B_N8.encoding);
@@ -1445,6 +1535,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_A_N8.encoding);
         b.write(1, 0x3B);
         b.write(2, Opcode.OR_A_N8.encoding);
@@ -1462,6 +1554,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_A_N8.encoding);
         b.write(1, 0xA5);
         b.write(2, Opcode.LD_H_A.encoding);
@@ -1486,6 +1580,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_A_N8.encoding);
         b.write(1, 0x3B);
         b.write(2, Opcode.XOR_A_N8.encoding);
@@ -1503,6 +1599,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_A_N8.encoding);
         b.write(1, 0x3B);
         b.write(2, Opcode.LD_B_N8.encoding);
@@ -1524,6 +1622,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_A_N8.encoding);
         b.write(1, 0x3B);
         b.write(2, Opcode.LD_B_N8.encoding);
@@ -1545,6 +1645,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_A_N8.encoding);
         b.write(1, 0xA5);
         b.write(2, Opcode.LD_H_A.encoding);
@@ -1569,6 +1671,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_A_N8.encoding);
         b.write(1, 0xC2);
         b.write(2, Opcode.CPL.encoding);
@@ -1584,6 +1688,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_A_N8.encoding);
         b.write(1, 0xC2);
         b.write(2, 0xCB);
@@ -1600,6 +1706,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_A_N8.encoding);
         b.write(1, 0xA5);
         b.write(2, Opcode.LD_H_A.encoding);
@@ -1625,6 +1733,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_A_N8.encoding);
         b.write(1, 0xC2);
         b.write(2, 0xCB);
@@ -1642,6 +1752,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_A_N8.encoding);
         b.write(1, 0);
         b.write(2, 0xCB);
@@ -1659,6 +1771,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_A_N8.encoding);
         b.write(1, 0xA5);
         b.write(2, Opcode.LD_H_A.encoding);
@@ -1685,6 +1799,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_A_N8.encoding);
         b.write(1, 0xC2);
         b.write(2, 0xCB);
@@ -1702,6 +1818,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_A_N8.encoding);
         b.write(1, 0xA5);
         b.write(2, Opcode.LD_H_A.encoding);
@@ -1728,6 +1846,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_A_N8.encoding);
         b.write(1, 0xC2);
         b.write(2, Opcode.RLCA.encoding);
@@ -1743,6 +1863,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_A_N8.encoding);
         b.write(1, 0xC2);
         b.write(2, Opcode.RRCA.encoding);
@@ -1759,6 +1881,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_A_N8.encoding);
         b.write(1, 0xC2);
         b.write(2, Opcode.RLA.encoding);
@@ -1774,6 +1898,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_A_N8.encoding);
         b.write(1, 0xC2);
         b.write(2, Opcode.RRA.encoding);
@@ -1790,6 +1916,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_E_N8.encoding);
         b.write(1, 0xD4);
         b.write(2, Opcode.LD_C_N8.encoding);
@@ -1814,6 +1942,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_E_N8.encoding);
         b.write(1, 0xD4);
         b.write(2, Opcode.LD_C_N8.encoding);
@@ -1838,6 +1968,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_E_N8.encoding);
         b.write(1, 0xD4);
         b.write(2, Opcode.LD_C_N8.encoding);
@@ -1862,6 +1994,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_E_N8.encoding);
         b.write(1, 0xD5);
         b.write(2, Opcode.LD_C_N8.encoding);
@@ -1886,6 +2020,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_A_N8.encoding);
         b.write(1, 0xA5);
         b.write(2, Opcode.LD_H_A.encoding);
@@ -1909,6 +2045,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_A_N8.encoding);
         b.write(1, 0xA5);
         b.write(2, Opcode.LD_H_A.encoding);
@@ -1933,6 +2071,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_A_N8.encoding);
         b.write(1, 0xA5);
         b.write(2, Opcode.LD_H_A.encoding);
@@ -1956,6 +2096,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_A_N8.encoding);
         b.write(1, 0xA5);
         b.write(2, Opcode.LD_H_A.encoding);
@@ -1980,6 +2122,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_A_N8.encoding);
         b.write(1, 0xA5);
         b.write(2, 0xCB);
@@ -1997,6 +2141,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_A_N8.encoding);
         b.write(1, 0);
         b.write(2, 0xCB);
@@ -2014,6 +2160,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_A_N8.encoding);
         b.write(1, 0xA5);
         b.write(2, Opcode.LD_H_A.encoding);
@@ -2038,6 +2186,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_A_N8.encoding);
         b.write(1, 0xA5);
         b.write(2, Opcode.LD_H_A.encoding);
@@ -2061,6 +2211,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_A_N8.encoding);
         b.write(1, 0xA5);
         b.write(2, 0xCB);
@@ -2077,6 +2229,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_A_N8.encoding);
         b.write(1, 0xA5);
         b.write(2, Opcode.LD_H_A.encoding);
@@ -2099,6 +2253,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_A_N8.encoding);
         b.write(1, 0xD5);
         b.write(2, 0xCB);
@@ -2115,6 +2271,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_A_N8.encoding);
         b.write(1, 0xA5);
         b.write(2, Opcode.LD_H_A.encoding);
@@ -2138,6 +2296,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_A_N8.encoding);
         b.write(1, 0xD5);
         b.write(2, 0xCB);
@@ -2154,6 +2314,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_A_N8.encoding);
         b.write(1, 0xA5);
         b.write(2, Opcode.LD_H_A.encoding);
@@ -2177,6 +2339,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_A_N8.encoding);
         b.write(1, 0x35);
         b.write(2, Opcode.ADD_A_N8.encoding);
@@ -2197,6 +2361,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.SCF.encoding);
         cycleCpu(c, Opcode.SCF.cycles);
 
@@ -2210,6 +2376,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.CCF.encoding);
         cycleCpu(c, Opcode.CCF.cycles);
 
@@ -2223,6 +2391,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_BC_N16.encoding);
         b.write(1, 0xDC);
         b.write(2, 0xAB);
@@ -2239,6 +2409,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_BC_N16.encoding);
         b.write(1, 0);
         b.write(2, 0);
@@ -2255,6 +2427,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_H_N8.encoding);
         b.write(1, 0);
         b.write(2, Opcode.LD_A_N8.encoding);
@@ -2273,6 +2447,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_A_N8.encoding);
         b.write(1, 0xA5);
         b.write(2, Opcode.LD_H_A.encoding);
@@ -2295,6 +2471,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_A_N8.encoding);
         b.write(1, 0xA5);
         b.write(2, Opcode.LD_H_A.encoding);
@@ -2333,6 +2511,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         for (int i = 0; i < Fib.length; i++) {
             b.write(i, Bits.clip(Byte.SIZE, Fib[i]));
         }
@@ -2352,6 +2532,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_H_N8.encoding);
         b.write(1, 0x23);
         b.write(2, Opcode.LD_L_N8.encoding);
@@ -2369,6 +2551,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.JP_N16.encoding);
         b.write(1, 0x23);
         b.write(2, 0x30);
@@ -2383,6 +2567,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.JP_C_N16.encoding);
         b.write(1, 0x23);
         b.write(2, 0x30);
@@ -2412,6 +2598,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.JP_N16.encoding);
         b.write(1, 0x23);
         b.write(2, 0x30);
@@ -2431,6 +2619,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.JP_N16.encoding);
         b.write(1, 0x23);
         b.write(2, 0x30);
@@ -2447,6 +2637,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.EI.encoding);
         cycleCpu(c, Opcode.EI.cycles);
 
@@ -2464,6 +2656,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
 
+        c.initializeRegisters();
+        
         b.write(0, Opcode.LD_SP_N16.encoding);
         b.write(1, 0xFF);
         b.write(2, 0xFF);
@@ -2504,6 +2698,8 @@ public class CpuTest1 {
         Cpu c = new Cpu();
         Ram r = new Ram(0xFFFF);
         Bus b = connect(c, r);
+        
+        c.initializeRegisters();
         
         b.write(0, Opcode.JP_N16.encoding);
         b.write(1, 0x00);
@@ -2558,6 +2754,8 @@ public class CpuTest1 {
      Ram r = new Ram(0xFFFF);
      Bus b = connect(c, r);
     
+     c.initializeRegisters();
+     
      b.write(0, Opcode.JP_N16.encoding);
      b.write(1, 0x23);
      b.write(2, 0x30);
@@ -2583,6 +2781,8 @@ public class CpuTest1 {
         RamController rc = new RamController(r, 0);
         rc.attachTo(b);
 
+        c.initializeRegisters();
+        
         for (int i = 0; i < 0xBFFF; i++) {
             b.write(i, Opcode.LD_A_A.encoding);
         }
@@ -2637,6 +2837,8 @@ public class CpuTest1 {
         Ram r = new Ram(0xC000);
         RamController rc = new RamController(r, 0);
         rc.attachTo(b);
+        
+        c.initializeRegisters();
 
         b.write(0, Opcode.DEC_SP.encoding);
         b.write(1, Opcode.JP_N16.encoding);
@@ -2716,7 +2918,9 @@ public class CpuTest1 {
         Cpu c = g.cpu();
         Ram r = new Ram(0x1000);
         RamController rc = new RamController(r, 0);
-        rc.attachTo(b);    
+        rc.attachTo(b); 
+        
+        c.initializeRegisters();
 
         b.write(0, Opcode.DEC_SP.encoding);
         b.write(1, Opcode.JP_N16.encoding);

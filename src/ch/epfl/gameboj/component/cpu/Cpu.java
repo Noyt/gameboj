@@ -49,25 +49,25 @@ public final class Cpu implements Component, Clocked {
         VBLANK, LCD_STAT, TIMER, SERIAL, JOYPAD
     }
 
-    public void _testSetRegisters(int A, int B, int C, int D, int E, int F,
-            int H, int L) {
-        file.set(Reg.A, A);
-        file.set(Reg.B, B);
-        file.set(Reg.C, C);
-        file.set(Reg.D, D);
-        file.set(Reg.E, E);
-        file.set(Reg.F, F);
-        file.set(Reg.H, H);
-        file.set(Reg.L, L);
-    }
-
-    public void _testWriteAtAddressInBus(int address, int v) {
-        bus.write(address, v);
-    }
-
-    public int _testGetValueAtAddressInBus(int address) {
-        return bus.read(address);
-    }
+//    public void _testSetRegisters(int A, int B, int C, int D, int E, int F,
+//            int H, int L) {
+//        file.set(Reg.A, A);
+//        file.set(Reg.B, B);
+//        file.set(Reg.C, C);
+//        file.set(Reg.D, D);
+//        file.set(Reg.E, E);
+//        file.set(Reg.F, F);
+//        file.set(Reg.H, H);
+//        file.set(Reg.L, L);
+//    }
+//
+//    public void _testWriteAtAddressInBus(int address, int v) {
+//        bus.write(address, v);
+//    }
+//
+//    public int _testGetValueAtAddressInBus(int address) {
+//        return bus.read(address);
+//    }
 
     public Cpu() {
 
@@ -82,6 +82,11 @@ public final class Cpu implements Component, Clocked {
         nextNonIdleCycle = 0;
 
         // TODO enlever ca c'est tres important c'est pour les tests!!!!!!!!
+        
+    }
+    
+    
+    public void initializeRegisters() {
         file.set(Reg.A, 0xF0);
         file.set(Reg.F, 0xF1);
         file.set(Reg.B, 0xF2);
@@ -112,7 +117,7 @@ public final class Cpu implements Component, Clocked {
             push16(PC);
             // TODO
             // PC = 0x40 + 8 * index;
-            PC = AddressMap.INTERRUPTS[index]; System.out.println("PC " + PC);
+            PC = AddressMap.INTERRUPTS[index];
             nextNonIdleCycle += 5;
         } else {
 
