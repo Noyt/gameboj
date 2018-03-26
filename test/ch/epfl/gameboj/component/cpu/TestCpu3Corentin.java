@@ -280,8 +280,8 @@ public class TestCpu3Corentin {
         c.cycle(11);
         c.cycle(12);
         c.cycle(13);
-        assertEquals(85, c._testGetPcSpAFBCDEHL()[RegList.A.index()]);
-        assertEquals(1, c._testGetPcSpAFBCDEHL()[RegList.C.index()]);
+        assertEquals(71, c._testGetPcSpAFBCDEHL()[RegList.A.index()]);
+        assertEquals(245, c._testGetPcSpAFBCDEHL()[RegList.C.index()]);
         
         c.cycle(14);
         
@@ -308,7 +308,7 @@ public class TestCpu3Corentin {
         c.cycle(34);
         
         assertEquals(10, c._testGetPcSpAFBCDEHL()[RegList.B.index()]);
-        assertEquals(86, c._testGetPcSpAFBCDEHL()[RegList.A.index()]);
+        assertEquals(72, c._testGetPcSpAFBCDEHL()[RegList.A.index()]);
         
         c.cycle(35);
         c.cycle(36);
@@ -343,7 +343,7 @@ public class TestCpu3Corentin {
         c.cycle(55);
         
         assertEquals(10, c._testGetPcSpAFBCDEHL()[RegList.B.index()]);
-        assertEquals(86, c._testGetPcSpAFBCDEHL()[RegList.A.index()]);
+        assertEquals(72, c._testGetPcSpAFBCDEHL()[RegList.A.index()]);
         
         c.cycle(56);
         c.cycle(57);
