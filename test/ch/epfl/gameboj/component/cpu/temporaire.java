@@ -51,9 +51,7 @@ public class temporaire {
 
         b.write(8, Opcode.LD_E_N8.encoding);
         b.write(9, 0);
-        System.out.println("hello 1");
         cycleCpu(c, 13);
-        System.out.println("fin hello 1");
         // b.write(10,nop)
         // b.write(10,nop)
         // b.write(10,nop)
@@ -64,9 +62,7 @@ public class temporaire {
 
         b.write(16, Opcode.LD_HL_SP_N8.encoding);
         b.write(17, 92);
-        System.out.println("hellooooooooooooooooooooooooooooooooooooooooooo ");
         cycleCpu(c, 16, 3);
-        System.out.println("fin hello ");
         assertArrayEquals(new int[] { 18, 31560, 0, 0b0010 << 4, 0, 0, 0, 0,
                 0b1111011, 0b10100100 }, c._testGetPcSpAFBCDEHL());
 

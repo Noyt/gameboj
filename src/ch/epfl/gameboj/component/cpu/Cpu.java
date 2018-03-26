@@ -48,22 +48,7 @@ public final class Cpu implements Component, Clocked {
     public enum Interrupt implements Bit {
         VBLANK, LCD_STAT, TIMER, SERIAL, JOYPAD
     }
-    
-//    public int[] _testGetPcSpAFBCDEHL() {
-//        int[] res = new int[10];
-//        res[0] = PC;
-//        res[1] = SP;
-//        res[2] = file.get(Reg.A);
-//        res[3] = file.get(Reg.F);
-//        res[4] = file.get(Reg.B);
-//        res[5] = file.get(Reg.C);
-//        res[6] = file.get(Reg.D);
-//        res[7] = file.get(Reg.E);
-//        res[8] = file.get(Reg.H);
-//        res[9] = file.get(Reg.L);
-//        return res;
-//    }
-    
+
     //TODO mettre cette fonction en private
     public void _testWriteAtAddressInBus(int address, int v) {
         bus.write(address, v);
@@ -107,6 +92,11 @@ public final class Cpu implements Component, Clocked {
         nextNonIdleCycle = 0;
 
         // TODO enlever ca c'est tres important c'est pour les tests!!!!!!!!
+        
+    }
+    
+    
+    public void initializeRegisters() {
         file.set(Reg.A, 0xF0);
         file.set(Reg.F, 0xF1);
         file.set(Reg.B, 0xF2);
@@ -119,7 +109,6 @@ public final class Cpu implements Component, Clocked {
 
     @Override
     public void cycle(long cycle) {
-        System.out.println("cycle " + cycle + " next " + nextNonIdleCycle + " PC " + PC);
         if (nextNonIdleCycle == Long.MAX_VALUE && checkInterruptionIEIF()) {
             nextNonIdleCycle = cycle; 
         }
@@ -230,7 +219,6 @@ public final class Cpu implements Component, Clocked {
 
     private void dispatch(Opcode instruction) {
         //TODO remove this 
-        System.out.println(instruction);
         
         int nextPC = PC + instruction.totalBytes;
         boolean conditionVerified = false;
