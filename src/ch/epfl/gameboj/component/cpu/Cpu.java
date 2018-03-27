@@ -3,6 +3,8 @@ package ch.epfl.gameboj.component.cpu;
 import java.util.ArrayList;
 import java.util.Objects;
 
+import javax.swing.plaf.synth.SynthSpinnerUI;
+
 import ch.epfl.gameboj.AddressMap;
 import ch.epfl.gameboj.Bus;
 import ch.epfl.gameboj.Preconditions;
@@ -188,9 +190,11 @@ public final class Cpu implements Component, Clocked {
     @Override
     public int read(int address) {
         Preconditions.checkBits16(address);
-
-        if (address < AddressMap.HIGH_RAM_START
-                || address > AddressMap.HIGH_RAM_END) {
+        
+        //TODO demander à Arnaud
+        //TODO le todo d'au-dessus est un vrai todo
+        if ((address < AddressMap.HIGH_RAM_START
+                || address > AddressMap.HIGH_RAM_END) && address != AddressMap.REG_IF) {
             return NO_DATA;
         } else if (address == AddressMap.REG_IE) {
             return IE;
@@ -205,14 +209,15 @@ public final class Cpu implements Component, Clocked {
     public void write(int address, int data) {
         Preconditions.checkBits16(address);
         Preconditions.checkBits8(data);
-
+        
         if (address >= AddressMap.HIGH_RAM_START
                 && address < AddressMap.HIGH_RAM_END) {
             highRam.write(address - AddressMap.HIGH_RAM_START, data);
         }
         if (address == AddressMap.REG_IE) {
-            IE = data;
-        } else if (address == AddressMap.REG_IF) {
+            IE = data; 
+        } 
+        if (address == AddressMap.REG_IF) {
             IF = data;
         }
     }
