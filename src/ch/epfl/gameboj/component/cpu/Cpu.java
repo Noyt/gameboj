@@ -3,6 +3,8 @@ package ch.epfl.gameboj.component.cpu;
 import java.util.ArrayList;
 import java.util.Objects;
 
+import javax.swing.plaf.synth.SynthSpinnerUI;
+
 import ch.epfl.gameboj.AddressMap;
 import ch.epfl.gameboj.Bus;
 import ch.epfl.gameboj.Preconditions;
@@ -49,25 +51,35 @@ public final class Cpu implements Component, Clocked {
         VBLANK, LCD_STAT, TIMER, SERIAL, JOYPAD
     }
 
-//    public void _testSetRegisters(int A, int B, int C, int D, int E, int F,
-//            int H, int L) {
-//        file.set(Reg.A, A);
-//        file.set(Reg.B, B);
-//        file.set(Reg.C, C);
-//        file.set(Reg.D, D);
-//        file.set(Reg.E, E);
-//        file.set(Reg.F, F);
-//        file.set(Reg.H, H);
-//        file.set(Reg.L, L);
-//    }
-//
-//    public void _testWriteAtAddressInBus(int address, int v) {
-//        bus.write(address, v);
-//    }
-//
-//    public int _testGetValueAtAddressInBus(int address) {
-//        return bus.read(address);
-//    }
+    //TODO mettre cette fonction en private
+    public void _testWriteAtAddressInBus(int address, int v) {
+        bus.write(address, v);
+    }
+    //TODO mettre cette fonction en private
+    public int _testGetValueAtAddressInBus(int address) {
+        return bus.read(address);
+    }
+    
+    public void _testSetCP(int add) {
+        PC = add;
+    }
+    
+    public void _testSetSP(int add) {
+        SP = add;
+    }
+
+    public void _testSetRegisters(int A, int B, int C, int D, int E, int F,
+            int H, int L) {
+        file.set(Reg.A, A);
+        file.set(Reg.B, B);
+        file.set(Reg.C, C);
+        file.set(Reg.D, D);
+        file.set(Reg.E, E);
+        file.set(Reg.F, F);
+        file.set(Reg.H, H);
+        file.set(Reg.L, L);
+    }
+
 
     public Cpu() {
 
@@ -175,9 +187,11 @@ public final class Cpu implements Component, Clocked {
     @Override
     public int read(int address) {
         Preconditions.checkBits16(address);
-
-        if (address < AddressMap.HIGH_RAM_START
-                || address > AddressMap.HIGH_RAM_END) {
+        
+        //TODO demander à Arnaud
+        //TODO le todo d'au-dessus est un vrai todo
+        if ((address < AddressMap.HIGH_RAM_START
+                || address > AddressMap.HIGH_RAM_END) && address != AddressMap.REG_IF) {
             return NO_DATA;
         } else if (address == AddressMap.REG_IE) {
             return IE;
@@ -192,20 +206,22 @@ public final class Cpu implements Component, Clocked {
     public void write(int address, int data) {
         Preconditions.checkBits16(address);
         Preconditions.checkBits8(data);
-
+        
         if (address >= AddressMap.HIGH_RAM_START
                 && address < AddressMap.HIGH_RAM_END) {
             highRam.write(address - AddressMap.HIGH_RAM_START, data);
         }
         if (address == AddressMap.REG_IE) {
-            IE = data;
-        } else if (address == AddressMap.REG_IF) {
+            IE = data; 
+        } 
+        if (address == AddressMap.REG_IF) {
             IF = data;
         }
     }
 
     private void dispatch(Opcode instruction) {
-
+        //TODO remove this 
+        
         int nextPC = PC + instruction.totalBytes;
         boolean conditionVerified = false;
         switch (instruction.family) {
