@@ -17,7 +17,7 @@ public final class BootRomController implements Component {
     public int read(int address) {
         Preconditions.checkBits16(address);
         if(0 <= address && address <= 0xFF) {
-            return bootRomDisabled ? cart.read(address) : BootRom.DATA[address];
+            return bootRomDisabled ? cart.read(address) : Byte.toUnsignedInt(BootRom.DATA[address]);
         }
         return cart.read(address);
     }

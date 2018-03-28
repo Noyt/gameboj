@@ -38,7 +38,8 @@ public final class Cartridge implements Component {
     public static Cartridge ofFile(File romFile) throws IOException {
         try (InputStream s = new FileInputStream(romFile)) {
             byte[] tab = new byte[(int) romFile.length()];
-            s.read(tab);
+           // s.read(tab);
+            tab = s.readAllBytes().clone();
             if(!(Byte.toUnsignedInt(tab[0x147]) == 0)) {
                 throw new IllegalArgumentException();
             }

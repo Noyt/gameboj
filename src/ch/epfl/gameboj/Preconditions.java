@@ -26,6 +26,7 @@ public interface Preconditions {
     static int checkBits8(int v) throws IllegalArgumentException {
         
         if (v < 0 || v > 0xFF) {
+            System.out.println(v);
             throw new IllegalArgumentException();
         }
         

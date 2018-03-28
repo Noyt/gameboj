@@ -92,11 +92,12 @@ public final class Timer implements Component, Clocked {
     }
 
     private void manageDIV() {
-        DIV += 4;
-
-        if (DIV > DIV_MAX_VALUE) {
-            DIV = 0;
-        }
+//        DIV += 4;
+//
+//        if (DIV > DIV_MAX_VALUE) {
+//            DIV = 0;
+//        }
+        DIV = Bits.clip(Short.SIZE, DIV + 4);
     }
 
     private void incTIMAIfChange(boolean previousState) {

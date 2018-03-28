@@ -41,6 +41,7 @@ public class GameBoy {
         workRam.attachTo(bus);
         echoRam.attachTo(bus);
         brc.attachTo(bus);
+        timer.attachTo(bus);
     }
     
     public Bus bus() {
@@ -59,8 +60,15 @@ public class GameBoy {
         if(cycleGB > cycle) {
             throw new IllegalArgumentException();
         }
-        for (long c = cycleGB; c < cycle; c++) {
-            cpu.cycle(c);
+//        for (long c = cycleGB; c < cycle; c++) {
+//            timer.cycle(c);
+//            cpu.cycle(c);
+//            cycleGB++;
+//        }
+        
+        while(cycleGB <= cycle) {
+            timer.cycle(cycleGB);
+            cpu.cycle(cycleGB);
             cycleGB++;
         }
     }
