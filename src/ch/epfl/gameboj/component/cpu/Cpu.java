@@ -80,9 +80,6 @@ public final class Cpu implements Component, Clocked {
         IF = 0;
         IE = 0;
         nextNonIdleCycle = 0;
-
-        // TODO enlever ca c'est tres important c'est pour les tests!!!!!!!!
-        
     }
     
     
