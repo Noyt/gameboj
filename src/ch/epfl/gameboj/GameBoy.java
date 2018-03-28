@@ -1,6 +1,10 @@
 package ch.epfl.gameboj;
 
+import java.util.Objects;
+
+import ch.epfl.gameboj.component.cartridge.Cartridge;
 import ch.epfl.gameboj.component.cpu.Cpu;
+import ch.epfl.gameboj.component.memory.BootRomController;
 import ch.epfl.gameboj.component.memory.Ram;
 import ch.epfl.gameboj.component.memory.RamController;
 
@@ -14,8 +18,14 @@ public class GameBoy {
     private Cpu cpu;
     private long cycleGB;
         
-    public GameBoy(Object cartridge) {
+    public GameBoy(Cartridge cartridge) {
+        Objects.requireNonNull(cartridge);
+        
         bus = new Bus();
+        
+        //TODO
+        //plutot en attribut non ?
+        BootRomController brc = new BootRomController(cartridge);
         
         Ram ram = new Ram(AddressMap.WORK_RAM_SIZE);
         
@@ -27,6 +37,7 @@ public class GameBoy {
         cpu.attachTo(bus);
         workRam.attachTo(bus);
         echoRam.attachTo(bus);
+        brc.attachTo(bus);
     }
     
     public Bus bus() {
@@ -35,6 +46,10 @@ public class GameBoy {
     
     public Cpu cpu() {
         return cpu;
+    }
+    
+    public Timer timer() {
+        return ;
     }
     
     public void runUntil(long cycle) {
@@ -50,5 +65,6 @@ public class GameBoy {
     public long cycles() {
         return cycleGB;
     };
+    
 
 }

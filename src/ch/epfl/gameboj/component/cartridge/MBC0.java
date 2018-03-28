@@ -10,6 +10,12 @@ public final class MBC0 implements Component {
 
     private Rom rom = null;
 
+    public MBC0(Rom rom) {
+        Objects.requireNonNull(rom);
+        Preconditions.checkArgument(rom.size() == 32768);
+        this.rom = rom;
+    }
+    
     @Override
     public int read(int address) {
         Preconditions.checkBits16(address);
@@ -23,14 +29,9 @@ public final class MBC0 implements Component {
 
     @Override
     public void write(int address, int data) {
-        // TODO Auto-generated method stub
-
+        
     }
 
-    public MBC0(Rom rom) {
-        Objects.requireNonNull(rom);
-        Preconditions.checkArgument(rom.size() == 32768);
-        this.rom = rom;
-    }
+    
 
 }
