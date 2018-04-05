@@ -13,11 +13,13 @@ public final class BootRomController implements Component {
     
     private boolean bootRomDisabled = false;
     
+    private final Rom bootRom = new Rom(BootRom.DATA);
+    
     @Override
     public int read(int address) {
         Preconditions.checkBits16(address);
         if(0 <= address && address <= 0xFF) {
-            return bootRomDisabled ? cart.read(address) : Byte.toUnsignedInt(BootRom.DATA[address]);
+            return bootRomDisabled ? cart.read(address) : bootRom.read(address);
         }
         return cart.read(address);
     }
