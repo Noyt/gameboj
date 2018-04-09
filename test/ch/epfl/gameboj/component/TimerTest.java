@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import ch.epfl.gameboj.component.cpu.Cpu;
 
 public final class TimerTest implements ComponentTest {
+    
     @Override
     public Timer newComponent() {
         return new Timer(new Cpu());

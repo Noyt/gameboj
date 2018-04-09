@@ -55,6 +55,7 @@ public final class S6GameBoyTest {
         
         Base64.Decoder b64Decoder = Base64.getDecoder();
         StringBuilder s = new StringBuilder();
+        
         for (String e: BASE64_BLARGGS_TESTS) {
             try (InputStream inStream = new GZIPInputStream(new ByteArrayInputStream(b64Decoder.decode(e)))) {
                 byte[] romData = inStream.readAllBytes();
@@ -63,6 +64,7 @@ public final class S6GameBoyTest {
                 RecordingComponent recordingC = new RecordingComponent(s);
                 recordingC.attachTo(gb.bus());
                 int cycles = reqCycles.next();
+                
                 while (gb.cycles() < cycles) {
                     long nextCycles = Math.min(gb.cycles() + 17_556, cycles);
                     gb.runUntil(nextCycles);
