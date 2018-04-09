@@ -9,7 +9,7 @@ import ch.epfl.gameboj.component.memory.BootRomController;
 import ch.epfl.gameboj.component.memory.Ram;
 import ch.epfl.gameboj.component.memory.RamController;
 
-public class GameBoy {
+public final class GameBoy {
     
     private Bus bus;
     

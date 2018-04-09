@@ -1,12 +1,25 @@
 package ch.epfl.gameboj.bits;
 
+/**
+ * A single bit
+ * 
+ * @author Arnaud Robert (287964)
+ * @author Sophie Du Couedic (260007)
+ *
+ *
+ */
+
 public interface Bit {
 
-    // TODO public, private pour ces méthodes ?
     /**
      * Returns the position of the Bit, in the order of its enum declaration
      * 
-     * @return an int
+     * Is given by the enumeration representing the registers
+     * 
+     * @see java.lang.Enum<E>;
+     * @return the ordinal of this enumeration constant (its position in its
+     *         enum declaration, where the initial constant is assigned an
+     *         ordinal of zero)
      */
     int ordinal();
 

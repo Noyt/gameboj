@@ -1,7 +1,6 @@
 package ch.epfl.gameboj;
 
 
-//TODO Sciper
 /**
  * Register
  * 

@@ -17,12 +17,28 @@ import ch.epfl.gameboj.component.Component;
 import ch.epfl.gameboj.component.cpu.Alu.RotDir;
 import ch.epfl.gameboj.component.memory.Ram;
 
+/**
+ * Central Processing Unit
+ * 
+ * @author Arnaud Robert (287964)
+ * @author Sophie Du Couedic (260007)
+ * 
+ */
+/**
+ * @author noyt
+ *
+ */
+/**
+ * @author noyt
+ *
+ */
 public final class Cpu implements Component, Clocked {
 
-    private RegisterFile<Reg> file;
+    private final RegisterFile<Reg> file;
     private int SP;
     private int PC;
     private Bus bus;
+
     private static final Opcode[] DIRECT_OPCODE_TABLE = buildOpcodeTable(
             Opcode.Kind.DIRECT);
     private static final Opcode[] PREFIXED_OPCODE_TABLE = buildOpcodeTable(
@@ -30,7 +46,7 @@ public final class Cpu implements Component, Clocked {
 
     private long nextNonIdleCycle;
 
-    private Ram highRam;
+    private final Ram highRam;
     private boolean IME;
     private int IE;
     private int IF;
@@ -47,69 +63,44 @@ public final class Cpu implements Component, Clocked {
         V0, V1, ALU, CPU
     }
 
+    /**
+     * All interruptions that can be possibly be requested by the game
+     * 
+     * @author Arnaud Robert (287964)
+     * @author Sophie Du Couedic (260007)
+     *
+     */
     public enum Interrupt implements Bit {
         VBLANK, LCD_STAT, TIMER, SERIAL, JOYPAD
     }
 
-    //TODO mettre cette fonction en private
-    public void _testWriteAtAddressInBus(int address, int v) {
-        bus.write(address, v);
-    }
-    //TODO mettre cette fonction en private
-    public int _testGetValueAtAddressInBus(int address) {
-        return bus.read(address);
-    }
-    
-    public void _testSetCP(int add) {
-        PC = add;
-    }
-    
-    public void _testSetSP(int add) {
-        SP = add;
-    }
-
-    public void _testSetRegisters(int A, int B, int C, int D, int E, int F,
-            int H, int L) {
-        file.set(Reg.A, A);
-        file.set(Reg.B, B);
-        file.set(Reg.C, C);
-        file.set(Reg.D, D);
-        file.set(Reg.E, E);
-        file.set(Reg.F, F);
-        file.set(Reg.H, H);
-        file.set(Reg.L, L);
-    }
-
-
+    /**
+     * Builds the Cpu and initializes its attributes. highRam represents the
+     * cpu's own ram. IME is set to false because it is assumed no interruption
+     * is requested when the Cpu is created, same for IF and IE whose values are
+     * linked with interruption handling
+     */
     public Cpu() {
 
         highRam = new Ram(AddressMap.HIGH_RAM_SIZE);
         file = new RegisterFile<Reg>(Reg.values());
         SP = 0;
-        // PC = AddressMap.WORK_RAM_START;
         PC = 0;
         IME = false;
         IF = 0;
         IE = 0;
         nextNonIdleCycle = 0;
     }
-    
-    
-    public void initializeRegisters() {
-        file.set(Reg.A, 0xF0);
-        file.set(Reg.F, 0xF1);
-        file.set(Reg.B, 0xF2);
-        file.set(Reg.C, 0xF4);
-        file.set(Reg.D, 0xF3);
-        file.set(Reg.E, 0xF7);
-        file.set(Reg.H, 0xFA);
-        file.set(Reg.L, 0xF5);
-    }
 
     @Override
+    /**
+     * Specific override for the Cpu, if the Cpu is in a state where it should
+     * be waiting for the next instruction, this method does nothing. If the Cpu
+     * is asleep and an interruption is requested, the Cpu then wakes up
+     */
     public void cycle(long cycle) {
         if (nextNonIdleCycle == Long.MAX_VALUE && checkInterruptionIEIF()) {
-            nextNonIdleCycle = cycle; 
+            nextNonIdleCycle = cycle;
         }
         if (cycle < nextNonIdleCycle) {
             return;
@@ -124,8 +115,6 @@ public final class Cpu implements Component, Clocked {
             int index = checkInterruptionIndex();
             IF = Bits.set(IF, index, false);
             push16(PC);
-            // TODO
-            // PC = 0x40 + 8 * index;
             PC = AddressMap.INTERRUPTS[index];
             nextNonIdleCycle += 5;
         } else {
@@ -152,46 +141,25 @@ public final class Cpu implements Component, Clocked {
         }
     }
 
-    private boolean checkInterruptionIEIF() {
-        return (IF & IE) > 0;
-    }
-
-    private int checkInterruptionIndex() {
-        int nb = IF & IE;
-        for (int i = 0; i < 8; i++) {
-            if (Bits.test(nb, i)) {
-                return i;
-            }
-        }
-        throw new Error("no common bit equal to 1");
-
-    }
-
-    private int extractInterruptionIndex(Interrupt interrupt) {
-        switch (interrupt) {
-        case VBLANK:
-            return 0;
-        case LCD_STAT:
-            return 1;
-        case TIMER:
-            return 2;
-        case SERIAL:
-            return 3;
-        case JOYPAD:
-            return 4;
-        default:
-            throw new Error("no common bit equal to 1");
-        }
-    }
 
     @Override
+    /**
+     * Specific override for the Cpu, returns NO_DATA if the address is not
+     * within range of the Cpu's own RAM. However, if the given address is that
+     * of register IE or IF, the method still returns the value contained at
+     * this register, even though the addresses of these registers are not
+     * within the range of the cpu's own ram.
+     * 
+     * @throws IllegalArgumentException
+     *             if the given address is not a valid 16-bits value
+     */
     public int read(int address) {
         Preconditions.checkBits16(address);
-        
-        //TODO demander à Arnaud
-        //TODO le todo d'au-dessus est un vrai todo
+
         if ((address < AddressMap.HIGH_RAM_START
-                || address > AddressMap.HIGH_RAM_END) && address != AddressMap.REG_IF) {
+                || address >= AddressMap.HIGH_RAM_END)
+                && address != AddressMap.REG_IF
+                && address != AddressMap.REG_IE) {
             return NO_DATA;
         } else if (address == AddressMap.REG_IE) {
             return IE;
@@ -203,25 +171,32 @@ public final class Cpu implements Component, Clocked {
     }
 
     @Override
+    /**
+     * Specific override to the Cpu, writes the data at the given address if the
+     * latter is within range of Cpu's own RAM or if it concerns register IF and
+     * IE.
+     * 
+     * @throws IllegalArgumentException
+     *             if address is not a valid 16-bit value or if data is not a
+     *             valid 8-bit value
+     */
     public void write(int address, int data) {
         Preconditions.checkBits16(address);
         Preconditions.checkBits8(data);
-        
+
         if (address >= AddressMap.HIGH_RAM_START
                 && address < AddressMap.HIGH_RAM_END) {
             highRam.write(address - AddressMap.HIGH_RAM_START, data);
         }
         if (address == AddressMap.REG_IE) {
-            IE = data; 
-        } 
+            IE = data;
+        }
         if (address == AddressMap.REG_IF) {
             IF = data;
         }
     }
 
     private void dispatch(Opcode instruction) {
-        //TODO remove this 
-        
         int nextPC = PC + instruction.totalBytes;
         boolean conditionVerified = false;
         switch (instruction.family) {
@@ -398,17 +373,17 @@ public final class Cpu implements Component, Clocked {
                             !combineCAndBit3(instruction)));
         }
             break;
-        case SUB_A_N8: {// TESTER
+        case SUB_A_N8: {
             setRegFlags(Reg.A, Alu.sub(file.get(Reg.A), read8AfterOpcode(),
                     !combineCAndBit3(instruction)));
         }
             break;
-        case SUB_A_HLR: {// TESTER
+        case SUB_A_HLR: {
             setRegFlags(Reg.A, Alu.sub(file.get(Reg.A), read8AtHl(),
                     !combineCAndBit3(instruction)));
         }
             break;
-        case DEC_R8: {// TESTER
+        case DEC_R8: {
             Reg reg = extractReg(instruction, 3);
             int valueFlags = Alu.sub(file.get(reg), 1);
             file.set(reg, Alu.unpackValue(valueFlags));
@@ -416,28 +391,28 @@ public final class Cpu implements Component, Clocked {
                     FlagSrc.CPU);
         }
             break;
-        case DEC_HLR: {// TESTER
+        case DEC_HLR: {
             int valueFlags = Alu.sub(read8AtHl(), 1);
             write8AtHl(Alu.unpackValue(valueFlags));
             combineAluFlags(valueFlags, FlagSrc.ALU, FlagSrc.V1, FlagSrc.ALU,
                     FlagSrc.CPU);
         }
             break;
-        case CP_A_R8: {// TESTER
+        case CP_A_R8: {
             int valueFlags = Alu.sub(file.get(Reg.A),
                     file.get(extractReg(instruction, 0)));
             combineAluFlags(valueFlags, FlagSrc.ALU, FlagSrc.ALU, FlagSrc.ALU,
                     FlagSrc.ALU);
         }
             break;
-        case CP_A_N8: {// TESTER
+        case CP_A_N8: {
             int valueFlags = Alu.sub(file.get(Reg.A), read8AfterOpcode());
             combineAluFlags(valueFlags, FlagSrc.ALU, FlagSrc.ALU, FlagSrc.ALU,
                     FlagSrc.ALU);
 
         }
             break;
-        case CP_A_HLR: {// TESTER
+        case CP_A_HLR: {
             int valueFlags = Alu.sub(file.get(Reg.A), read8AtHl());
             combineAluFlags(valueFlags, FlagSrc.ALU, FlagSrc.ALU, FlagSrc.ALU,
                     FlagSrc.ALU);
@@ -450,7 +425,6 @@ public final class Cpu implements Component, Clocked {
         }
             break;
 
-        // Sophie
         // And, or, xor, complement
         case AND_A_N8: {
             setRegFlags(Reg.A, Alu.and(file.get(Reg.A), read8AfterOpcode()));
@@ -614,27 +588,21 @@ public final class Cpu implements Component, Clocked {
 
         // Jumps
         case JP_HL: {
-            // TODO
             nextPC = reg16(Reg16.HL);
         }
             break;
         case JP_N16: {
-            // TODO
             nextPC = read16AfterOpcode();
         }
             break;
         case JP_CC_N16: {
             if (extractCondition(instruction)) {
                 conditionVerified = true;
-                // TODO
                 nextPC = read16AfterOpcode();
             }
         }
             break;
         case JR_E8: {
-            // TODO
-            // PC += instruction.totalBytes + Bits.clip(16,
-            // Bits.signExtend8(read8AfterOpcode()));
             int signedValue = Bits.clip(16,
                     Bits.signExtend8(read8AfterOpcode()));
 
@@ -644,9 +612,6 @@ public final class Cpu implements Component, Clocked {
         case JR_CC_E8: {
             if (extractCondition(instruction)) {
                 conditionVerified = true;
-                // TODO
-                // PC += instruction.totalBytes + Bits.clip(16,
-                // Bits.signExtend8(read8AfterOpcode()));
                 int signedValue = Bits.clip(16,
                         Bits.signExtend8(read8AfterOpcode()));
                 nextPC = Alu.unpackValue(Alu.add16H(nextPC, signedValue));
@@ -657,14 +622,12 @@ public final class Cpu implements Component, Clocked {
         // Calls and returns
         case CALL_N16: {
             push16(nextPC);
-            // TODO
             nextPC = read16AfterOpcode();
         }
             break;
         case CALL_CC_N16: {
             if (extractCondition(instruction)) {
                 push16(nextPC);
-                // nextPC
                 nextPC = read16AfterOpcode();
                 conditionVerified = true;
             }
@@ -703,8 +666,6 @@ public final class Cpu implements Component, Clocked {
             break;
         case RETI: {
             IME = true;
-            // TODO
-            // PC = pop16();
             nextPC = pop16();
         }
             break;
@@ -718,7 +679,6 @@ public final class Cpu implements Component, Clocked {
             throw new Error("STOP is not implemented");
         }
 
-        // TODO
         PC = nextPC;
         update(instruction, conditionVerified);
     }
@@ -726,6 +686,13 @@ public final class Cpu implements Component, Clocked {
     /*
      * ------------------------------ Bus methods -----------------------------
      */
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see ch.epfl.gameboj.component.Component#attachTo(ch.epfl.gameboj.Bus)
+     */
+    @Override
     public void attachTo(Bus bus) {
         Component.super.attachTo(bus);
         this.bus = bus;
@@ -747,6 +714,7 @@ public final class Cpu implements Component, Clocked {
     };
 
     private int read16(int address) {
+        Preconditions.checkBits16(address);
 
         int low = read8(address);
         int high = read8(address + 1);
@@ -829,7 +797,7 @@ public final class Cpu implements Component, Clocked {
         case 0b111:
             return Reg.A;
         default:
-            throw new IllegalArgumentException("ceci est faux, 110 registre");
+            throw new IllegalArgumentException();
         }
     };
 
@@ -845,7 +813,7 @@ public final class Cpu implements Component, Clocked {
         case 0b11:
             return Reg16.AF;
         default:
-            throw new IllegalArgumentException("TODO");
+            throw new IllegalArgumentException();
         }
     }
 
@@ -904,8 +872,6 @@ public final class Cpu implements Component, Clocked {
             nextNonIdleCycle += opcode.additionalCycles;
         }
         nextNonIdleCycle += opcode.cycles;
-        // TODO
-        // PC += opcode.totalBytes;
     }
 
     private static Opcode[] buildOpcodeTable(Opcode.Kind kind) {
@@ -922,6 +888,12 @@ public final class Cpu implements Component, Clocked {
         return opcodesOfAKind.toArray(new Opcode[opcodesOfAKind.size()]);
     }
 
+    /**
+     * This method is used solely for the purpose of testing
+     * 
+     * @return an array containing, in this order, the value of registers PC,
+     *         SP, A, F, B, C, D, E, H and L.
+     */
     public int[] _testGetPcSpAFBCDEHL() {
         int[] reg = new int[10];
 
@@ -937,11 +909,34 @@ public final class Cpu implements Component, Clocked {
         return reg;
     }
 
+    // --------------------------- Interruption Handling ----------------------------
+    
+    /**
+     * Requests the given interruption, i.e sets the corresponding bit in
+     * register IF to 1
+     * 
+     * @param the interruption to be requested
+     */
     public void requestInterrupt(Interrupt i) {
         IF = Bits.set(IF, i.index(), true);
     }
+    
+    private boolean checkInterruptionIEIF() {
+        return (IF & IE) > 0;
+    }
 
-    // ---Flags ToolBox----
+    private int checkInterruptionIndex() {
+        int nb = IF & IE;
+        for (int i = 0; i < 8; i++) {
+            if (Bits.test(nb, i)) {
+                return i;
+            }
+        }
+        throw new Error("no common bit equal to 1");
+
+    }
+
+    // ------------------------------- Flags ToolBox ---------------------------------- 
 
     private void setRegFromAlu(Reg r, int vf) {
         file.set(r, Alu.unpackValue(vf));
@@ -980,7 +975,7 @@ public final class Cpu implements Component, Clocked {
 
     private int flagMask(boolean cpuFlag, boolean aluFlag, FlagSrc i,
             int index) {
-        Preconditions.checkArgument(index > 3 && index < 8);
+        Preconditions.checkArgument(index > 3 && index < Byte.SIZE);
 
         int bit = 3;
 
@@ -1005,7 +1000,7 @@ public final class Cpu implements Component, Clocked {
         return 0;
     }
 
-    // --- instruction informations ---
+    // --------------------- Instruction informations ------------------------------
 
     private RotDir extractRotDir(Opcode instruction) {
         if (Bits.test(instruction.encoding, 3)) {
@@ -1026,18 +1021,38 @@ public final class Cpu implements Component, Clocked {
         return !(Bits.test(instruction.encoding, 3) && c());
     }
 
+    /**
+     * Tests whether the flag Z is set to 1 or not
+     * 
+     * @return true if it is, false if not
+     */
     private boolean z() {
         return Bits.test(file.get(Reg.F), 7);
     }
 
+    /**
+     * Tests whether the flag N is set to 1 or not
+     * 
+     * @return true if it is, false if not
+     */
     private boolean n() {
         return Bits.test(file.get(Reg.F), 6);
     }
 
+    /**
+     * Tests whether the flag H is set to 1 or not
+     * 
+     * @return true if it is, false if not
+     */
     private boolean h() {
         return Bits.test(file.get(Reg.F), 5);
     }
 
+    /**
+     * Tests whether the flag C is set to 1 or not
+     * 
+     * @return true if it is, false if not
+     */
     private boolean c() {
         return Bits.test(file.get(Reg.F), 4);
     }
@@ -1059,27 +1074,61 @@ public final class Cpu implements Component, Clocked {
         }
     }
 
-    // TODO
-    // methode rajoutée pour les tests
-    public boolean getIME() {
-        return IME;
-    }
+    // These methods are to be used only when doing tests, they are therefore
+    // put in comment in order to keep the code safe
 
-    // TODO
-    // methode rajoutée pour les tests
-    public boolean getIFIndex(Interrupt i) {
-        return Bits.test(IF, i.index());
-    }
-    
-    //TODO
-    // methode rajoutée pour les tests
-    public void setIE(Interrupt i) {
-        IE = Bits.set(IE, i.index(), true);
-    }
-    
-    //TODO
-    // methode rajoutée pour les tests
-    public void setIME(boolean b) {
-        IME = b;
-    }
+    // public boolean getIME() {
+    // return IME;
+    // }
+    //
+    // public boolean getIFIndex(Interrupt i) {
+    // return Bits.test(IF, i.index());
+    // }
+    //
+    // public void setIE(Interrupt i) {
+    // IE = Bits.set(IE, i.index(), true);
+    // }
+    //
+    // public void setIME(boolean b) {
+    // IME = b;
+    // }
+    //
+    // public void _testWriteAtAddressInBus(int address, int v) {
+    // bus.write(address, v);
+    // }
+    //
+    // public int _testGetValueAtAddressInBus(int address) {
+    // return bus.read(address);
+    // }
+    //
+    // public void _testSetCP(int add) {
+    // PC = add;
+    // }
+    //
+    // public void _testSetSP(int add) {
+    // SP = add;
+    // }
+    //
+    // public void _testSetRegisters(int A, int B, int C, int D, int E, int F,
+    // int H, int L) {
+    // file.set(Reg.A, A);
+    // file.set(Reg.B, B);
+    // file.set(Reg.C, C);
+    // file.set(Reg.D, D);
+    // file.set(Reg.E, E);
+    // file.set(Reg.F, F);
+    // file.set(Reg.H, H);
+    // file.set(Reg.L, L);
+    // }
+    //
+    // public void initializeRegisters() {
+    // file.set(Reg.A, 0xF0);
+    // file.set(Reg.F, 0xF1);
+    // file.set(Reg.B, 0xF2);
+    // file.set(Reg.C, 0xF4);
+    // file.set(Reg.D, 0xF3);
+    // file.set(Reg.E, 0xF7);
+    // file.set(Reg.H, 0xFA);
+    // file.set(Reg.L, 0xF5);
+    // }
 }
