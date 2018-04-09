@@ -5,8 +5,8 @@ package ch.epfl.gameboj;
 /**
  * Register
  * 
- * @author Arnaud Robert
- * @author Sophie Du Couedic
+ * @author Arnaud Robert (287964)
+ * @author Sophie Du Couedic (260007)
  *
  */
 public interface Register {
@@ -24,7 +24,9 @@ public interface Register {
     /**
      * Returns the same value as the method ordinal()
      * 
-     * @return 
+     * @return the ordinal of this enumeration constant (its position in its
+     *         enum declaration, where the initial constant is assigned an
+     *         ordinal of zero)
      */
     public default int index() {
         return ordinal();
