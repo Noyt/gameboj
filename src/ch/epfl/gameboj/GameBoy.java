@@ -57,17 +57,13 @@ public class GameBoy {
     }
     
     public void runUntil(long cycle) {
+
         if(cycleGB > cycle) {
             throw new IllegalArgumentException();
         }
         
-//        for (long c = cycleGB; c < cycle; c++) {
-//            timer.cycle(c);
-//            cpu.cycle(c);
-//            cycleGB++;
-//        }
-        
-        while(cycleGB <= cycle) {
+        while(cycleGB < cycle) {
+            
             timer.cycle(cycleGB);
             cpu.cycle(cycleGB);
             cycleGB++;

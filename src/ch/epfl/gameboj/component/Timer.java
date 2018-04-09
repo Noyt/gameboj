@@ -79,7 +79,7 @@ public final class Timer implements Component, Clocked {
         switch (address) {
 
         case AddressMap.REG_DIV:
-            return Bits.extract(DIV, 0, Byte.SIZE);
+            return Bits.extract(DIV, Byte.SIZE, Byte.SIZE);
 
         case AddressMap.REG_TIMA:
             return TIMA;
@@ -101,7 +101,6 @@ public final class Timer implements Component, Clocked {
     }
 
     private void incTIMAIfChange(boolean previousState) {
-        
         boolean newState = state();
 
         if (previousState && !newState) {
