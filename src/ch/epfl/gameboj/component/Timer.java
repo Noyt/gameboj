@@ -41,6 +41,8 @@ public final class Timer implements Component, Clocked {
     
     @Override
     public void write(int address, int data) {
+        Preconditions.checkBits8(data);
+        Preconditions.checkBits16(address);
         
         boolean previousState = state();
         
@@ -51,15 +53,15 @@ public final class Timer implements Component, Clocked {
             break;
 
         case AddressMap.REG_TIMA:
-            TIMA = Preconditions.checkBits8(data);
+            TIMA = data;
             break;
 
         case AddressMap.REG_TMA:
-            TMA = Preconditions.checkBits8(data);
+            TMA =data;
             break;
 
         case AddressMap.REG_TAC:
-            TAC = Preconditions.checkBits8(data);
+            TAC = data;
             break;
 
         default:
@@ -71,6 +73,8 @@ public final class Timer implements Component, Clocked {
 
     @Override
     public int read(int address) {
+        
+        Preconditions.checkBits16(address);
 
         switch (address) {
 
