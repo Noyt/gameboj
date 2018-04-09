@@ -38,6 +38,9 @@ public final class Timer implements Component, Clocked {
         incTIMAIfChange(previousState);
     }
 
+    //TODO
+    llhdkhgd
+    
     @Override
     public void write(int address, int data) {
         
@@ -92,11 +95,6 @@ public final class Timer implements Component, Clocked {
     }
 
     private void manageDIV() {
-//        DIV += 4;
-//
-//        if (DIV > DIV_MAX_VALUE) {
-//            DIV = 0;
-//        }
         DIV = Bits.clip(Short.SIZE, DIV + 4);
     }
 
