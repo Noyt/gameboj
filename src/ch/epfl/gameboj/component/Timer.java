@@ -38,8 +38,6 @@ public final class Timer implements Component, Clocked {
         incTIMAIfChange(previousState);
     }
 
-    //TODO
-    llhdkhgd
     
     @Override
     public void write(int address, int data) {

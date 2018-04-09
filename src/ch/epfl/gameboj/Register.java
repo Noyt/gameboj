@@ -24,7 +24,7 @@ public interface Register {
     /**
      * Returns the same value as the method ordinal()
      * 
-     * @return
+     * @return 
      */
     public default int index() {
         return ordinal();
