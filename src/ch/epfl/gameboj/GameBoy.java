@@ -60,17 +60,17 @@ public class GameBoy {
         if(cycleGB > cycle) {
             throw new IllegalArgumentException();
         }
-//        for (long c = cycleGB; c < cycle; c++) {
-//            timer.cycle(c);
-//            cpu.cycle(c);
-//            cycleGB++;
-//        }
-        
-        while(cycleGB <= cycle) {
-            timer.cycle(cycleGB);
-            cpu.cycle(cycleGB);
+        for (long c = cycleGB; c < cycle; c++) {
+            timer.cycle(c);
+            cpu.cycle(c);
             cycleGB++;
         }
+        
+//        while(cycleGB <= cycle) {
+//            timer.cycle(cycleGB);
+//            cpu.cycle(cycleGB);
+//            cycleGB++;
+//        }
     }
     
     public long cycles() {
