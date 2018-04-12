@@ -2,6 +2,12 @@ package ch.epfl.gameboj;
 
 import java.lang.IllegalArgumentException;
 
+/**
+ * A set of useful assertion methods
+ * 
+ * @author Sophie du Couédic (260007)
+ * @author Arnaud Robert (287964)
+ */
 public interface Preconditions {
    
     /**

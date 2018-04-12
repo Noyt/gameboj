@@ -14,7 +14,7 @@ public interface Clocked {
      * to execute during the cycle given as parameter
      * 
      * @param cycle
-     *            the cycle to be ran
+     *            current the cycle
      */
     abstract void cycle(long cycle);
 }

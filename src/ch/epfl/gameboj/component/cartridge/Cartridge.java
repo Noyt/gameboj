@@ -5,45 +5,94 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Objects;
 
 import ch.epfl.gameboj.Preconditions;
 import ch.epfl.gameboj.component.Component;
 import ch.epfl.gameboj.component.memory.Rom;
 
+/**
+ * Represents a GameBoy programm in the form of a cartridge of type 0 (with a
+ * memory of 32768 octets) //TODO suffisamment clair?
+ *
+ * @author Sophie du Couédic (26007)
+ * @author Arnaud Robert (287964)
+ */
 public final class Cartridge implements Component {
 
     private MBC0 mbc;
 
-    // TODO ou bien
-    // private Cartridge(Component mbc)
     private Cartridge(MBC0 mbc) {
-        this.mbc = mbc;
+        this.mbc = Objects.requireNonNull(mbc);
     }
 
+    /**
+     * Implements the method read of Component, that returns via the bank memory
+     * controller the value stored at the given address in the memory, or
+     * NO_DATA if the address doesn't belong to the memory
+     * 
+     * @param address
+     *            : an int the address that contains the desired data
+     * @return an int (octet) : the value stored at the given address in the
+     *         memory
+     * @throws IllegalArgumentException
+     *             if the address is not a 16-bits value
+     * 
+     * @see ch.epfl.gameboj.component.Component#read(int)
+     */
     @Override
     public int read(int address) {
         Preconditions.checkBits16(address);
         return mbc.read(address);
     }
 
+    /**
+     * Implements the method write of Component, that is supposed to store a
+     * value at the given address. But as the memory of the cartridge is a
+     * read-only memory, the method actually doesn't store any value in the
+     * memory at the given address //TODO demander à Arnaud si c'est trop précis
+     * 
+     * @param address
+     *            an int : the address
+     * @param data
+     *            an int : the value
+     * 
+     * @throws IllegalArgumentException
+     *             if the address is not a 16-bits value or if data is not a
+     *             8-bits value
+     * 
+     * @see ch.epfl.gameboj.component.Component#write(int,int)
+     */
     @Override
     public void write(int address, int data) {
         Preconditions.checkBits16(address);
         Preconditions.checkBits8(data);
 
         mbc.write(address, data);
-
     }
 
+    /**
+     * Constructs and returns a new Cartridge of type 0 which the read-only
+     * memory contains the octets of the given file (the file must contain 0 at
+     * position 0x147 and must be of the size of 32768 octets)
+     * 
+     * @param romFile
+     *            a File : the file with the required octets
+     * @return a new Cartridge containing the octets of the file
+     * @throws IOException
+     *             if an I/O error occurs or if the file doesn't exist
+     * @throws IllegalArgumentException
+     *             if the file doesn't contain 0 at position 0x147 or is not of
+     *             size 32768 octets
+     */
     public static Cartridge ofFile(File romFile) throws IOException {
         try (InputStream s = new FileInputStream(romFile)) {
             byte[] tab = new byte[(int) romFile.length()];
-           // s.read(tab);
             tab = s.readAllBytes().clone();
-            if(!(Byte.toUnsignedInt(tab[0x147]) == 0)) {
+            if (!(Byte.toUnsignedInt(tab[0x147]) == 0)) {
                 throw new IllegalArgumentException();
             }
-            
+
             Cartridge cart = new Cartridge(new MBC0(new Rom(tab)));
             return cart;
 
