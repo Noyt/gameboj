@@ -5,6 +5,13 @@ import java.util.Objects;
 
 import ch.epfl.gameboj.component.Component;
 
+/**
+ * A bus connecting different components
+ * 
+ * @author Arnaud Robert (287964)
+ * @author Sophie Du Couedic (260007)
+ *
+ */
 public final class Bus {
 
     private ArrayList<Component> components;

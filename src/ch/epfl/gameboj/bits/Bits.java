@@ -4,6 +4,14 @@ import java.util.Objects;
 
 import ch.epfl.gameboj.Preconditions;
 
+/**
+ * A bitstring
+ * 
+ * @author Arnaud Robert (287964)
+ * @author Sophie Du Couedic (260007)
+ *
+ */
+
 public final class Bits {
 
     private Bits() {
@@ -16,6 +24,7 @@ public final class Bits {
      * @param index
      *            an int : the position of the "1"
      * @return an int : the masked value
+     * 
      */
     public static int mask(int index) {
         Objects.checkIndex(index, Integer.SIZE);
@@ -115,7 +124,7 @@ public final class Bits {
 
     /**
      * Returns a value which a given number of low bits are the same as the
-     * orgininal value, except that there was a rotation of a given distance on
+     * original value, except that there was a rotation of a given distance on
      * these bits
      * 
      * @param size
@@ -129,7 +138,7 @@ public final class Bits {
      */
     public static int rotate(int size, int bits, int distance) {
         Preconditions.checkArgument(
-                size > 0 && size <= 32 && bits == clip(size, bits));
+                size > 0 && size <= Integer.SIZE && bits == clip(size, bits));
 
         distance = Math.floorMod(distance, size);
 
@@ -143,6 +152,8 @@ public final class Bits {
      * @param b
      *            an int : the value which we want to extend the sign
      * @return an int : the bit of index 7 is copied in the bits from 8 to 31
+     * @throws IllegalArgumentException
+     *             if the parameter is not a valid 8 bits value
      */
     public static int signExtend8(int b) {
         Preconditions.checkBits8(b);
@@ -157,6 +168,8 @@ public final class Bits {
      *            an int : the value which we want to reverse the bits
      * @return an int : the bits of index 7 ans 0 has been exchanged, same for 1
      *         and 6, 2 and 5, 3 and 4
+     * @throws IllegalArgumentException
+     *             if the parameter is not a valid 8 bits value
      */
     public static int reverse8(int b) {
         Preconditions.checkBits8(b);
@@ -197,6 +210,8 @@ public final class Bits {
      * @param b
      *            an int : the original value
      * @return an int : the complement of b
+     * @throws IllegalArgumentException
+     *             if the parameter is not a valid 8 bits value
      */
     public static int complement8(int b) {
         Preconditions.checkBits8(b);
@@ -213,10 +228,12 @@ public final class Bits {
      *            an int : the 8 lowest bits of lowB will become the low bits of
      *            the result
      * @return an int : a kind of concatenation of highB and lowB
+     * @throws IllegalArgumentException
+     *             if a parameter is not a valid 8-bits value
      */
     public static int make16(int highB, int lowB) {
         Preconditions.checkBits8(highB);
         Preconditions.checkBits8(lowB);
-        return (highB << 8 | lowB);
+        return (highB << Byte.SIZE | lowB);
     };
 }

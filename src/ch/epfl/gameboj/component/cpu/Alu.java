@@ -9,8 +9,8 @@ import ch.epfl.gameboj.bits.Bits;
 /**
  * Arithmetic Logic Unit
  * 
- * @author Arnaud Robert
- * @author Sophie Du Couedic
+ * @author Arnaud Robert (287964)
+ * @author Sophie Du Couedic (260007)
  *
  */
 public final class Alu {
@@ -20,8 +20,8 @@ public final class Alu {
 
     /**
      * 
-     * @author Arnaud Robert
-     * @author Sophie Du Couedic
+     * @author Arnaud Robert (287964)
+     * @author Sophie Du Couedic (260007)
      * 
      *         enumeration used to reprensents bits associated to flags the
      *         first 4 bits are unused according to GameBoy instructions
@@ -32,8 +32,8 @@ public final class Alu {
     };
 
     /**
-     * @author Arnaud Robert
-     * @author Sophie Du Couedic
+     * @author Arnaud Robert (287964)
+     * @author Sophie Du Couedic (260007)
      * 
      *         enumeration used to represent directions when used in rotate()
      *         methods
@@ -45,7 +45,7 @@ public final class Alu {
     /**
      * Combining an 8/16 bits value and 8 bits value to represents the flags,
      * this method returns a single int in which all information given by Alu's
-     * method can be found
+     * methods can be found
      * 
      * @param v
      *            6/16 bits value
@@ -170,7 +170,7 @@ public final class Alu {
         int lowFlags = unpackFlags(lowResult);
         boolean h = Bits.test(lowFlags, Flag.H.index());
         boolean c = Bits.test(lowFlags, Flag.C.index());
-        
+
         return packValueZNHC(result, false, false, h, c);
     }
 
@@ -190,7 +190,7 @@ public final class Alu {
         Preconditions.checkBits16(r);
 
         int result = Bits.clip(16, l + r);
-        boolean carry = Bits.clip(8, l) + Bits.clip(8, r) > 0xFF;
+        boolean carry = Bits.clip(Byte.SIZE, l) + Bits.clip(Byte.SIZE, r) > 0xFF;
         int highResult = add(Bits.extract(l, Byte.SIZE, Byte.SIZE),
                 Bits.extract(r, Byte.SIZE, Byte.SIZE), carry);
 
@@ -202,7 +202,7 @@ public final class Alu {
     }
 
     /**
-     * Substracts the second value from the first one while taking into account
+     * Subtracts the second value from the first one while taking into account
      * a potential initial borrow, as well as flags Z1HC
      * 
      * @param l
@@ -260,7 +260,7 @@ public final class Alu {
         boolean fixH = c || (!n && (v > 0x99));
         int fix = 0x60 * (fixH ? 1 : 0) + 0x6 * (fixL ? 1 : 0);
         int Va = n ? (v - fix) : (v + fix);
-        
+
         Va = Bits.clip(Byte.SIZE, Va);
 
         return packValueZNHC(Va, Va == 0, n, false, fixH);
@@ -368,7 +368,6 @@ public final class Alu {
         Preconditions.checkBits8(v);
 
         int value = v >>> 1;
-        // int value = v / 2;
         boolean z = (value == 0);
         boolean c = Bits.test(v, 0);
         return packValueZNHC(value, z, false, false, c);

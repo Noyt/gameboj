@@ -1,5 +1,11 @@
 package ch.epfl.gameboj.component.memory;
-
+/**
+ * The Boot Rom of the GameBoy
+ * 
+ * @author Arnaud Robert (287964)
+ * @author Sophie Du Couedic (260007)
+ *
+ */
 public interface BootRom {
     // The following boot ROM is taken from the SameBoy project
     byte[] DATA = new byte[] {
