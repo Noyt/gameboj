@@ -24,6 +24,9 @@ public interface Bit {
     int ordinal();
 
     /**
+     * Returns the same value as ordinal, but with a little more "expressive"
+     * name
+     * 
      * @return an int : the same value as ordinal, but with a little more
      *         "expressive" name
      */
@@ -32,7 +35,7 @@ public interface Bit {
     }
 
     /**
-     * constructs a mask of the Bit : a value which the only "1" is the bit
+     * constructs a mask of the Bit : a value for which the only "1" is the bit
      * which corresponds to the index
      * 
      * @return an int : the mask of the Bit

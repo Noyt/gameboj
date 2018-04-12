@@ -2,6 +2,13 @@ package ch.epfl.gameboj.component.cpu;
 
 // This is version 3 of Opcode.java, with correct values for additionalCycles.
 
+/**
+ * All existing Opcodes
+ * 
+ * @author Arnaud Robert (287964)
+ * @author Sophie Du Couedic (260007)
+ *
+ */
 public enum Opcode {
     // Direct (non-prefixed) opcodes
     ADD_A_B(Kind.DIRECT, Family.ADD_A_R8, 0x80, 1, 1),

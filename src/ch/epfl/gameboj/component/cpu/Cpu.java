@@ -25,11 +25,8 @@ import ch.epfl.gameboj.component.memory.Ram;
  * 
  */
 /**
- * @author noyt
- *
- */
-/**
- * @author noyt
+ * @author Arnaud Robert (287964)
+ * @author Sophie Du Couedic (260007)
  *
  */
 public final class Cpu implements Component, Clocked {
