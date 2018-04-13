@@ -29,7 +29,7 @@ public final class Ram {
     }
 
     /**
-     * Returns the RAM's size (in octets)
+     * Returns the RAM's size (in bytes)
      * 
      * @return an int : the RAM's size
      */
