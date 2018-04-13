@@ -47,7 +47,7 @@ public final class Alu {
      * Alu's methods can be found
      * 
      * @param v
-     *            6/16 bits value
+     *            integer : the 8(or 16) bits value to be packed
      * @param z
      *            boolean : Z flag (true if the operation returns 0, false if it
      *            does not)
@@ -60,10 +60,15 @@ public final class Alu {
      * @param c
      *            boolean : C flag (true if the operation produces a carry,
      *            false if it does not)
-     * @return combined value/flags in single integer
+     * @return an integer : the combined value and flags
+     * @throws IllegalArgumentException
+     *             if v is not an 16-bits value
      */
     private static int packValueZNHC(int v, boolean z, boolean n, boolean h,
             boolean c) {
+
+        Preconditions.checkBits16(v);
+
         return (v << Byte.SIZE) | Flag.C.mask() * (c ? 1 : 0)
                 | Flag.H.mask() * (h ? 1 : 0) | Flag.N.mask() * (n ? 1 : 0)
                 | Flag.Z.mask() * (z ? 1 : 0);
@@ -73,14 +78,14 @@ public final class Alu {
      * Produces a combined mask with 1s wherever a boolean is true
      *
      * @param z
-     *            Z flag
+     *            boolean : Z flag
      * @param n
-     *            N flag
+     *            boolean : N flag
      * @param h
-     *            H flag
+     *            boolean : H flag
      * @param c
-     *            C flag
-     * @return ZNHC flags mask
+     *            boolean : C flag
+     * @return an integer : ZNHC flags mask
      */
     public static int maskZNHC(boolean z, boolean n, boolean h, boolean c) {
         return packValueZNHC(0, z, n, h, c);
@@ -90,8 +95,11 @@ public final class Alu {
      * Extracts the value from the value/flags package
      * 
      * @param valueFlags
-     *            a binary integer combining a value and flags
-     * @return only the value
+     *            integer : the package with the combination of a value and the
+     *            flags
+     * @return an integer : the value contained in the package
+     * @throws IllegalArgumentException
+     *             if the value to be returned is not an valid 16-bits value
      */
     public static int unpackValue(int valueFlags) {
         return Preconditions.checkBits16(valueFlags >>> Byte.SIZE);
@@ -101,8 +109,11 @@ public final class Alu {
      * Extracts the flags from the value/flags package
      * 
      * @param valueFlags
-     *            a binary integer combining a value and flags
-     * @return only the flags
+     *            integer : the combination of a value and flags
+     * @return an integer : the flags without the value
+     * @throws IllegalArgumentException
+     *             if the value contained in the package is not an valid 16-bits
+     *             value
      */
     public static int unpackFlags(int valueFlags) {
         Preconditions.checkBits16(unpackValue(valueFlags));
@@ -115,12 +126,13 @@ public final class Alu {
      * combined with Z0HC flags
      * 
      * @param l
-     *            1st value
+     *            integer : 1st value
      * @param r
-     *            2nd value
+     *            integer : 2nd value
      * @param c0
-     *            initial carry
-     * @return combined sum results / resulting flags value
+     *            boolean : the initial carry (true if there is an initial
+     *            carry, false if not)
+     * @return an integer : the combined sum results / resulting flags value
      */
     public static int add(int l, int r, boolean c0) {
         Preconditions.checkBits8(l);
@@ -140,10 +152,10 @@ public final class Alu {
      * Identical to the previous method but always uses false as an argument
      * 
      * @param l
-     *            1st value
+     *            integer : 1st value
      * @param r
-     *            2nd value
-     * @return combined resulting sum/flags value
+     *            integer : 2nd value
+     * @return integer : the combined resulting sum and flags value
      */
     public static int add(int l, int r) {
         return add(l, r, false);
@@ -155,10 +167,12 @@ public final class Alu {
      * values
      * 
      * @param l
-     *            1st value
+     *            integer : 1st value
      * @param r
-     *            2nd value
-     * @return combined resulting sum/flags value
+     *            integer : 2nd value
+     * @return integer : combined resulting sum and flags value
+     * @throws IllegalArgumentException
+     *             if l or r is not an 16-bits value
      */
     public static int add16L(int l, int r) {
         Preconditions.checkBits16(l);
@@ -179,10 +193,12 @@ public final class Alu {
      * both values
      * 
      * @param l
-     *            1st value
+     *            integer : 1st value
      * @param r
-     *            2nd value
-     * @return combined resulting sum/flags value
+     *            integer : 2nd value
+     * @return an integer : the combined resulting sum and flags value
+     * @throws IllegalArgumentException
+     *             if l or r is not an 16-bits value
      */
     public static int add16H(int l, int r) {
         Preconditions.checkBits16(l);
@@ -206,12 +222,15 @@ public final class Alu {
      * potential initial borrow, as well as flags Z1HC
      * 
      * @param l
-     *            1st value
+     *            integer : 1st value
      * @param r
-     *            2nd value
+     *            integer : 2nd value
      * @param b0
-     *            initial borrow
-     * @return combined resulting difference/flags value
+     *            boolean : the initial borrow, true if there is a borrow, false
+     *            if not
+     * @return an integer : the combined result difference and flags value
+     * @throws IllegalArgumentException
+     *             if l or r is not an 16-bits value
      */
     public static int sub(int l, int r, boolean b0) {
         Preconditions.checkBits8(l);
@@ -230,13 +249,15 @@ public final class Alu {
     }
 
     /**
-     * Identical to the previous method but always uses false as an argument
+     * Subtracts the second value from the first one
      * 
      * @param l
-     *            1st value
+     *            integer : 1st value
      * @param r
-     *            2nd value
-     * @return combined resulting difference/flags value
+     *            integer : 2nd value
+     * @return an integer : the combined resulting difference/flags value
+     * @throws IllegalArgumentException
+     *             if l or r is not an 16-bits value
      */
     public static int sub(int l, int r) {
         return sub(l, r, false);
@@ -246,11 +267,16 @@ public final class Alu {
      * Adjusts the given 8 bits value to BCD format
      * 
      * @param v
-     *            value to be adjusted
+     *            integer : value to be adjusted
      * @param n
+     *            boolean : n flag's value
      * @param h
+     *            boolean : h flag's value
      * @param c
-     * @return adjusted value to BCD format
+     *            boolean : c flag's value
+     * @return an integer : adjusted value to BCD format
+     * @throws IllegalArgumentException
+     *             if v is not an 8-bits value
      */
     public static int bcdAdjust(int v, boolean n, boolean h, boolean c) {
 
@@ -270,10 +296,12 @@ public final class Alu {
      * Applies a bit-to-bit "and" (&) to the given 8 bits values
      * 
      * @param l
-     *            1st value
+     *            integer : 1st value
      * @param r
-     *            2nd value
-     * @return bit-to-bit "and" result
+     *            integer : 2nd value
+     * @return an integer : bit-to-bit "and" result combined to the flags
+     * @throws IllegalArgumentException
+     *             if l or r is not an 16-bits value
      */
     public static int and(int l, int r) {
         Preconditions.checkBits8(l);
@@ -287,10 +315,13 @@ public final class Alu {
      * Applies a bit-to-bit "inclusive or" (|) to the given 8 bits values
      * 
      * @param l
-     *            1st value
+     *            integer : 1st value
      * @param r
-     *            2nd value
-     * @return bit-to-bit "inclusive or" result
+     *            integer : 2nd value
+     * @return an integer : the bit-to-bit "inclusive or" result combined with
+     *         the flags
+     * @throws IllegalArgumentException
+     *             if l or r is not an 16-bits value
      */
     public static int or(int l, int r) {
         Preconditions.checkBits8(l);
@@ -305,10 +336,13 @@ public final class Alu {
      * Applies a bit-to-bit "exclusive or" (^) to the given 8 bits values
      * 
      * @param l
-     *            1st value
+     *            integer : 1st value
      * @param r
-     *            2nd value
-     * @return bit-to-bit "exclusive or" result
+     *            integer : 2nd value
+     * @return an integer : the bit-to-bit "exclusive or" result combined with
+     *         the flags
+     * @throws IllegalArgumentException
+     *             if l or r is not an 16-bits value
      */
     public static int xor(int l, int r) {
         Preconditions.checkBits8(l);
@@ -325,8 +359,10 @@ public final class Alu {
      * was equal to 1
      * 
      * @param v
-     *            8 bits value
-     * @return shifted value combined with appropriate flags
+     *            integer : the 8 bits value to be shifted
+     * @return an integer : the shifted value combined with the flags
+     * @throws IllegalArgumentException
+     *             if v is not an 8-bits value
      */
     public static int shiftLeft(int v) {
         Preconditions.checkBits8(v);
@@ -343,8 +379,10 @@ public final class Alu {
      * when said bit was equal to 1
      * 
      * @param v
-     *            8 bits value
-     * @return shifted value combined with appropriate flags
+     *            integer : the 8-bits value to be shifted
+     * @return an integer : the shifted value combined with the flags
+     * @throws IllegalArgumentException
+     *             if v is not an 8-bits value
      */
     public static int shiftRightA(int v) {
         Preconditions.checkBits8(v);
@@ -361,8 +399,10 @@ public final class Alu {
      * said bit was equal to 1
      * 
      * @param v
-     *            8 bits value
-     * @return shifted value combined with appropriate flags
+     *            integer : the 8 bits value to be shifted
+     * @return an integer : the shifted value combined with appropriate flags
+     * @throws IllegalArgumentException
+     *             if v is not an 8-bits value
      */
     public static int shiftRightL(int v) {
         Preconditions.checkBits8(v);
@@ -379,10 +419,12 @@ public final class Alu {
      * one end to another
      * 
      * @param d
-     *            direction, can be Left or Right
+     *            RotDir : the direction of the rotation, can be Left or Right
      * @param v
-     *            value to be rotated
-     * @return rotated value combined with appropriate flags
+     *            integer : the value to be rotated
+     * @return integer : the rotated value combined with appropriate flags
+     * @throws IllegalArgumentException
+     *             if v is not an 8-bits value
      */
     public static int rotate(RotDir d, int v) {
         Preconditions.checkBits8(v);
@@ -403,12 +445,14 @@ public final class Alu {
      * value and the higher bit becoming the new carry flag
      * 
      * @param d
-     *            direction, can be Left or Right
+     *            a RotDir : the direction of the rotation, can be Left or Right
      * @param v
-     *            value to be rotated
+     *            an integer : the value to be rotated
      * @param c
-     *            carry
+     *            a boolean : true if there is a carry, false if not
      * @return rotated value combined with appropriate flags
+     * @throws IllegalArgumentException
+     *             if v is not an 8-bits value
      */
     public static int rotate(RotDir d, int v, boolean c) {
         Preconditions.checkBits8(v);
@@ -430,7 +474,7 @@ public final class Alu {
      * @param d
      *            direction, can be Left or Right
      * @param v
-     *            value to be rotated
+     *            the value to be rotated
      * @param nineOrNot
      *            boolean : true if the value is 9 bits, false if it is 8 bits
      * @return the rotated value
@@ -453,8 +497,10 @@ public final class Alu {
      * bits of the given value as well as flags Z000
      * 
      * @param v
-     *            value to be swapped
+     *            the value to be swapped
      * @return resulting value combined with appropriate flags
+     * @throws IllegalArgumentException
+     *             if the value is not an 8-bits value
      */
     public static int swap(int v) {
         Preconditions.checkBits8(v);
@@ -472,8 +518,14 @@ public final class Alu {
      * given index of the given value is 0
      * 
      * @param v
+     *            an integer : the value we want to test
      * @param bitIndex
-     * @return combined 0 value and flags Z010
+     *            an integer : the bit of the value we want to test
+     * @return integer : the combined 0 value and flags Z010
+     * @throws IllegalArgumentException
+     *             if the value is not 8-bits
+     * @throws IndexOutOfBoundsException
+     *             if bitIndex is less than zero or greater than 7
      */
     public static int testBit(int v, int bitIndex) {
         Preconditions.checkBits8(v);
