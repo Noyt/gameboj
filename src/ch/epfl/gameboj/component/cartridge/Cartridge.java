@@ -32,12 +32,11 @@ public final class Cartridge implements Component {
      * NO_DATA if the address doesn't belong to the memory
      * 
      * @param address
-     *            : an int the address that contains the desired data
-     * @return an int (octet) : the value stored at the given address in the
+     *            : an integer the address that contains the desired data
+     * @return an integer (byte) : the value stored at the given address in the
      *         memory
      * @throws IllegalArgumentException
      *             if the address is not a 16-bits value
-     * 
      * @see ch.epfl.gameboj.component.Component#read(int)
      */
     @Override
@@ -50,17 +49,15 @@ public final class Cartridge implements Component {
      * Implements the method write of Component, that is supposed to store a
      * value at the given address. But as the memory of the cartridge is a
      * read-only memory, the method actually doesn't store any value in the
-     * memory at the given address //TODO demander à Arnaud si c'est trop précis
+     * memory at the given address
      * 
      * @param address
-     *            an int : the address
+     *            an integer : the address
      * @param data
-     *            an int : the value
-     * 
+     *            an integer : the value
      * @throws IllegalArgumentException
      *             if the address is not a 16-bits value or if data is not a
      *             8-bits value
-     * 
      * @see ch.epfl.gameboj.component.Component#write(int,int)
      */
     @Override
@@ -73,17 +70,17 @@ public final class Cartridge implements Component {
 
     /**
      * Constructs and returns a new Cartridge of type 0 which the read-only
-     * memory contains the octets of the given file (the file must contain 0 at
-     * position 0x147 and must be of the size of 32768 octets)
+     * memory contains the bytes copied from the given file (the file must
+     * contain 0 at position 0x147 and must be of the size of 32768 bytes)
      * 
      * @param romFile
-     *            a File : the file with the required octets
-     * @return a new Cartridge containing the octets of the file
+     *            a File : the file with the required byte
+     * @return a new Cartridge containing the byte of the file
      * @throws IOException
      *             if an I/O error occurs or if the file doesn't exist
      * @throws IllegalArgumentException
      *             if the file doesn't contain 0 at position 0x147 or is not of
-     *             size 32768 octets
+     *             size 32768 bytes
      */
     public static Cartridge ofFile(File romFile) throws IOException {
         try (InputStream s = new FileInputStream(romFile)) {

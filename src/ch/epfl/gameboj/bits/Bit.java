@@ -5,8 +5,6 @@ package ch.epfl.gameboj.bits;
  * 
  * @author Arnaud Robert (287964)
  * @author Sophie Du Couedic (260007)
- *
- *
  */
 
 public interface Bit {
@@ -36,7 +34,7 @@ public interface Bit {
 
     /**
      * constructs a mask of the Bit : a value for which the only "1" is the bit
-     * which corresponds to the index
+     * that corresponds to the index
      * 
      * @return an int : the mask of the Bit
      */

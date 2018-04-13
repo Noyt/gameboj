@@ -1,5 +1,11 @@
 package ch.epfl.gameboj;
 
+/**
+ * some useful constants related to the various components of Gameboy
+ * 
+ * @author sophie // qui est l'auteur?
+ *
+ */
 public interface AddressMap {
     int[] RESETS = new int[] { 0x00, 0x08, 0x10, 0x18, 0x20, 0x28, 0x30, 0x38 };
     int[] INTERRUPTS = new int[]{ 0x40, 0x48, 0x50, 0x58, 0x60 };

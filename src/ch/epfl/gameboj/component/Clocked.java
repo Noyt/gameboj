@@ -1,7 +1,7 @@
 package ch.epfl.gameboj.component;
 
 /**
- * An object who is dependent on a clock
+ * An object that depends on a clock
  * 
  * @author Arnaud Robert (287964)
  * @author Sophie Du Couedic (260007)

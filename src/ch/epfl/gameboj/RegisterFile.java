@@ -4,7 +4,7 @@ import ch.epfl.gameboj.bits.Bit;
 import ch.epfl.gameboj.bits.Bits;
 
 /**
- * RegisterFile
+ * A RegisterFile
  * 
  * @author Arnaud Robert (287964)
  * @author Sophie Du Couedic (260007)
