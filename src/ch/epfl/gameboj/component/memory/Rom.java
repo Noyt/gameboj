@@ -1,6 +1,7 @@
 package ch.epfl.gameboj.component.memory;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * A non-volatile, read-only memory
@@ -10,7 +11,7 @@ import java.util.Arrays;
  */
 public final class Rom {
 
-    private byte[] memory;
+    private final byte[] memory;
 
     /**
      * constructs the non-volatile memory that contains an array of byte
@@ -19,10 +20,6 @@ public final class Rom {
      *            : an array of byte which will be copied as the memory
      */
     public Rom(byte[] data) {
-        if (data == null) {
-            throw new NullPointerException();
-        }
-
         memory = Arrays.copyOf(data, data.length);
     }
 
@@ -41,11 +38,11 @@ public final class Rom {
      * @param index
      *            an int, the index of the array that we want the data
      * @return an int, the data at the given index in the memory
+     * @throws IndexOutOfBoundsException
+     *             if the index is negative or higher than the memory's length
      */
     public int read(int index) {
-        if (index < 0 || index >= memory.length) {
-            throw new IndexOutOfBoundsException();
-        }
+        Objects.checkIndex(index, memory.length);
         return Byte.toUnsignedInt(memory[index]);
     }
 }

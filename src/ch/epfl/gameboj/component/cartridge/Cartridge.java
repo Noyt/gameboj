@@ -12,15 +12,15 @@ import ch.epfl.gameboj.component.Component;
 import ch.epfl.gameboj.component.memory.Rom;
 
 /**
- * Represents a GameBoy programm in the form of a cartridge of type 0 (with a
- * memory of 32768 octets) //TODO suffisamment clair?
+ * Represents a GameBoy program in the form of a cartridge of type 0 (with a
+ * memory of 32768 bytes)
  *
  * @author Sophie du Couédic (26007)
  * @author Arnaud Robert (287964)
  */
 public final class Cartridge implements Component {
 
-    private MBC0 mbc;
+    private final MBC0 mbc;
 
     private Cartridge(MBC0 mbc) {
         this.mbc = Objects.requireNonNull(mbc);
@@ -70,17 +70,18 @@ public final class Cartridge implements Component {
 
     /**
      * Constructs and returns a new Cartridge of type 0 which the read-only
-     * memory contains the bytes copied from the given file (the file must
-     * contain 0 at position 0x147 and must be of the size of 32768 bytes)
+     * memory contains the bytes of the given file (the file must contain 0 at
+     * position 0x147 and must be of the size of 32768 bytes)
      * 
      * @param romFile
-     *            a File : the file with the required byte
-     * @return a new Cartridge containing the byte of the file
+     *            a File : the file with the required bytes
+     * @return a new Cartridge containing the bytes of the file
      * @throws IOException
      *             if an I/O error occurs or if the file doesn't exist
      * @throws IllegalArgumentException
      *             if the file doesn't contain 0 at position 0x147 or is not of
      *             size 32768 bytes
+
      */
     public static Cartridge ofFile(File romFile) throws IOException {
         try (InputStream s = new FileInputStream(romFile)) {

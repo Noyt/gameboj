@@ -15,11 +15,11 @@ import ch.epfl.gameboj.component.memory.Rom;
  */
 public final class MBC0 implements Component {
 
-    private Rom rom = null;
+    private final Rom rom;
 
     /**
-     * Constructs a new bank memory controller that contains the given 3278
-     * bytes read-only memory
+     * Constructs a new bank memory controller that contains the given
+     * 32678 bytes read-only memory
      * 
      * @param rom
      *            a read-only memory of 32768 bytes
@@ -39,7 +39,7 @@ public final class MBC0 implements Component {
      * 
      * @param address
      *            an int : the address that contains the desired data
-     * @return an int (octet) : the value stored at the given address in the
+     * @return an int (byte) : the value stored at the given address in the
      *         memory
      * @throws IllegalArgumentException
      *             if the address is not a 16-bits value
@@ -53,6 +53,7 @@ public final class MBC0 implements Component {
         } else {
             return rom.read(address);
         }
+        //TODO gérer le 32768
     }
 
     /**
