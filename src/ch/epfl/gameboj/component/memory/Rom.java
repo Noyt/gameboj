@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Objects;
 
 /**
+ * A non-volatile, read-only memory
  * 
  * @author Sophie du Couédic (260007)
  * @author Arnaud Robert (287964)

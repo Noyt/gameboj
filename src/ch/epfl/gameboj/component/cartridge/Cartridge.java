@@ -32,12 +32,11 @@ public final class Cartridge implements Component {
      * NO_DATA if the address doesn't belong to the memory
      * 
      * @param address
-     *            : an int the address that contains the desired data
-     * @return an int (byte) : the value stored at the given address in the
+     *            : an integer the address that contains the desired data
+     * @return an integer (byte) : the value stored at the given address in the
      *         memory
      * @throws IllegalArgumentException
      *             if the address is not a 16-bits value
-     * 
      * @see ch.epfl.gameboj.component.Component#read(int)
      */
     @Override
@@ -53,14 +52,12 @@ public final class Cartridge implements Component {
      * memory at the given address
      * 
      * @param address
-     *            an int : the address
+     *            an integer : the address
      * @param data
-     *            an int : the value
-     * 
+     *            an integer : the value
      * @throws IllegalArgumentException
      *             if the address is not a 16-bits value or if data is not a
      *             8-bits value
-     * 
      * @see ch.epfl.gameboj.component.Component#write(int,int)
      */
     @Override
@@ -84,9 +81,7 @@ public final class Cartridge implements Component {
      * @throws IllegalArgumentException
      *             if the file doesn't contain 0 at position 0x147 or is not of
      *             size 32768 bytes
-     * @throws IOException
-     *             if there is an Input or Output error as well as if the given
-     *             file does not exist
+
      */
     public static Cartridge ofFile(File romFile) throws IOException {
         try (InputStream s = new FileInputStream(romFile)) {

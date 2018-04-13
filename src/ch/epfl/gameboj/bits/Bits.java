@@ -9,7 +9,6 @@ import ch.epfl.gameboj.Preconditions;
  * 
  * @author Arnaud Robert (287964)
  * @author Sophie Du Couedic (260007)
- *
  */
 
 public final class Bits {

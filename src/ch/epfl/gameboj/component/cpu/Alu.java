@@ -19,12 +19,11 @@ public final class Alu {
     };
 
     /**
-     * 
      * @author Arnaud Robert (287964)
      * @author Sophie Du Couedic (260007)
      * 
-     *         enumeration used to reprensents bits associated to flags the
-     *         first 4 bits are unused according to GameBoy instructions
+     *         enumeration used to represents bits associated to flags the first
+     *         4 bits are unused according to GameBoy instructions
      *
      */
     public enum Flag implements Bit {
@@ -44,8 +43,8 @@ public final class Alu {
 
     /**
      * Combining an 8/16 bits value and 8 bits value to represents the flags,
-     * this method returns a single int in which all information given by Alu's
-     * methods can be found
+     * this method returns a single integer in which all information given by
+     * Alu's methods can be found
      * 
      * @param v
      *            6/16 bits value
@@ -190,7 +189,8 @@ public final class Alu {
         Preconditions.checkBits16(r);
 
         int result = Bits.clip(16, l + r);
-        boolean carry = Bits.clip(Byte.SIZE, l) + Bits.clip(Byte.SIZE, r) > 0xFF;
+        boolean carry = Bits.clip(Byte.SIZE, l)
+                + Bits.clip(Byte.SIZE, r) > 0xFF;
         int highResult = add(Bits.extract(l, Byte.SIZE, Byte.SIZE),
                 Bits.extract(r, Byte.SIZE, Byte.SIZE), carry);
 
@@ -202,8 +202,8 @@ public final class Alu {
     }
 
     /**
-     * Subtracts the second value from the first one while taking into account
-     * a potential initial borrow, as well as flags Z1HC
+     * Subtracts the second value from the first one while taking into account a
+     * potential initial borrow, as well as flags Z1HC
      * 
      * @param l
      *            1st value

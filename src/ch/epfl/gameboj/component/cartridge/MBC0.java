@@ -7,8 +7,8 @@ import ch.epfl.gameboj.component.Component;
 import ch.epfl.gameboj.component.memory.Rom;
 
 /**
- * A bank memory controller of type 0 : it means that it can contain
- * only a read-only memory of 32768 octets
+ * A bank memory controller of type 0 : it means that it can contains only a
+ * read-only memory of 32768 bytes
  * 
  * @author Sophie du Couédic (26007)
  * @author Arnaud Robert (287964)
@@ -19,12 +19,12 @@ public final class MBC0 implements Component {
 
     /**
      * Constructs a new bank memory controller that contains the given
-     * 32678 octets read-only memory
+     * 32678 bytes read-only memory
      * 
      * @param rom
-     *            a Rom : read-only memory of 32768 octets
+     *            a read-only memory of 32768 bytes
      * @throws IllegalArgumentException
-     *             if rom is not of size 32768 octets
+     *             if rom is not of size 32768 bytes
      */
     public MBC0(Rom rom) {
         Objects.requireNonNull(rom);
@@ -43,14 +43,11 @@ public final class MBC0 implements Component {
      *         memory
      * @throws IllegalArgumentException
      *             if the address is not a 16-bits value
-     * 
      * @see ch.epfl.gameboj.component.Component#read(int)
      */
     @Override
     public int read(int address) {
         Preconditions.checkBits16(address);
-        // TODO la rom part elle vraiment de 0 (et au niveau de la rom de
-        // demarrage ?)
         if (address > 0x7FFF) {
             return NO_DATA;
         } else {
@@ -68,7 +65,7 @@ public final class MBC0 implements Component {
      * @param address
      *            an int : the address
      * @param data
-     *            an int : the value 
+     *            an int : the value
      * 
      * @throws IllegalArgumentException
      *             if the address is not a 16-bits value or if data is not a
@@ -78,8 +75,8 @@ public final class MBC0 implements Component {
      */
     @Override
     public void write(int address, int data) {
-        // TODO est-ce qu'il faut quand meme teste si address est de taille 16?
-        // et data?
+        Preconditions.checkBits16(address);
+        Preconditions.checkBits8(data);
     }
 
 }
