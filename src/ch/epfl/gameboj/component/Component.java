@@ -2,8 +2,18 @@ package ch.epfl.gameboj.component;
 
 import ch.epfl.gameboj.Bus;
 
+/**
+ * a Component connected to the bus
+ * 
+ * @author Sophie du Couédic (260007)
+ * @author Arnaud Robert (287964)
+ */
 public interface Component {
 
+    /**
+     * this value will returned by the method read if no data is stored at the
+     * address
+     */
     public static final int NO_DATA = 0x100;
 
     /**

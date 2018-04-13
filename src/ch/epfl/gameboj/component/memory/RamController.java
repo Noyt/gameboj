@@ -5,6 +5,13 @@ import java.util.Objects;
 import ch.epfl.gameboj.Preconditions;
 import ch.epfl.gameboj.component.Component;
 
+/**
+ * a RamController that controls the access to the ram
+ * 
+ * @author Sophie du Couédic (260007)
+ * @author Arnaud Robert (287964)
+ *
+ */
 public final class RamController implements Component {
 
     private Ram ram;
@@ -74,7 +81,7 @@ public final class RamController implements Component {
     }
 
     /**
-     * implements the method write of component : store the data in the ram at the address
+     * Implements the method write of component : store the data in the ram at the address
      * does nothing if the address doesn't below to the ramController
      * 
      * @param address an int : the address where we to store the data
