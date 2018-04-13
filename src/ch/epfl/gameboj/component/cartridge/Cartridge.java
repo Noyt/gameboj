@@ -15,13 +15,14 @@ import ch.epfl.gameboj.component.memory.Rom;
  * Represents a GameBoy program in the form of a cartridge of type 0 (with a
  * memory of 32768 bytes)
  *
- * @author Sophie du Couédic (26007)
+ * @author Sophie du Couédic (260007)
  * @author Arnaud Robert (287964)
  */
 public final class Cartridge implements Component {
 
     private final MBC0 mbc;
-
+    private final static int CARTRIDGE_TYPE_ADDRESS = 0x147;
+    
     private Cartridge(MBC0 mbc) {
         this.mbc = Objects.requireNonNull(mbc);
     }
@@ -71,7 +72,7 @@ public final class Cartridge implements Component {
     /**
      * Constructs and returns a new Cartridge of type 0 which the read-only
      * memory contains the bytes of the given file (the file must contain 0 at
-     * position 0x147 and must be of the size of 32768 bytes)
+     * position 0x147 (CARTRIDGE_TYPE_ADDRESS) and must be of the size of 32768 bytes)
      * 
      * @param romFile
      *            a File : the file with the required bytes
@@ -87,7 +88,7 @@ public final class Cartridge implements Component {
         try (InputStream s = new FileInputStream(romFile)) {
             byte[] tab = new byte[(int) romFile.length()];
             tab = s.readAllBytes().clone();
-            if (!(Byte.toUnsignedInt(tab[0x147]) == 0)) {
+            if (!(Byte.toUnsignedInt(tab[CARTRIDGE_TYPE_ADDRESS]) == 0)) {
                 throw new IllegalArgumentException();
             }
 

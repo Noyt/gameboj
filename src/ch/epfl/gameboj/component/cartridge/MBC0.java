@@ -8,7 +8,7 @@ import ch.epfl.gameboj.component.memory.Rom;
 
 /**
  * A bank memory controller of type 0 : it means that it can contains only a
- * read-only memory of 32768 bytes
+ * read-only memory of 32768 bytes (= 0x8000)
  * 
  * @author Sophie du Couédic (26007)
  * @author Arnaud Robert (287964)
@@ -16,19 +16,21 @@ import ch.epfl.gameboj.component.memory.Rom;
 public final class MBC0 implements Component {
 
     private final Rom rom;
+    private final static int MB_ROM_SIZE = 0x8000;
 
     /**
-     * Constructs a new bank memory controller that contains the given
-     * 32678 bytes read-only memory
+     * Constructs a new bank memory controller that contains the given 32678
+     * bytes read-only memory
      * 
      * @param rom
      *            a read-only memory of 32768 bytes
      * @throws IllegalArgumentException
      *             if rom is not of size 32768 bytes
+     * @throws NullPointerException
      */
     public MBC0(Rom rom) {
         Objects.requireNonNull(rom);
-        Preconditions.checkArgument(rom.size() == 32768);
+        Preconditions.checkArgument(rom.size() == MB_ROM_SIZE);
         this.rom = rom;
     }
 
@@ -48,12 +50,11 @@ public final class MBC0 implements Component {
     @Override
     public int read(int address) {
         Preconditions.checkBits16(address);
-        if (address > 0x7FFF) {
+        if (address >= MB_ROM_SIZE) {
             return NO_DATA;
         } else {
             return rom.read(address);
         }
-        //TODO gérer le 32768
     }
 
     /**
@@ -75,8 +76,6 @@ public final class MBC0 implements Component {
      */
     @Override
     public void write(int address, int data) {
-        Preconditions.checkBits16(address);
-        Preconditions.checkBits8(data);
     }
 
 }

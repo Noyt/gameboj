@@ -29,7 +29,9 @@ public final class Timer implements Component, Clocked {
      * Constructs a new timer associated to the given processor
      * 
      * @param cpu
-     *            : the CPU associated to the timer TODO @throw ?
+     *            : the CPU associated to the timer
+     * @throws NullPointerException
+     *             if the given cpu is null
      */
     public Timer(Cpu cpu) {
         this.cpu = Objects.requireNonNull(cpu);
@@ -126,7 +128,7 @@ public final class Timer implements Component, Clocked {
      * 
      * @param address
      *            an int : the address that contains the desired data
-     * @return an int (octet) : the value stored at the given address in the
+     * @return an int (byte) : the value stored at the given address in the
      *         memory
      * @throws IllegalArgumentException
      *             if the address is not a 16-bits value

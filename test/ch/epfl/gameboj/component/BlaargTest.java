@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import org.junit.jupiter.api.Test;
 
-import ch.epfl.gameboj.component.debug.DebugMain;
+import ch.epfl.gameboj.debug.DebugMain;
 
 class BlaargTest {
 

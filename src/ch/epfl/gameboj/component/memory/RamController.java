@@ -14,9 +14,9 @@ import ch.epfl.gameboj.component.Component;
  */
 public final class RamController implements Component {
 
-    private Ram ram;
-    private int startAddress;
-    private int endAddress;
+    private final Ram ram;
+    private final int startAddress;
+    private final int endAddress;
 
     /**
      * constructs a new Ram controller that will be bounded to a ram and control
@@ -55,20 +55,22 @@ public final class RamController implements Component {
     }
 
     /**
-     * implements the method read of component : returns the value that is stored in the ram at the address
-     * returns NO_DATA if the address doesn't below to the ramController
+     * implements the method read of component : returns the value that is
+     * stored in the ram at the address returns NO_DATA if the address doesn't
+     * below to the ramController
      * 
-     * @param address an int
+     * @param address
+     *            an int
      * @return an int : the data we are looking for or NO_DATA
      */
     public int read(int address) {
         Preconditions.checkBits16(address);
         if (address < startAddress || address >= endAddress) {
-            return NO_DATA; 
+            return NO_DATA;
         }
 
         try {
-            return ram.read(address - startAddress);      
+            return ram.read(address - startAddress);
         }
 
         catch (IndexOutOfBoundsException e) {
@@ -81,11 +83,17 @@ public final class RamController implements Component {
     }
 
     /**
-     * Implements the method write of component : store the data in the ram at the address
-     * does nothing if the address doesn't below to the ramController
+     * Implements the method write of component : store the data in the ram at
+     * the address does nothing if the address doesn't below to the
+     * ramController
      * 
-     * @param address an int : the address where we to store the data
-     * @param data an int : the data we want to store
+     * @param address
+     *            an int : the address where we to store the data
+     * @param data
+     *            an int : the data we want to store
+     * @throws IllegalArgumentException
+     *             if address is not a valid 16 bits value or if data is not a
+     *             valid 8 bits value
      */
     public void write(int address, int data) {
         Preconditions.checkBits16(address);

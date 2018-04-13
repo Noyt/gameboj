@@ -11,32 +11,32 @@ import ch.epfl.gameboj.Bus;
 public interface Component {
 
     /**
-     * this value will returned by the method read if no data is stored at the
+     * This value will returned by the method read if no data is stored at the
      * address
      */
     public static final int NO_DATA = 0x100;
 
     /**
-     * returns the value that is stored in the adress
+     * Returns the value that is stored in the address
      * 
      * @param address
-     *            an int : the adress in which we want the data
-     * @return an int : the data contained in the adress
+     *            an int : the address in which we want the data
+     * @return an int : the data contained in the address
      */
     int read(int address);
 
     /**
-     * stores a data in the adress
+     * Stores a data in the address
      * 
      * @param address
-     *            an int : the adress where we want to store the data
+     *            an int : the address where we want to store the data
      * @param data
      *            the data we want to store
      */
     void write(int address, int data);
 
     /**
-     * attachs the component to the bus
+     * Attaches the component to the bus
      * 
      * @param bus
      *            a Bus : the bus that will be bounded to the component

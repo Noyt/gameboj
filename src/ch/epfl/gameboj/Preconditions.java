@@ -23,7 +23,7 @@ public interface Preconditions {
     }
     
     /**
-     * checks that the argument is positive and that it can be represented by an octet
+     * checks that the argument is positive and that it can be represented by a byte
      * 
      * @param v an int, the param to be checked
      * @return v the parameter, if v is between 0 and FF
