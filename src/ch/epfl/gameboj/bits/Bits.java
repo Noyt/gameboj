@@ -5,7 +5,7 @@ import java.util.Objects;
 import ch.epfl.gameboj.Preconditions;
 
 /**
- * A bitstring
+ * A set of tools for bitstrings manipulations
  * 
  * @author Arnaud Robert (287964)
  * @author Sophie Du Couedic (260007)
@@ -21,11 +21,11 @@ public final class Bits {
      * bit that corresponds to the index
      * 
      * @param index
-     *            an int : the position of the "1"
-     * @return an int : the masked value
+     *            integer : the position of the "1"
+     * @return integer : the masked value
      * @throws IndexOutOfBoundsException
      *             if the index is negative or indicates a position higher than
-     *             the maximum possible in a Integer
+     *             the maximum position possible in a Integer
      * 
      */
     public static int mask(int index) {
@@ -38,10 +38,13 @@ public final class Bits {
      * tests if the bit at the given index of a value is "1"
      * 
      * @param bits
-     *            an int : the value we want to test
+     *            integer : the value we want to test
      * @param index
-     *            an int : the index of the bit in the value
+     *            integer : the index of the bit in the value
      * @return a boolean : true if there is a 1 at the given index, false if not
+     * @throws IndexOutOfBoundsException
+     *             if the index is negative or indicates a position higher than
+     *             the maximum position possible in a Integer
      */
     public static boolean test(int bits, int index) {
 
@@ -53,7 +56,7 @@ public final class Bits {
      * tests if a given Bit of a value is "1"
      * 
      * @param bits
-     *            an int : the value we want to test
+     *            integer : the value we want to test
      * @param bit
      *            a Bit : a constant of the enum type Bit
      * @return a boolean : true if there is a 1 at the given Bit, false if not

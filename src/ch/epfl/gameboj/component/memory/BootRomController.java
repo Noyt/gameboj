@@ -22,11 +22,13 @@ public final class BootRomController implements Component {
     private final Rom bootRom = new Rom(BootRom.DATA);
 
     /**
-     * Contructs and returns a new BootRomController bounded to the given
+     * Constructs and returns a new BootRomController bounded to the given
      * cartridge
      * 
      * @param cartridge
-     *            TODO @throw nullpointerException??
+     *            Cartridge
+     * @throws nullpointerException
+     *             if the cartridge is null
      */
     public BootRomController(Cartridge cartridge) {
         Objects.requireNonNull(cartridge);
@@ -42,8 +44,8 @@ public final class BootRomController implements Component {
      * the cartridge
      * 
      * @param address
-     *            an int : the address that contains the desired data
-     * @return an int (octet) : the value stored at the given address in the
+     *            integer : the address that contains the desired data
+     * @return integer (byte) : the value stored at the given address in the
      *         memory
      * @throws IllegalArgumentException
      *             if the address is not a 16-bits value
@@ -67,9 +69,9 @@ public final class BootRomController implements Component {
      * address
      * 
      * @param address
-     *            an int : the address
+     *            integer : the address
      * @param data
-     *            an int : the value
+     *            integer : the value
      * 
      * @throws IllegalArgumentException
      *             if the address is not a 16-bits value or if data is not a
