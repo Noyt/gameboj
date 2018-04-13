@@ -26,7 +26,7 @@ public final class BootRomController implements Component {
      * cartridge
      * 
      * @param cartridge
-     * TODO @throw nullpointerException??
+     *            TODO @throw nullpointerException??
      */
     public BootRomController(Cartridge cartridge) {
         Objects.requireNonNull(cartridge);
@@ -41,6 +41,8 @@ public final class BootRomController implements Component {
      * the boot memory at the given address, otherwise it will be the value from
      * the cartridge
      * 
+     * @param address
+     *            an int : the address that contains the desired data
      * @return an int (octet) : the value stored at the given address in the
      *         memory
      * @throws IllegalArgumentException
