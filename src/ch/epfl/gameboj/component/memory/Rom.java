@@ -2,6 +2,11 @@ package ch.epfl.gameboj.component.memory;
 
 import java.util.Arrays;
 
+/**
+ * 
+ * @author Sophie du Couédic (260007)
+ * @author Arnaud Robert (287964)
+ */
 public final class Rom {
 
     private byte[] memory;
