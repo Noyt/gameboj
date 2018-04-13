@@ -11,9 +11,9 @@ import ch.epfl.gameboj.Preconditions;
  * @author Arnaud Robert (287964)
  *
  */
-public class Ram {
+public final class Ram {
     
-    private byte[] memory;
+    private final byte[] memory;
     
     /**
      * Constructs a RAM memory with a given size
