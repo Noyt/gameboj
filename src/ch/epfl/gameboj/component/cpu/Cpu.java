@@ -24,12 +24,9 @@ import ch.epfl.gameboj.component.memory.Ram;
  * @author Sophie Du Couedic (260007)
  * 
  */
-/**
- * @author Arnaud Robert (287964)
- * @author Sophie Du Couedic (260007)
- *
- */
 public final class Cpu implements Component, Clocked {
+
+    private static final int PREFIX_IDENTIFICATOR = 0xCB;
 
     private final RegisterFile<Reg> file;
     private int SP;
@@ -89,12 +86,12 @@ public final class Cpu implements Component, Clocked {
         nextNonIdleCycle = 0;
     }
 
-    @Override
     /**
      * Specific override for the Cpu, if the Cpu is in a state where it should
      * be waiting for the next instruction, this method does nothing. If the Cpu
      * is asleep and an interruption is requested, the Cpu then wakes up
      */
+    @Override
     public void cycle(long cycle) {
         if (nextNonIdleCycle == Long.MAX_VALUE && checkInterruptionIEIF()) {
             nextNonIdleCycle = cycle;
@@ -120,7 +117,7 @@ public final class Cpu implements Component, Clocked {
 
             Opcode instruction = null;
 
-            if (nextInstruction != 0xCB) {
+            if (nextInstruction != PREFIX_IDENTIFICATOR) {
                 for (Opcode o : DIRECT_OPCODE_TABLE) {
                     if (o.encoding == nextInstruction) {
                         instruction = o;
@@ -138,8 +135,6 @@ public final class Cpu implements Component, Clocked {
         }
     }
 
-
-    @Override
     /**
      * Specific override for the Cpu, returns NO_DATA if the address is not
      * within range of the Cpu's own RAM. However, if the given address is that
@@ -150,6 +145,7 @@ public final class Cpu implements Component, Clocked {
      * @throws IllegalArgumentException
      *             if the given address is not a valid 16-bits value
      */
+    @Override
     public int read(int address) {
         Preconditions.checkBits16(address);
 
@@ -167,7 +163,6 @@ public final class Cpu implements Component, Clocked {
         }
     }
 
-    @Override
     /**
      * Specific override to the Cpu, writes the data at the given address if the
      * latter is within range of Cpu's own RAM or if it concerns register IF and
@@ -177,6 +172,7 @@ public final class Cpu implements Component, Clocked {
      *             if address is not a valid 16-bit value or if data is not a
      *             valid 8-bit value
      */
+    @Override
     public void write(int address, int data) {
         Preconditions.checkBits16(address);
         Preconditions.checkBits8(data);
@@ -906,25 +902,26 @@ public final class Cpu implements Component, Clocked {
         return reg;
     }
 
-    // --------------------------- Interruption Handling ----------------------------
-    
+    // ------------- Interruption Handling ---------------
+
     /**
      * Requests the given interruption, i.e sets the corresponding bit in
      * register IF to 1
      * 
-     * @param the interruption to be requested
+     * @param the
+     *            interruption to be requested
      */
     public void requestInterrupt(Interrupt i) {
         IF = Bits.set(IF, i.index(), true);
     }
-    
+
     private boolean checkInterruptionIEIF() {
         return (IF & IE) > 0;
     }
 
     private int checkInterruptionIndex() {
         int nb = IF & IE;
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < Byte.SIZE; i++) {
             if (Bits.test(nb, i)) {
                 return i;
             }
@@ -933,7 +930,7 @@ public final class Cpu implements Component, Clocked {
 
     }
 
-    // ------------------------------- Flags ToolBox ---------------------------------- 
+    // ---------------- Flags ToolBox---------------------
 
     private void setRegFromAlu(Reg r, int vf) {
         file.set(r, Alu.unpackValue(vf));
@@ -997,7 +994,7 @@ public final class Cpu implements Component, Clocked {
         return 0;
     }
 
-    // --------------------- Instruction informations ------------------------------
+    // -------------- Instruction informations ------------------
 
     private RotDir extractRotDir(Opcode instruction) {
         if (Bits.test(instruction.encoding, 3)) {
