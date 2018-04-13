@@ -24,6 +24,9 @@ public final class Bits {
      * @param index
      *            an int : the position of the "1"
      * @return an int : the masked value
+     * @throws IndexOutOfBoundsException
+     *             if the index is negative or indicates a position higher than
+     *             the maximum possible in a Integer
      * 
      */
     public static int mask(int index) {
@@ -93,6 +96,9 @@ public final class Bits {
      *            an int : the original value
      * @return an int : a value which the low bits corresponds to the low bits
      *         of "bits", the rest of the bits are only 0's
+     * @throws IllegalArgumentException
+     *             if size is negative or strictly higher than the maximum size
+     *             for an Integer
      */
     public static int clip(int size, int bits) {
         Preconditions.checkArgument(size >= 0 && size <= Integer.SIZE);
@@ -116,6 +122,8 @@ public final class Bits {
      *            start + size is not included)
      * @return an int : a value which the low bits corresponds to the given part
      *         of bits, the rest of the bits are only 0's
+     * @throws IndexOutOfBoundsException
+     *             if start and size do not represent a valid range
      */
     public static int extract(int bits, int start, int size) {
         Objects.checkFromIndexSize(start, size, Integer.SIZE);
@@ -134,7 +142,10 @@ public final class Bits {
      *            an int : the value which we want to extract the bits
      * @param distance
      *            an int : the distance of the rotation
-     * @return an int : a value whith the rotated low bits of "bits"
+     * @return an int : a value with the rotated low bits of "bits"
+     * @throws IllegalArgumentException
+     *             if size is not within 0 (included) and 32 (excluded), or of
+     *             the given value is not size bits long
      */
     public static int rotate(int size, int bits, int distance) {
         Preconditions.checkArgument(
@@ -146,8 +157,7 @@ public final class Bits {
     };
 
     /**
-     * Extends the sign of a eight-bits value. Throws IllegalArgumentException
-     * if the value is not an eight-bits value.
+     * Extends the sign of an eight-bits value.
      * 
      * @param b
      *            an int : the value which we want to extend the sign
@@ -161,13 +171,12 @@ public final class Bits {
     };
 
     /**
-     * Reverse the lowest bits with the highest bits of a given value. Throws
-     * IllegalArgumentException if the value is not an eight-bits value.
+     * Reverses the lowest bits with the highest bits of a given value
      * 
      * @param b
-     *            an int : the value which we want to reverse the bits
-     * @return an int : the bits of index 7 ans 0 has been exchanged, same for 1
-     *         and 6, 2 and 5, 3 and 4
+     *            an int : the value whose bits we want to reverse
+     * @return an int : the bits of index 7 and 0 have been exchanged, same for
+     *         1 and 6, 2 and 5, 3 and 4
      * @throws IllegalArgumentException
      *             if the parameter is not a valid 8 bits value
      */
@@ -219,7 +228,7 @@ public final class Bits {
     };
 
     /**
-     * Use highB and lowB to make a 16-bits integer
+     * Uses highB and lowB to make a 16-bits integer
      * 
      * @param highB
      *            an int : the 8 lowest bits of highB will become the high bits
