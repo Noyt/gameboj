@@ -3,10 +3,12 @@
 package ch.epfl.gameboj;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Disabled;
 
 import org.junit.jupiter.api.Test;
 
 class GameBoyTest {
+    @Disabled
     @Test
     void workRamIsProperlyMapped() {
         Bus b = new GameBoy(null).bus();
@@ -16,6 +18,7 @@ class GameBoyTest {
         }
     }
 
+    @Disabled
     @Test
     void workRamCanBeReadAndWritten() {
         Bus b = new GameBoy(null).bus();
@@ -25,6 +28,7 @@ class GameBoyTest {
             assertEquals((a ^ 0xA5) & 0xFF, b.read(a));
     }
 
+    @Disabled
     @Test
     void echoAreaReflectsWorkRam() {
         Bus b = new GameBoy(null).bus();
