@@ -1,9 +1,9 @@
 package ch.epfl.gameboj;
 
 /**
- * some useful constants related to the various components of Gameboy
+ * some useful constants related to the various components of GameBoy
  * 
- * @author sophie // qui est l'auteur?
+ * @author Michel Schinz
  *
  */
 public interface AddressMap {

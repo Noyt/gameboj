@@ -8,7 +8,7 @@ import ch.epfl.gameboj.component.memory.Rom;
 
 /**
  * A bank memory controller of type 0 : it means that it can contains only a
- * read-only memory of 32768 bytes (= 0x8000)
+ * read-only memory of 32768 bytes (= 0x8000 = MB_ROM_SIZE)
  * 
  * @author Sophie du Couédic (26007)
  * @author Arnaud Robert (287964)

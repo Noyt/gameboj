@@ -26,9 +26,9 @@ public final class RamController implements Component {
      * @param ram
      *            a Ram
      * @param startAddress
-     *            an int
+     *            an int the starting address of the Ram
      * @param endAddress
-     *            an int
+     *            an int the end address of the Ram
      */
     public RamController(Ram ram, int startAddress, int endAddress) {
         this.ram = Objects.requireNonNull(ram);
@@ -48,7 +48,7 @@ public final class RamController implements Component {
      * @param ram
      *            a Ram
      * @param startAddress
-     *            an int
+     *            an int the starting address of the map
      */
     public RamController(Ram ram, int startAddress) {
         this(ram, startAddress, startAddress + ram.size());
@@ -88,7 +88,7 @@ public final class RamController implements Component {
      * ramController
      * 
      * @param address
-     *            an int : the address where we to store the data
+     *            an int : the address at which we store the data
      * @param data
      *            an int : the data we want to store
      * @throws IllegalArgumentException

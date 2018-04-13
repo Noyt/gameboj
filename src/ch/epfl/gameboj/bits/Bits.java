@@ -77,6 +77,9 @@ public final class Bits {
      * @param newValue
      *            a boolean : bit will take value "1" if true, "0" if false
      * @return an int : the value with potentially one bit inverted
+     * @throws IndexOutOfBoundsException
+     *             if the index is negative or indicates a position higher than
+     *             the maximum position possible in a Integer
      */
     public static int set(int bits, int index, boolean newValue) {
         if (test(bits, index)) {
@@ -215,8 +218,8 @@ public final class Bits {
     };
 
     /**
-     * Returns the complements of the original value : every 1 bits become 0 and
-     * every 0 become 1
+     * Returns the complements of the original value : every 1 bit becomes 0 and
+     * every 0 becomes 1
      * 
      * @param b
      *            an int : the original value

@@ -38,10 +38,10 @@ public final class BootRomController implements Component {
     /**
      * Implements the method read of Component, that returns the value stored at
      * the given address in the memory, or NO_DATA if the address doesn't belong
-     * to the memory. If the address is in the range from 0x0 to 0xFF and if the
-     * boot memory is not disabled, the returned value will be the value from
-     * the boot memory at the given address, otherwise it will be the value from
-     * the cartridge
+     * to the memory. If the address is in the range from 0x0 (BOOT_ROM_START)
+     * to 0x100 (excluded, BOOT_ROM_END) and if the boot memory is not disabled,
+     * the returned value will be the value from the boot memory at the given
+     * address, otherwise it will be the value from the cartridge
      * 
      * @param address
      *            integer : the address that contains the desired data
@@ -55,7 +55,8 @@ public final class BootRomController implements Component {
     @Override
     public int read(int address) {
         Preconditions.checkBits16(address);
-        if (0 <= address && address <= 0xFF) {
+        if (AddressMap.BOOT_ROM_START <= address
+                && address < AddressMap.BOOT_ROM_END) {
             return bootRomDisabled ? cart.read(address) : bootRom.read(address);
         }
         return cart.read(address);
