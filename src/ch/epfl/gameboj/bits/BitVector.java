@@ -1,5 +1,6 @@
 package ch.epfl.gameboj.bits;
 
+import java.util.Iterator;
 import java.util.Objects;
 
 import javax.swing.text.ChangedCharSetException;
@@ -70,7 +71,6 @@ public final class BitVector {
             return new BitVector(temp);
         }
 
-        // TODO nom peu compréhensible maybe
         private void checkIfBuiltAlready() {
             if (bytes == null) {
                 throw new IllegalStateException();
@@ -88,14 +88,20 @@ public final class BitVector {
     }
 
     public BitVector not() {
+        int[] elements = new int[vector.length];
+        int i = 0;
+        for(int a : vector) {
+            elements[i] = ~a;
+            i++;
+        }
+        return new BitVector(elements);
+    }
+
+    public BitVector and(BitVector that) {
 
     }
 
-    public BitVector and(BitVector vector) {
-
-    }
-
-    public BitVector or(BitVector vector) {
+    public BitVector or(BitVector that) {
 
     }
 
