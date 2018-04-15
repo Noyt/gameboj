@@ -1,5 +1,7 @@
 package ch.epfl.gameboj.bits;
 
+import java.util.Objects;
+
 import ch.epfl.gameboj.Preconditions;
 
 public final class BitVector {
@@ -17,27 +19,49 @@ public final class BitVector {
 
     // stocker sans copier
     private BitVector(int[] elements) {
-
+        vector = elements;
     }
 
-    public static final class Builder {
+    private static final class Builder {
 
+        //TODO à discuter
+        
+        private byte[] components;
+        
         public Builder(int size) {
             Preconditions.checkArgument(size >= 0 && is32Multiple(size));
+            components = new byte[size / Byte.SIZE];
         }
 
         public Builder setByte(int index, int value) {
+            Objects.checkIndex(index, components.length);
             Preconditions.checkBits8(value);
+            components[index] = (byte) value;
+            return this;
         }
 
         public BitVector build() {
-
+            int length = components.length;
+            int[] temp = new int[length / 4];
+            
+            int a;
+            
+            for (int i = 0; i < temp.length; i++) {
+                a = 0;
+                for (int j = 0; j < 4; j++) {
+                  a += Byte.toUnsignedInt(components[i + j]) << Byte.SIZE * j;  
+                }
+                temp[i] = a;
+            }
+            
+            return new BitVector(temp);
         }
     }
 
     public int size() {
 
     }
+
 
     public boolean testBit(int index) {
 
