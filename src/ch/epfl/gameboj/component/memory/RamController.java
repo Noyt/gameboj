@@ -29,6 +29,10 @@ public final class RamController implements Component {
      *            an int the starting address of the Ram
      * @param endAddress
      *            an int the end address of the Ram
+     * @throws NullPointerException
+     *             if the ram is null
+     * @throws IllegalArgumentException
+     *             if startAddress or enAddress is not a 16-bits value
      */
     public RamController(Ram ram, int startAddress, int endAddress) {
         this.ram = Objects.requireNonNull(ram);
@@ -49,6 +53,10 @@ public final class RamController implements Component {
      *            a Ram
      * @param startAddress
      *            an int the starting address of the map
+     * @throws NullPointerException
+     *             if the ram is null
+     * @throws IllegalArgumentException
+     *             if startAddress is not a 16-bits value
      */
     public RamController(Ram ram, int startAddress) {
         this(ram, startAddress, startAddress + ram.size());
@@ -62,6 +70,7 @@ public final class RamController implements Component {
      * @param address
      *            an int
      * @return an int : the data we are looking for or NO_DATA
+     * @throws IllegalArgumentException if address is not a 16-bits value
      */
     public int read(int address) {
         Preconditions.checkBits16(address);

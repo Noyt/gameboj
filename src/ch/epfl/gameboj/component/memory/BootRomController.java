@@ -15,7 +15,7 @@ import ch.epfl.gameboj.component.cartridge.Cartridge;
  */
 public final class BootRomController implements Component {
 
-    private Cartridge cart;
+    private final Cartridge cart;
 
     private boolean bootRomDisabled = false;
 
@@ -26,7 +26,9 @@ public final class BootRomController implements Component {
      * cartridge
      * 
      * @param cartridge
-     *            TODO @throw nullpointerException??
+     *            Cartridge
+     * @throws nullpointerException
+     *             if the cartridge is null
      */
     public BootRomController(Cartridge cartridge) {
         Objects.requireNonNull(cartridge);
@@ -42,8 +44,8 @@ public final class BootRomController implements Component {
      * address, otherwise it will be the value from the cartridge
      * 
      * @param address
-     *            an int : the address that contains the desired data
-     * @return an int (byte) : the value stored at the given address in the
+     *            integer : the address that contains the desired data
+     * @return integer (byte) : the value stored at the given address in the
      *         memory
      * @throws IllegalArgumentException
      *             if the address is not a 16-bits value
@@ -68,9 +70,9 @@ public final class BootRomController implements Component {
      * address
      * 
      * @param address
-     *            an int : the address
+     *            integer : the address
      * @param data
-     *            an int : the value
+     *            integer : the value
      * 
      * @throws IllegalArgumentException
      *             if the address is not a 16-bits value or if data is not a

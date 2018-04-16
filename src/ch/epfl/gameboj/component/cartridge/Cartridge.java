@@ -82,7 +82,6 @@ public final class Cartridge implements Component {
      * @throws IllegalArgumentException
      *             if the file doesn't contain 0 at position 0x147 or is not of
      *             size 32768 bytes
-
      */
     public static Cartridge ofFile(File romFile) throws IOException {
         try (InputStream s = new FileInputStream(romFile)) {

@@ -28,6 +28,9 @@ public final class Bus {
      * throws NullPointerException if the component is null
      * 
      * @param component
+     *            : the component to attach
+     * @throws NullPointerException
+     *             if component is null
      */
     public void attach(Component component) {
         components.add(Objects.requireNonNull(component));
@@ -38,9 +41,10 @@ public final class Bus {
      * data at the address
      * 
      * @param address
-     *            an int
+     *            an int : the address
      * @return an int : the data at the address
-     * @throws IllegalArgumentException if the address
+     * @throws IllegalArgumentException
+     *             if the address
      */
     public int read(int address) {
         Preconditions.checkBits16(address);
@@ -59,6 +63,8 @@ public final class Bus {
      *            an int : the address we want to store the new data
      * @param data
      *            an int
+     * @throws IllegalArgumentException
+     *             if address or data is not a 8-bits value
      */
     public void write(int address, int data) {
         Preconditions.checkBits16(address);

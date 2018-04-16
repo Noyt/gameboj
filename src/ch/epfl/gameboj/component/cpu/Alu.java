@@ -133,6 +133,8 @@ public final class Alu {
      *            boolean : the initial carry (true if there is an initial
      *            carry, false if not)
      * @return an integer : the combined sum results / resulting flags value
+     * @throws IllegalArgumentException
+     *             if l or r is not an 8-bits value
      */
     public static int add(int l, int r, boolean c0) {
         Preconditions.checkBits8(l);
@@ -156,6 +158,8 @@ public final class Alu {
      * @param r
      *            integer : 2nd value
      * @return integer : the combined resulting sum and flags value
+     * @throws IllegalArgumentException
+     *             if l or r is not an 8-bits value
      */
     public static int add(int l, int r) {
         return add(l, r, false);
@@ -301,7 +305,7 @@ public final class Alu {
      *            integer : 2nd value
      * @return an integer : bit-to-bit "and" result combined to the flags
      * @throws IllegalArgumentException
-     *             if l or r is not an 16-bits value
+     *             if l or r is not an 8-bits value
      */
     public static int and(int l, int r) {
         Preconditions.checkBits8(l);
@@ -321,7 +325,7 @@ public final class Alu {
      * @return an integer : the bit-to-bit "inclusive or" result combined with
      *         the flags
      * @throws IllegalArgumentException
-     *             if l or r is not an 16-bits value
+     *             if l or r is not an 8-bits value
      */
     public static int or(int l, int r) {
         Preconditions.checkBits8(l);
@@ -342,7 +346,7 @@ public final class Alu {
      * @return an integer : the bit-to-bit "exclusive or" result combined with
      *         the flags
      * @throws IllegalArgumentException
-     *             if l or r is not an 16-bits value
+     *             if l or r is not an 8-bits value
      */
     public static int xor(int l, int r) {
         Preconditions.checkBits8(l);

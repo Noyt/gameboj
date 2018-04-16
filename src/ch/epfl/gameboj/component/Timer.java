@@ -16,7 +16,7 @@ import ch.epfl.gameboj.component.cpu.Cpu.Interrupt;
  */
 public final class Timer implements Component, Clocked {
 
-    private Cpu cpu;
+    private final Cpu cpu;
 
     private int DIV;
     private int TIMA;
