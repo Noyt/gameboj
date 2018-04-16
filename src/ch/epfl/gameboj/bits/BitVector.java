@@ -31,7 +31,7 @@ public final class BitVector {
     }
 
     // stocker sans copier
-    private BitVector(int[] elements) {
+    public BitVector(int[] elements) {
         vector = elements;
     }
 
@@ -90,7 +90,7 @@ public final class BitVector {
     public BitVector not() {
         int[] elements = new int[vector.length];
         int i = 0;
-        for(int a : vector) {
+        for (int a : vector) {
             elements[i] = ~a;
             i++;
         }
@@ -117,8 +117,32 @@ public final class BitVector {
 
     }
 
-    private BitVector extract(int index, int length, boolean type) {
+    public int[] extract(int index, int length, boolean type) {
 
+        int arrayIndex = Math.floorDiv(index, Integer.SIZE);
+        int intIndex = Math.floorMod(index, Integer.SIZE);
+
+        int nbArrayToCompute = Math.floorDiv(length, Integer.SIZE);
+        int[] array = new int[nbArrayToCompute];
+        int temp1 = computeInt(type, arrayIndex);
+        int temp2 = 0;
+        for (int i = 0; i < nbArrayToCompute; i++) {
+            if (is32Multiple(index)) {
+                array[i] = computeInt(type, i + arrayIndex);
+            } else {
+                temp2 = computeInt(type, i + arrayIndex + 1);
+                
+                temp1 = temp1 >>> Integer.SIZE - intIndex;
+                System.out.println("temp 1 " + temp1);
+                System.out.println("temp 2 " + temp2);
+                    
+                array[i] = (temp2 << intIndex) | temp1;
+                
+                temp1 = temp2;
+            }
+        }
+
+        return array;
     }
 
     @Override
@@ -138,5 +162,20 @@ public final class BitVector {
 
     private static boolean is32Multiple(int a) {
         return a % 32 == 0;
+    }
+
+    // TODO enumeration maybe pour le type
+    private int computeInt(boolean type, int index) {
+
+        int size = vector.length;
+        if (size >= index && index < 0) {
+            System.out.println("help");
+            
+            return type ? ALL_ZEROS_INTEGER
+                    : vector[Math.floorMod(index, size)];
+        } else {
+            return vector[Math.floorMod(index, size)];
+        }
+
     }
 }
