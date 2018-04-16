@@ -11,7 +11,6 @@ import ch.epfl.gameboj.Preconditions;
  * @author Arnaud Robert (287964)
  *
  */
-
 public final class Ram {
     
     private final byte[] memory;

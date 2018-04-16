@@ -15,7 +15,7 @@ import ch.epfl.gameboj.component.cartridge.Cartridge;
  */
 public final class BootRomController implements Component {
 
-    private Cartridge cart;
+    private final Cartridge cart;
 
     private boolean bootRomDisabled = false;
 

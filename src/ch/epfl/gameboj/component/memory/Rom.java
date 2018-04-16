@@ -18,6 +18,7 @@ public final class Rom {
      * 
      * @param data
      *            : an array of byte which will be copied as the memory
+     * @throws NullPointerException if data is null
      */
     public Rom(byte[] data) {
         memory = Arrays.copyOf(data, data.length);
@@ -26,7 +27,7 @@ public final class Rom {
     /**
      * gives the size of the memory
      * 
-     * @return an int, the size of the memory
+     * @return an integer : the size of the memory
      */
     public int size() {
         return memory.length;
@@ -36,8 +37,8 @@ public final class Rom {
      * returns the data contained in the memory at the given index
      * 
      * @param index
-     *            an int, the index of the array that we want the data
-     * @return an int, the data at the given index in the memory
+     *            an integer : the index of the array that we want the data
+     * @return an integer : the data at the given index in the memory
      * @throws IndexOutOfBoundsException
      *             if the index is negative or higher than the memory's length
      */

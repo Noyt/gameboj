@@ -34,6 +34,7 @@ public final class GameBoy {
      *            : The cartridge used to build the GameBoy, access to its
      *            information will allow the GameBoy to run the game contained
      *            inside
+     * @throws NullPointerException if cartridge is null
      */
     public GameBoy(Cartridge cartridge) {
         Objects.requireNonNull(cartridge);

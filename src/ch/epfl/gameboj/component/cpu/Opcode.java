@@ -5,8 +5,7 @@ package ch.epfl.gameboj.component.cpu;
 /**
  * All existing Opcodes
  * 
- * @author Arnaud Robert (287964)
- * @author Sophie Du Couedic (260007)
+ * @author Michel Schinz
  *
  */
 public enum Opcode {
