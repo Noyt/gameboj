@@ -15,15 +15,22 @@ public final class BitVector {
     // TODO à discuter
     private final int[] vector;
 
+    //TODO il faudra mettre en private quand on aura fini les tests
+    public enum Extraction {
+        WRAPPEED, ZERO_EXTENDED
+    };
+
     // TODO essayer d'utiliser le BitVector privé dans ce constructeur ?
     public BitVector(int size, boolean initialValue) {
         Preconditions.checkArgument(size >= 0 && is32Multiple(size));
 
         int numberOfInts = size / Integer.SIZE;
         vector = new int[numberOfInts];
-        for (int i = 0; i < numberOfInts; i++) {
-            vector[i] = initialValue ? ALL_ONES_INTEGER : ALL_ZEROS_INTEGER;
-        }
+        if (initialValue) {
+            for (int i = 0; i < numberOfInts; i++) {
+                vector[i] = ALL_ONES_INTEGER;
+            }
+        } 
     }
 
     public BitVector(int size) {
@@ -31,11 +38,11 @@ public final class BitVector {
     }
 
     // stocker sans copier
-    public BitVector(int[] elements) {
+    private BitVector(int[] elements) {
         vector = elements;
     }
 
-    private static final class Builder {
+    public static final class Builder {
 
         // TODO à discuter
 
@@ -61,8 +68,9 @@ public final class BitVector {
 
             for (int i = 0; i < temp.length; i++) {
                 int a = 0;
-                for (int j = 0; j < Integer.SIZE / Byte.SIZE; j++) {
-                    a += Byte.toUnsignedInt(bytes[i + j]) << Byte.SIZE * j;
+                int intByteRatio = Integer.SIZE / Byte.SIZE;
+                for (int j = 0; j < intByteRatio; j++) {
+                    a += Byte.toUnsignedInt(bytes[i*intByteRatio + j]) << (Byte.SIZE * j);
                 }
                 temp[i] = a;
             }
@@ -98,46 +106,60 @@ public final class BitVector {
     }
 
     public BitVector and(BitVector that) {
-
+       return andOr(that,true);
     }
 
     public BitVector or(BitVector that) {
-
+       return andOr(that,false);
+    }
+    
+    private BitVector andOr(BitVector that, boolean and) {
+        Preconditions.checkArgument(that.size() == size());
+        int length = vector.length;
+        
+        int[] result = new int[length];
+        for (int i = 0; i < length; i++) {
+            int other = that.vector[i];
+            int me = vector[i];
+            result[i] = and ? other & me : other | me;
+        }
+        
+        return new BitVector(result);
     }
 
     public BitVector extractZeroExtended(int index, int length) {
-
+        return new BitVector(extract(index, length, Extraction.ZERO_EXTENDED));
     }
 
     public BitVector extractWrapped(int index, int length) {
-
+        return new BitVector(extract(index, length, Extraction.WRAPPEED));
     }
 
-    public BitVector shift(int index) {
-
+    public BitVector shift(int distance) {
+        return new BitVector(
+                extract(-distance, size(), Extraction.ZERO_EXTENDED));
     }
 
-    public int[] extract(int index, int length, boolean type) {
+    private int[] extract(int index, int length, Extraction type) {
+
+        Preconditions.checkArgument(is32Multiple(length));
 
         int arrayIndex = Math.floorDiv(index, Integer.SIZE);
         int intIndex = Math.floorMod(index, Integer.SIZE);
 
-        int nbArrayToCompute = Math.floorDiv(length, Integer.SIZE);
-        int[] array = new int[nbArrayToCompute];
+        int nbIntegersToCompute = Math.floorDiv(length, Integer.SIZE);
+        int[] array = new int[nbIntegersToCompute];
+
         int temp1 = computeInt(type, arrayIndex);
         int temp2 = 0;
-        for (int i = 0; i < nbArrayToCompute; i++) {
+        for (int i = 0; i < nbIntegersToCompute; i++) {
             if (is32Multiple(index)) {
                 array[i] = computeInt(type, i + arrayIndex);
             } else {
                 temp2 = computeInt(type, i + arrayIndex + 1);
-                
-                temp1 = temp1 >>> Integer.SIZE - intIndex;
-                System.out.println("temp 1 " + temp1);
-                System.out.println("temp 2 " + temp2);
-                    
-                array[i] = (temp2 << intIndex) | temp1;
-                
+                temp1 = temp1 >>> intIndex;
+                array[i] = (temp2 << (32 - intIndex)) | temp1;
+
                 temp1 = temp2;
             }
         }
@@ -165,17 +187,20 @@ public final class BitVector {
     }
 
     // TODO enumeration maybe pour le type
-    private int computeInt(boolean type, int index) {
-
+    private int computeInt(Extraction type, int index) {
         int size = vector.length;
-        if (size >= index && index < 0) {
-            System.out.println("help");
-            
-            return type ? ALL_ZEROS_INTEGER
+        if (size <= index || index < 0) {
+            return type == Extraction.ZERO_EXTENDED ? ALL_ZEROS_INTEGER
                     : vector[Math.floorMod(index, size)];
         } else {
             return vector[Math.floorMod(index, size)];
         }
 
+    }
+
+    // TODO il faudra supprimer ça quand on en n'aura plus besooin pour les
+    // tests
+    public int[] extractP(int index, int length, Extraction type) {
+        return extract(index, length, type);
     }
 }
