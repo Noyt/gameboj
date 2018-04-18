@@ -1,5 +1,6 @@
 package ch.epfl.gameboj.bits;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Objects;
 
@@ -27,9 +28,7 @@ public final class BitVector {
         int numberOfInts = size / Integer.SIZE;
         vector = new int[numberOfInts];
         if (initialValue) {
-            for (int i = 0; i < numberOfInts; i++) {
-                vector[i] = ALL_ONES_INTEGER;
-            }
+            Arrays.fill(vector, ALL_ONES_INTEGER);
         } 
     }
 

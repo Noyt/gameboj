@@ -11,14 +11,11 @@ import ch.epfl.gameboj.bits.BitVector.Extraction;
 class BitVectorTest {
 
     @Test
-    void extractWorksForValidValue() {
+    void extractAndBuilderWorksForValidValue() {
         int[] array = { -1, 0 };
         Builder testBuilder = new Builder(64);
         for (int i = 0; i < array.length; ++i) {
             for (int j = 0; j < 4; ++j) {
-                System.out.println("indice = " + (i * 4 + j) + ", valeur int = "
-                        + array[i] + ", extracted = "
-                        + Bits.extract(array[i], j * Byte.SIZE, Byte.SIZE));
                 testBuilder.setByte(i * 4 + j,
                         Bits.extract(array[i], j * Byte.SIZE, Byte.SIZE));
             }
@@ -39,14 +36,11 @@ class BitVectorTest {
         Builder testBuilder2 = new Builder(96);
         for (int i = 0; i < array2.length; ++i) {
             for (int j = 0; j < 4; ++j) {
-                System.out.println("indice = " + (i * 4 + j) + ", valeur int = "
-                        + array2[i] + ", extracted = "
-                        + Bits.extract(array2[i], j * Byte.SIZE, Byte.SIZE));
                 testBuilder2.setByte(i * 4 + j,
                         Bits.extract(array2[i], j * Byte.SIZE, Byte.SIZE));
             }
         }
-       
+
         BitVector test2 = testBuilder2.build();
         assertEquals(0b10101010_10101010_10101000_00000000,
                 test2.extractP(-43, 64, Extraction.WRAPPEED)[0]);
