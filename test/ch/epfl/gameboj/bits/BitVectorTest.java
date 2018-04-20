@@ -74,11 +74,26 @@ class BitVectorTest {
         assertEquals(
                 "1111111100000000111111110000000011110000010101011111000011111111",
                 test2.toString());
-        
+
         int[] a3 = {};
         Builder b3 = new Builder(0);
         fillBuilder(a3, b3);
         BitVector test3 = b3.build();
         assertEquals("", test3.toString());
+    }
+
+    @Test
+    void notWorksForValidValue() {
+        Builder testBuilder = new Builder(96);
+        int[] array = { -1, 0, -1 };
+        fillBuilder(array, testBuilder);
+        BitVector vect = testBuilder.build();
+
+        Builder testBuilderNot = new Builder(96);
+        int[] arrayNot = { 0, -1, 0 };
+        fillBuilder(arrayNot, testBuilderNot);
+        BitVector vectNot = testBuilderNot.build();
+
+        assertEquals(vect.not().toString(), vectNot.toString());
     }
 }
