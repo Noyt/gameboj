@@ -60,11 +60,11 @@ class BitVectorTest {
 
     @Test
     void toStringWorksForValidValues() {
-        int[] a = { 0b11110000_10101010_00000000_11001100 };
+        int[] a = { 0b00000000_10101010_00000000_11001100 };
         Builder b = new Builder(32);
         fillBuilder(a, b);
         BitVector test = b.build();
-        assertEquals("11110000101010100000000011001100", test.toString());
+        assertEquals("00000000101010100000000011001100", test.toString());
 
         int[] a2 = { 0b11111111_00000000_11111111_00000000,
                 0b11110000_01010101_11110000_11111111 };
