@@ -63,4 +63,20 @@ class BitVectorTest {
         assertEquals(0, test2.extractP(-64, 128, Extraction.ZERO_EXTENDED)[1]);
         assertEquals(-1, test2.extractP(-64, 128, Extraction.ZERO_EXTENDED)[2]);
     }
+    
+    @Test
+    void notWorksForValidValue() {
+        Builder testBuilder = new Builder(96);
+        int[] array = {-1, 0, -1};
+        fillBuilder(array, testBuilder);
+        BitVector vect = testBuilder.build();
+        
+        Builder testBuilderNot = new Builder(96);
+        int[] arrayNot = {0, -1, 0};
+        fillBuilder(arrayNot, testBuilderNot);
+        BitVector vectNot = testBuilderNot.build();
+        
+        assertEquals(vect.not().toString(), vectNot.toString());
+        
+    }
 }
