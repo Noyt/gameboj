@@ -156,7 +156,16 @@ public final class BitVector {
     @Override
     public boolean equals(Object that) {
         Preconditions.checkArgument(that instanceof BitVector);
-        return this.vector.equals(((BitVector) that).vector);
+        if (this.size() != ((BitVector)that).size()) {
+            return false;
+        }
+        for (int i = 0; i < this.size(); i++) {
+            if (this.testBit(i) != (((BitVector)that).testBit(i))) {
+                return false;
+            }
+        }
+        return true;
+        
     }
 
     @Override
