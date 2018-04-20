@@ -16,9 +16,9 @@ public final class BitVector {
     // TODO à discuter
     private final int[] vector;
 
-    //TODO il faudra mettre en private quand on aura fini les tests
+    // TODO il faudra mettre en private quand on aura fini les tests
     public enum Extraction {
-        WRAPPEED, ZERO_EXTENDED
+        WRAPPED, ZERO_EXTENDED
     };
 
     // TODO essayer d'utiliser le BitVector privé dans ce constructeur ?
@@ -29,7 +29,7 @@ public final class BitVector {
         vector = new int[numberOfInts];
         if (initialValue) {
             Arrays.fill(vector, ALL_ONES_INTEGER);
-        } 
+        }
     }
 
     public BitVector(int size) {
@@ -69,7 +69,8 @@ public final class BitVector {
                 int a = 0;
                 int intByteRatio = Integer.SIZE / Byte.SIZE;
                 for (int j = 0; j < intByteRatio; j++) {
-                    a += Byte.toUnsignedInt(bytes[i*intByteRatio + j]) << (Byte.SIZE * j);
+                    a += Byte.toUnsignedInt(
+                            bytes[i * intByteRatio + j]) << (Byte.SIZE * j);
                 }
                 temp[i] = a;
             }
@@ -105,25 +106,11 @@ public final class BitVector {
     }
 
     public BitVector and(BitVector that) {
-       return andOr(that,true);
+        return andOr(that, true);
     }
 
     public BitVector or(BitVector that) {
-       return andOr(that,false);
-    }
-    
-    private BitVector andOr(BitVector that, boolean and) {
-        Preconditions.checkArgument(that.size() == size());
-        int length = vector.length;
-        
-        int[] result = new int[length];
-        for (int i = 0; i < length; i++) {
-            int other = that.vector[i];
-            int me = vector[i];
-            result[i] = and ? other & me : other | me;
-        }
-        
-        return new BitVector(result);
+        return andOr(that, false);
     }
 
     public BitVector extractZeroExtended(int index, int length) {
@@ -131,7 +118,7 @@ public final class BitVector {
     }
 
     public BitVector extractWrapped(int index, int length) {
-        return new BitVector(extract(index, length, Extraction.WRAPPEED));
+        return new BitVector(extract(index, length, Extraction.WRAPPED));
     }
 
     public BitVector shift(int distance) {
@@ -169,7 +156,7 @@ public final class BitVector {
     @Override
     public boolean equals(Object that) {
         Preconditions.checkArgument(that instanceof BitVector);
-        return this.vector.equals(((BitVector)that).vector);
+        return this.vector.equals(((BitVector) that).vector);
     }
 
     @Override
@@ -200,6 +187,20 @@ public final class BitVector {
             return vector[Math.floorMod(index, size)];
         }
 
+    }
+    
+    private BitVector andOr(BitVector that, boolean and) {
+        Preconditions.checkArgument(that.size() == size());
+        int length = vector.length;
+
+        int[] result = new int[length];
+        for (int i = 0; i < length; i++) {
+            int other = that.vector[i];
+            int me = vector[i];
+            result[i] = and ? other & me : other | me;
+        }
+
+        return new BitVector(result);
     }
 
     // TODO il faudra supprimer ça quand on en n'aura plus besooin pour les
