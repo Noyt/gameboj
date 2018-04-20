@@ -91,6 +91,79 @@ class BitVectorTest {
         BitVector vect2 = testBuilder2.build();
         
         assertEquals(true, vect.equals(vect2));
-        
     }
+    
+    @Test
+    void equalsWorksForInvalidSize() {
+        Builder testBuilder = new Builder(64);
+        int[] array = {-1, 0};
+        fillBuilder(array, testBuilder);
+        BitVector vect = testBuilder.build();
+        
+        Builder testBuilder2 = new Builder(96);
+        int[] array2 = {0, -1, -1};
+        fillBuilder(array2, testBuilder2);
+        BitVector vect2 = testBuilder2.build();
+        
+        assertEquals(false, vect.equals(vect2));
+    }
+    
+    @Test
+    void equalsWorksForNonEqualVector() {
+        Builder testBuilder = new Builder(64);
+        int[] array = {-1, 0};
+        fillBuilder(array, testBuilder);
+        BitVector vect = testBuilder.build();
+        
+        Builder testBuilder2 = new Builder(64);
+        int[] array2 = {0, -1};
+        fillBuilder(array2, testBuilder2);
+        BitVector vect2 = testBuilder2.build();
+        
+        assertEquals(false, vect.equals(vect2));
+    }
+    
+    @Test
+    void andWorksForValidValue() {
+        Builder testBuilder = new Builder(64);
+        int[] array = {0b11111111_00001111_00000000_11110101, 0b11111111_11111111_11110000_00000001};
+        fillBuilder(array, testBuilder);
+        BitVector vect = testBuilder.build();
+        
+        Builder testBuilder2 = new Builder(64);
+        int[] array2 = {0b00000000_11110000_11111111_00001011, 0b00000000_11111111_11110000_11111111};
+        fillBuilder(array2, testBuilder2);
+        BitVector vect2 = testBuilder2.build();
+        
+        Builder testBuilder3 = new Builder(64);
+        int[] array3 = {0b00000000_00000000_00000000_00000001, 0b00000000_11111111_11110000_00000001};
+        fillBuilder(array3, testBuilder3);
+        BitVector vect3 = testBuilder3.build();
+        
+        
+        assertEquals(true, vect3.equals(vect2.and(vect)));
+    }
+    
+    @Test
+    void orWorksForValidValue() {
+        Builder testBuilder = new Builder(64);
+        int[] array = {0b11111111_00001111_00000000_11110101, 0b11111111_11111111_11110000_00000001};
+        fillBuilder(array, testBuilder);
+        BitVector vect = testBuilder.build();
+        
+        Builder testBuilder2 = new Builder(64);
+        int[] array2 = {0b00000000_11110000_11111111_00001011, 0b00000000_11111111_11110000_11111111};
+        fillBuilder(array2, testBuilder2);
+        BitVector vect2 = testBuilder2.build();
+        
+        Builder testBuilder3 = new Builder(64);
+        int[] array3 = {0b11111111_11111111_11111111_11111111, 0b11111111_11111111_11110000_11111111};
+        fillBuilder(array3, testBuilder3);
+        BitVector vect3 = testBuilder3.build();
+        
+        
+        assertEquals(true, vect3.equals(vect2.or(vect)));
+    }
+    
+    
 }

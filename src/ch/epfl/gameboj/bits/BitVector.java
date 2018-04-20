@@ -165,7 +165,6 @@ public final class BitVector {
             }
         }
         return true;
-        
     }
 
     @Override
