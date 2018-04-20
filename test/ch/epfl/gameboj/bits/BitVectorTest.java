@@ -10,16 +10,21 @@ import ch.epfl.gameboj.bits.BitVector.Extraction;
 
 class BitVectorTest {
 
+
+    private void fillBuilder(int[] array, Builder b) {
+        for (int i = 0; i < array.length; ++i) {
+            for (int j = 0; j < 4; ++j) {
+                b.setByte(i * 4 + j,
+                        Bits.extract(array[i], j * Byte.SIZE, Byte.SIZE));
+            }
+        }
+    }
+    
     @Test
     void extractAndBuilderWorksForValidValue() {
         int[] array = { -1, 0 };
         Builder testBuilder = new Builder(64);
-        for (int i = 0; i < array.length; ++i) {
-            for (int j = 0; j < 4; ++j) {
-                testBuilder.setByte(i * 4 + j,
-                        Bits.extract(array[i], j * Byte.SIZE, Byte.SIZE));
-            }
-        }
+        fillBuilder(array, testBuilder);
         BitVector test = testBuilder.build();
 
         assertThrows(IllegalStateException.class,
