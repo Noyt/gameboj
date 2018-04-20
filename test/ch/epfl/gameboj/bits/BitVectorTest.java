@@ -76,7 +76,12 @@ class BitVectorTest {
         fillBuilder(arrayNot, testBuilderNot);
         BitVector vectNot = testBuilderNot.build();
         
-        assertEquals(vect.not().toString(), vectNot.toString());
+        assertEquals(vect.not(), vectNot);   
+    }
+    
+    @Test
+    void equalsWorksForValidValue() {
+        Builder testBuilder = new Builder(64);
         
     }
 }

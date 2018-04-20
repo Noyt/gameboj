@@ -167,7 +167,7 @@ public final class BitVector {
     @Override
     public String toString() {
         String binary = "";
-        for (int i = 0; i < this.size(); i++) {
+        for (int i = this.size()-1; i >= 0; i--) {
            binary += this.testBit(i) ? "1" : "0";
         }
         return binary;
