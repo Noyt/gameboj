@@ -28,9 +28,9 @@ class BitVectorTest {
         assertEquals(0b11111111_11111111_11110000_00000000,
                 test.extractP(-12, 32, Extraction.ZERO_EXTENDED)[0]);
         assertEquals(0b11111111_11111111_11110000_00000000,
-                test.extractP(-12, 32, Extraction.WRAPPEED)[0]);
+                test.extractP(-12, 32, Extraction.WRAPPED)[0]);
         assertEquals(0b11111111_11111111_11111111_11111110,
-                test.extractP(-1, 32, Extraction.WRAPPEED)[0]);
+                test.extractP(-1, 32, Extraction.WRAPPED)[0]);
 
         int[] array2 = { -1, 0, 1431655765 };
         Builder testBuilder2 = new Builder(96);
@@ -43,17 +43,17 @@ class BitVectorTest {
 
         BitVector test2 = testBuilder2.build();
         assertEquals(0b10101010_10101010_10101000_00000000,
-                test2.extractP(-43, 64, Extraction.WRAPPEED)[0]);
+                test2.extractP(-43, 64, Extraction.WRAPPED)[0]);
         assertEquals(0b11111111_11111111_11111010_10101010,
-                test2.extractP(-43, 64, Extraction.WRAPPEED)[1]);
+                test2.extractP(-43, 64, Extraction.WRAPPED)[1]);
         assertEquals(0, test2.extractP(-43, 64, Extraction.ZERO_EXTENDED)[0]);
         assertEquals(0b11111111_11111111_11111000_00000000,
                 test2.extractP(-43, 64, Extraction.ZERO_EXTENDED)[1]);
 
-        assertEquals(0, test2.extractP(-64, 128, Extraction.WRAPPEED)[0]);
+        assertEquals(0, test2.extractP(-64, 128, Extraction.WRAPPED)[0]);
         assertEquals(1431655765,
-                test2.extractP(-64, 128, Extraction.WRAPPEED)[1]);
-        assertEquals(-1, test2.extractP(-64, 128, Extraction.WRAPPEED)[2]);
+                test2.extractP(-64, 128, Extraction.WRAPPED)[1]);
+        assertEquals(-1, test2.extractP(-64, 128, Extraction.WRAPPED)[2]);
         assertEquals(0, test2.extractP(-64, 128, Extraction.ZERO_EXTENDED)[0]);
         assertEquals(0, test2.extractP(-64, 128, Extraction.ZERO_EXTENDED)[1]);
         assertEquals(-1, test2.extractP(-64, 128, Extraction.ZERO_EXTENDED)[2]);
