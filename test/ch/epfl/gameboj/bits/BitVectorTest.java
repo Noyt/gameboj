@@ -66,13 +66,13 @@ class BitVectorTest {
         BitVector test = b.build();
         assertEquals("00000000101010100000000011001100", test.toString());
 
-        int[] a2 = { 0b11111111_00000000_11111111_00000000,
+        int[] a2 = { 0b01111111_00000000_11111111_00000000,
                 0b11110000_01010101_11110000_11111111 };
         Builder b2 = new Builder(64);
         fillBuilder(a2, b2);
         BitVector test2 = b2.build();
         assertEquals(
-                "1111111100000000111111110000000011110000010101011111000011111111",
+                "1111000001010101111100001111111101111111000000001111111100000000",
                 test2.toString());
 
         int[] a3 = {};
@@ -93,7 +93,40 @@ class BitVectorTest {
         int[] arrayNot = { 0, -1, 0 };
         fillBuilder(arrayNot, testBuilderNot);
         BitVector vectNot = testBuilderNot.build();
-
         assertEquals(vect.not().toString(), vectNot.toString());
+    }
+
+    @Test
+    void equalsWorksForValidValue() {
+        Builder testBuilder = new Builder(64);
+    }
+
+    @Test
+    void testBitWorksForValidValues() {
+        int[] a1 = { 0b00001111_00000000_11111111_10101010,
+                0b01010101_11111111_00001111_00000001 };
+        Builder b1 = new Builder(96);
+        fillBuilder(a1, b1);
+        BitVector v1 = b1.build();
+
+        assertEquals(false, v1.testBit(0));
+        assertEquals(true, v1.testBit(3));
+        assertEquals(false, v1.testBit(31));
+        assertEquals(true, v1.testBit(32));
+        assertEquals(true, v1.testBit(50));
+        assertEquals(false, v1.testBit(85));
+    }
+
+    @Test
+    void shiftWorksForValidValues() {
+        int[] a1 = { 0b00001111_00000000_11111111_10101010,
+                0b01010101_11111111_00001111_00000001 };
+        Builder b1 = new Builder(64);
+        fillBuilder(a1, b1);
+        BitVector v1 = b1.build();
+
+        assertEquals(
+                "1000011110000000100001111000000001111111110101010000000000000000",
+                v1.shift(15).toString());
     }
 }
