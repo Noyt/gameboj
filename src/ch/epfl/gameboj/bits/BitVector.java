@@ -168,17 +168,22 @@ public final class BitVector {
 
     @Override
     public boolean equals(Object that) {
-
+        Preconditions.checkArgument(that instanceof BitVector);
+        return this.vector.equals(((BitVector)that).vector);
     }
 
     @Override
     public int hashCode() {
-
+        return vector.hashCode();
     }
 
     @Override
     public String toString() {
-
+        String binary = "";
+        for (int i = 0; i < vector.length; i++) {
+            binary += Integer.toBinaryString(vector[i]);
+        }
+        return binary;
     }
 
     private static boolean is32Multiple(int a) {
