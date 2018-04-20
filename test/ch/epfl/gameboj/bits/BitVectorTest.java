@@ -99,6 +99,16 @@ class BitVectorTest {
     @Test
     void equalsWorksForValidValue() {
         Builder testBuilder = new Builder(64);
+        int[] array = {-1, 0};
+        fillBuilder(array, testBuilder);
+        BitVector vect = testBuilder.build();
+        
+        Builder testBuilder2 = new Builder(64);
+        fillBuilder(array, testBuilder2);
+        BitVector vect2 = testBuilder2.build();
+        
+        assertEquals(true, vect.equals(vect2));
+        
     }
 
     @Test
