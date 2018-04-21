@@ -210,6 +210,20 @@ public final class BitVector {
 
         return new BitVector(result);
     }
+    
+    public BitVector xor(BitVector that) {
+        Preconditions.checkArgument(that.size() == size());
+        int length = vector.length;
+
+        int[] result = new int[length];
+        for (int i = 0; i < length; i++) {
+            int other = that.vector[i];
+            int me = vector[i];
+            result[i] = other ^ me;
+        }
+
+        return new BitVector(result);
+    }
 
     // TODO il faudra supprimer ça quand on en n'aura plus besooin pour les
     // tests
