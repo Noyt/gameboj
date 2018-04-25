@@ -116,6 +116,7 @@ public class LcdImageLineTest {
 
     @Test
     void belowWorksForValidValue() {
+        //TODO doubler les tableaux maybe ?
         Builder msbBuilder = new Builder(32);
         int[] arrayMsb = { 0b10110001_10110001_10110001_10110001 };
         fillBitVectorBuilder(arrayMsb, msbBuilder);
@@ -139,13 +140,17 @@ public class LcdImageLineTest {
         fillBitVectorBuilder(arrayLsb2, lsbBuilder2);
         BitVector lsb2 = lsbBuilder2.build();
 
-        BitVector opacity2 = new BitVector(32);
+        Builder opacityBuilder = new Builder(32);
+        int[] arrayOpacity = { 0b01001010_00101100_10110111_00111111 };
+        fillBitVectorBuilder(arrayOpacity, opacityBuilder);
+        BitVector opacity2 = opacityBuilder.build();
+        
         LcdImageLine lcd2 = new LcdImageLine(msb2, lsb2, opacity2);
 
-        Builder opacityBuilder = new Builder(32);
-        int[] arrayOpacity = { 0b00101100_00101100_00101100_00101100 };
-        fillBitVectorBuilder(arrayOpacity, opacityBuilder);
-        BitVector trueOpacity = opacityBuilder.build();
+        Builder trueOpacityBuilder = new Builder(32);
+        int[] trueArrayOpacity = { 0b00101100_00101100_00101100_00101100 };
+        fillBitVectorBuilder(trueArrayOpacity, trueOpacityBuilder);
+        BitVector trueOpacity = trueOpacityBuilder.build();
 
         Builder msbResultBuilder = new Builder(32);
         int[] arrayMsbResult = { 0b00100001_00100001_00100001_00100001 };
@@ -157,7 +162,10 @@ public class LcdImageLineTest {
         fillBitVectorBuilder(arrayLsbResult, lsbResultBuilder);
         BitVector lsbResult = lsbResultBuilder.build();
 
-        BitVector opacityResult = new BitVector(32, true);
+        Builder opacityResultBuilder = new Builder(32);
+        int[] arrayResultOpacity = { 0b01101110_00101100_10111111_00111111 };
+        fillBitVectorBuilder(arrayResultOpacity, opacityResultBuilder);
+        BitVector opacityResult = opacityResultBuilder.build();
         LcdImageLine lcdResult = new LcdImageLine(msbResult, lsbResult,
                 opacityResult);
 
@@ -189,5 +197,63 @@ public class LcdImageLineTest {
                 lsbResult.build(), opacityResult.build());
 
         assertEquals(result, lcdIm1);
+    }
+    
+    @Test
+    void joinWorksForValidValue() {
+        Builder msbBuilder = new Builder(32);
+        int[] arrayMsb = { 0b10110001_10110001_10110001_10110001 };
+        fillBitVectorBuilder(arrayMsb, msbBuilder);
+        BitVector msb = msbBuilder.build();
+
+        Builder lsbBuilder = new Builder(32);
+        int[] arrayLsb = { 0b01110110_01110110_01110110_01110110 };
+        fillBitVectorBuilder(arrayLsb, lsbBuilder);
+        BitVector lsb = lsbBuilder.build();
+        
+        Builder opacityBuilder = new Builder(32);
+        int[] arrayOpacity = { 0b00101100_00101100_00101100_00101100 };
+        fillBitVectorBuilder(arrayOpacity, opacityBuilder);
+        BitVector opacity = opacityBuilder.build();
+
+        LcdImageLine lcd = new LcdImageLine(msb, lsb, opacity);
+
+        
+        Builder msbBuilder2 = new Builder(32);
+        int[] arrayMsb2 = { 0b00101101_00101101_00101101_00101101 };
+        fillBitVectorBuilder(arrayMsb2, msbBuilder2);
+        BitVector msb2 = msbBuilder2.build();
+
+        Builder lsbBuilder2 = new Builder(32);
+        int[] arrayLsb2 = { 0b01001111_01001111_01001111_01001111 };
+        fillBitVectorBuilder(arrayLsb2, lsbBuilder2);
+        BitVector lsb2 = lsbBuilder2.build();
+
+        Builder opacityBuilder2 = new Builder(32);
+        int[] arrayOpacity2 = { 0b11010110_10101110_00110110_10101000};
+        fillBitVectorBuilder(arrayOpacity2, opacityBuilder2);
+        BitVector opacity2 = opacityBuilder2.build();
+        
+        LcdImageLine lcd2 = new LcdImageLine(msb2, lsb2, opacity2);
+        
+        
+        Builder msbBuilder3 = new Builder(32);
+        int[] arrayMsb3 = { 0b00101101_00101101_00101101_00101101 };
+        fillBitVectorBuilder(arrayMsb3, msbBuilder3);
+        BitVector msb3 = msbBuilder3.build();
+
+        Builder lsbBuilder3 = new Builder(32);
+        int[] arrayLsb3 = { 0b01001111_01001111_01001111_01001111 };
+        fillBitVectorBuilder(arrayLsb3, lsbBuilder3);
+        BitVector lsb3 = lsbBuilder3.build();
+        
+        Builder opacityBuilder3 = new Builder(32);
+        int[] arrayOpacity3 = { 0b11010110_10101110_00111100_00101100};
+        fillBitVectorBuilder(arrayOpacity3, opacityBuilder3);
+        BitVector opacity3 = opacityBuilder3.build();
+
+        LcdImageLine lcd3 = new LcdImageLine(msb3, lsb3, opacity3);
+        
+        assertEquals(lcd3, lcd.join(lcd2, 12));
     }
 }
