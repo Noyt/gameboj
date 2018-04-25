@@ -139,13 +139,14 @@ public final class LcdImageLine {
 
     public LcdImageLine join(LcdImageLine that, int pixel) {
         Preconditions.checkArgument(size() == that.size());
+        Objects.checkIndex(pixel, size());
 
-        BitVector finalMsb = msb.extractZeroExtended(0, pixel)
-                .or(that.msb.extractZeroExtended(pixel, size() - pixel));
-        BitVector finalLsb = lsb.extractZeroExtended(0, pixel)
-                .or(that.lsb.extractZeroExtended(pixel, size() - pixel));
-        BitVector finalOpacity = opacity.extractZeroExtended(0, pixel)
-                .or(that.opacity.extractZeroExtended(pixel, size() - pixel));
+        BitVector finalMsb = msb.shift(size()-pixel).shift(pixel-size())
+                .or(that.msb.shift(-pixel).shift(pixel));
+        BitVector finalLsb = lsb.shift(size()-pixel).shift(pixel-size())
+                .or(that.lsb.shift(-pixel).shift(pixel));
+        BitVector finalOpacity = opacity.shift(size()-pixel).shift(pixel-size())
+                .or(that.opacity.shift(-pixel).shift(pixel));
 
         return new LcdImageLine(finalMsb, finalLsb, finalOpacity);
     }
