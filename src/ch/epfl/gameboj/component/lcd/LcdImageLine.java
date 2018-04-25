@@ -140,7 +140,6 @@ public final class LcdImageLine {
     public LcdImageLine join(LcdImageLine that, int pixel) {
         Preconditions.checkArgument(size() == that.size());
         Objects.checkIndex(pixel, size());
-
         BitVector finalMsb = msb.shift(size()-pixel).shift(pixel-size())
                 .or(that.msb.shift(-pixel).shift(pixel));
         BitVector finalLsb = lsb.shift(size()-pixel).shift(pixel-size())
@@ -175,5 +174,16 @@ public final class LcdImageLine {
     @Override
     public int hashCode() {
         return Objects.hash(msb, lsb, opacity);
+    }
+    
+    @Override
+    public String toString() {
+        String s = "";
+        s += msb.toString();
+        s += "\r\n";
+        s += lsb.toString();
+        s += "\r\n";
+        s += opacity.toString();
+        return s;
     }
 }
