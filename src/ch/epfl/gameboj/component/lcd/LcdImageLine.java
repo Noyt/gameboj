@@ -1,5 +1,7 @@
 package ch.epfl.gameboj.component.lcd;
 
+import java.util.Objects;
+
 import ch.epfl.gameboj.Preconditions;
 import ch.epfl.gameboj.bits.BitVector;
 import ch.epfl.gameboj.bits.Bits;
@@ -20,8 +22,30 @@ public final class LcdImageLine {
         this.opacity = opacity;
     }
 
-    public final class Builder {
-
+    public static final class Builder {
+        
+        private BitVector.Builder msbBuilder;
+        private BitVector.Builder lsbBuilder;
+        
+        public Builder(int size) {
+           msbBuilder = new BitVector.Builder(size);
+           lsbBuilder = new BitVector.Builder(size);
+        }
+        
+        public Builder setBytes(int index, int msbByte, int lsbByte) {            
+            msbBuilder.setByte(index, msbByte);
+            lsbBuilder.setByte(index, lsbByte);
+            
+            return this;
+        }
+        
+        public LcdImageLine build() {
+            BitVector finalMsb = msbBuilder.build();
+            BitVector finalLsb = lsbBuilder.build();
+            BitVector finalOpacity = finalMsb.or(finalLsb);
+            
+            return new LcdImageLine(finalMsb, finalLsb, finalOpacity);
+        }
     }
 
     public int size() {
@@ -74,21 +98,25 @@ public final class LcdImageLine {
         }
         return new LcdImageLine(finalMsb, finalLsb, this.opacity);
     }
-    
+
     public LcdImageLine below(LcdImageLine that, BitVector opacity) {
         Preconditions.checkArgument(this.size() == that.size());
         BitVector finalMsb = null;
         BitVector finalLsb = null;
-        
-        finalMsb = this.msb.or(that.msb.and(opacity)).and(that.msb.not().and(opacity).not());
-        finalLsb = this.lsb.or(that.lsb.and(opacity)).and(that.lsb.not().and(opacity).not());
-        
-        //TODO que mettre pour l'opacité de cette nouvelle ligne ? tout opaque ?
-        return new LcdImageLine(finalMsb, finalLsb, new BitVector(this.size(), true));
+
+        finalMsb = this.msb.or(that.msb.and(opacity))
+                .and(that.msb.not().and(opacity).not());
+        finalLsb = this.lsb.or(that.lsb.and(opacity))
+                .and(that.lsb.not().and(opacity).not());
+
+        // TODO que mettre pour l'opacité de cette nouvelle ligne ? tout opaque
+        // ?
+        return new LcdImageLine(finalMsb, finalLsb,
+                new BitVector(this.size(), true));
     }
-    
+
     public LcdImageLine below(LcdImageLine that) {
-        Preconditions.checkArgument(this.size() == that.size());
+        Preconditions.checkArgument(size() == that.size());
         return below(that, that.opacity);
     }
 
@@ -109,7 +137,42 @@ public final class LcdImageLine {
 
     }
 
+    public LcdImageLine join(LcdImageLine that, int pixel) {
+        Preconditions.checkArgument(size() == that.size());
+
+        BitVector finalMsb = msb.extractZeroExtended(0, pixel)
+                .or(that.msb.extractZeroExtended(pixel, size() - pixel));
+        BitVector finalLsb = lsb.extractZeroExtended(0, pixel)
+                .or(that.lsb.extractZeroExtended(pixel, size() - pixel));
+
+        // TODO totalement opaque?
+        return new LcdImageLine(finalMsb, finalLsb,
+                new BitVector(size(), true));
+    }
+
     private BitVector bitChange(BitVector vec, BitVector change) {
         return vec.xor(change);
+    }
+
+    @Override
+    public boolean equals(Object that) {
+        Preconditions.checkArgument(that instanceof LcdImageLine);
+
+        LcdImageLine tmp = (LcdImageLine) that;
+        if (size() != tmp.size()) {
+            return false;
+        }
+
+        if (msb.equals(tmp.msb) && lsb.equals(tmp.lsb)
+                && opacity.equals(tmp.opacity)) {
+            return true;
+        }
+        
+        return false;
+    }
+    
+    @Override
+    public int hashCode() {
+        return Objects.hash(msb, lsb, opacity);
     }
 }
