@@ -238,12 +238,12 @@ public class LcdImageLineTest {
         
         
         Builder msbBuilder3 = new Builder(32);
-        int[] arrayMsb3 = { 0b00101101_00101101_00101101_00101101 };
+        int[] arrayMsb3 = { 0b00101101_00101101_00100001_10110001 };
         fillBitVectorBuilder(arrayMsb3, msbBuilder3);
         BitVector msb3 = msbBuilder3.build();
 
         Builder lsbBuilder3 = new Builder(32);
-        int[] arrayLsb3 = { 0b01001111_01001111_01001111_01001111 };
+        int[] arrayLsb3 = { 0b01001111_01001111_01000110_01110110 };
         fillBitVectorBuilder(arrayLsb3, lsbBuilder3);
         BitVector lsb3 = lsbBuilder3.build();
         
