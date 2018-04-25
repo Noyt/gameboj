@@ -72,6 +72,8 @@ public final class LcdImage {
                 throw new IndexOutOfBoundsException();
             }
             
+            this.height = height;
+            this.width = width;
             lines = new ArrayList<>();
             int i = 0;
             while (i < height) {
@@ -83,7 +85,8 @@ public final class LcdImage {
         
         public Builder setLine(int index, LcdImageLine newLine) {
             checkIfBuiltAlready();
-            Objects.checkIndex(index,height);
+            System.out.println("index " + index + " height " + height);
+            Objects.checkIndex(index, height);
             Preconditions.checkArgument(newLine.size() == width);
             lines.set(index, newLine);
             return this;
@@ -91,8 +94,10 @@ public final class LcdImage {
         
         public LcdImage build() {
             checkIfBuiltAlready();
+            List<LcdImageLine> temp = lines;
+            temp = lines;
             lines = null;
-            return new LcdImage(width, height, lines);
+            return new LcdImage(width, height, temp);
         }
         
         private void checkIfBuiltAlready() {
