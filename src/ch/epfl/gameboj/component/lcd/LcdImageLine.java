@@ -5,7 +5,6 @@ import java.util.Objects;
 import ch.epfl.gameboj.Preconditions;
 import ch.epfl.gameboj.bits.BitVector;
 import ch.epfl.gameboj.bits.Bits;
-import ch.epfl.gameboj.component.cpu.Alu;
 
 public final class LcdImageLine {
 
@@ -13,7 +12,7 @@ public final class LcdImageLine {
     private BitVector lsb;
     private BitVector opacity;
 
-    //TODO methode public le constructeur?
+    // TODO methode public le constructeur?
     public LcdImageLine(BitVector msb, BitVector lsb, BitVector opacity) {
         Preconditions.checkArgument(
                 msb.size() == lsb.size() && msb.size() == opacity.size());
@@ -105,16 +104,15 @@ public final class LcdImageLine {
         Preconditions.checkArgument(this.size() == that.size());
         BitVector finalMsb = null;
         BitVector finalLsb = null;
+        BitVector finalOpacity = null;
 
         finalMsb = this.msb.or(that.msb.and(opacity))
                 .and(that.msb.not().and(opacity).not());
         finalLsb = this.lsb.or(that.lsb.and(opacity))
                 .and(that.lsb.not().and(opacity).not());
+        finalOpacity = this.opacity.or(opacity);
 
-        // TODO que mettre pour l'opacité de cette nouvelle ligne ? tout opaque
-        // ?
-        return new LcdImageLine(finalMsb, finalLsb,
-                new BitVector(this.size(), true));
+        return new LcdImageLine(finalMsb, finalLsb, finalOpacity);
     }
 
     public LcdImageLine below(LcdImageLine that) {
@@ -146,10 +144,10 @@ public final class LcdImageLine {
                 .or(that.msb.extractZeroExtended(pixel, size() - pixel));
         BitVector finalLsb = lsb.extractZeroExtended(0, pixel)
                 .or(that.lsb.extractZeroExtended(pixel, size() - pixel));
+        BitVector finalOpacity = opacity.extractZeroExtended(0, pixel)
+                .or(that.opacity.extractZeroExtended(pixel, size() - pixel));
 
-        // TODO totalement opaque?
-        return new LcdImageLine(finalMsb, finalLsb,
-                new BitVector(size(), true));
+        return new LcdImageLine(finalMsb, finalLsb, finalOpacity);
     }
 
     private BitVector bitChange(BitVector vec, BitVector change) {
@@ -175,6 +173,6 @@ public final class LcdImageLine {
 
     @Override
     public int hashCode() {
-        return Objects.hash(msb,lsb,opacity);
+        return Objects.hash(msb, lsb, opacity);
     }
 }
