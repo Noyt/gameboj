@@ -23,7 +23,7 @@ public final class BitVector {
 
     // TODO essayer d'utiliser le BitVector privé dans ce constructeur ?
     public BitVector(int size, boolean initialValue) {
-        Preconditions.checkArgument(size >= 0 && is32Multiple(size));
+        Preconditions.checkArgument(size > 0 && is32Multiple(size));
 
         int numberOfInts = size / Integer.SIZE;
         vector = new int[numberOfInts];
@@ -48,7 +48,7 @@ public final class BitVector {
         private byte[] bytes;
 
         public Builder(int size) {
-            Preconditions.checkArgument(size >= 0 && is32Multiple(size));
+            Preconditions.checkArgument(size > 0 && is32Multiple(size));
             bytes = new byte[size / Byte.SIZE];
         }
 
