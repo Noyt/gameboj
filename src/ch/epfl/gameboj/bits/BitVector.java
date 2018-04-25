@@ -43,44 +43,59 @@ public final class BitVector {
 
     public static final class Builder {
 
-        // TODO à discuter
+        private boolean enable;
 
-        private byte[] bytes;
+        private int[] bits;
 
         public Builder(int size) {
             Preconditions.checkArgument(size > 0 && is32Multiple(size));
-            bytes = new byte[size / Byte.SIZE];
+            bits = new int[size/Integer.SIZE];
+            enable = true;
         }
 
         public Builder setByte(int index, int value) {
             checkIfBuiltAlready();
-            Objects.checkIndex(index, bytes.length);
+            
+            int ratioIntByte = Integer.SIZE/Byte.SIZE;
+            
+            Objects.checkIndex(index, bits.length * ratioIntByte);
             Preconditions.checkBits8(value);
-            bytes[index] = (byte) value;
+
+            int indexInBits = index / ratioIntByte;
+            int subIndexInBits = index % ratioIntByte;
+
+            int mask = 0b11111111;
+            int temp1 = bits[indexInBits]
+                    & ~(mask << (subIndexInBits * Byte.SIZE));
+            int temp2 = value << (subIndexInBits * Byte.SIZE);
+
+            bits[indexInBits] = temp1 | temp2;
+
             return this;
         }
 
         public BitVector build() {
             checkIfBuiltAlready();
-            int length = bytes.length;
-            int[] temp = new int[length / (Integer.SIZE / Byte.SIZE)];
 
-            for (int i = 0; i < temp.length; i++) {
-                int a = 0;
-                int intByteRatio = Integer.SIZE / Byte.SIZE;
-                for (int j = 0; j < intByteRatio; j++) {
-                    a += Byte.toUnsignedInt(
-                            bytes[i * intByteRatio + j]) << (Byte.SIZE * j);
-                }
-                temp[i] = a;
-            }
+            // int length = bytes.length;
+            // int[] temp = new int[length / (Integer.SIZE / Byte.SIZE)];
+            //
+            // for (int i = 0; i < temp.length; i++) {
+            // int a = 0;
+            // int intByteRatio = Integer.SIZE / Byte.SIZE;
+            // for (int j = 0; j < intByteRatio; j++) {
+            // a += Byte.toUnsignedInt(
+            // bytes[i * intByteRatio + j]) << (Byte.SIZE * j);
+            // }
+            // temp[i] = a;
+            // }
 
-            bytes = null;
-            return new BitVector(temp);
+            enable = false;
+            return new BitVector(bits);
         }
 
         private void checkIfBuiltAlready() {
-            if (bytes == null) {
+            if (!enable) {
                 throw new IllegalStateException();
             }
         }
@@ -156,11 +171,11 @@ public final class BitVector {
     @Override
     public boolean equals(Object that) {
         Preconditions.checkArgument(that instanceof BitVector);
-        if (this.size() != ((BitVector)that).size()) {
+        if (this.size() != ((BitVector) that).size()) {
             return false;
         }
         for (int i = 0; i < this.size(); i++) {
-            if (this.testBit(i) != (((BitVector)that).testBit(i))) {
+            if (this.testBit(i) != (((BitVector) that).testBit(i))) {
                 return false;
             }
         }
@@ -175,8 +190,8 @@ public final class BitVector {
     @Override
     public String toString() {
         String binary = "";
-        for (int i = this.size()-1; i >= 0; i--) {
-           binary += this.testBit(i) ? "1" : "0";
+        for (int i = this.size() - 1; i >= 0; i--) {
+            binary += this.testBit(i) ? "1" : "0";
         }
         return binary;
     }
@@ -196,7 +211,7 @@ public final class BitVector {
         }
 
     }
-    
+
     private BitVector andOr(BitVector that, boolean and) {
         Preconditions.checkArgument(that.size() == size());
         int length = vector.length;
@@ -210,7 +225,7 @@ public final class BitVector {
 
         return new BitVector(result);
     }
-    
+
     public BitVector xor(BitVector that) {
         Preconditions.checkArgument(that.size() == size());
         int length = vector.length;
