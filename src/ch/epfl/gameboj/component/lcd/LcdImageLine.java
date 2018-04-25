@@ -13,6 +13,7 @@ public final class LcdImageLine {
     private BitVector lsb;
     private BitVector opacity;
 
+    //TODO methode public le constructeur?
     public LcdImageLine(BitVector msb, BitVector lsb, BitVector opacity) {
         Preconditions.checkArgument(
                 msb.size() == lsb.size() && msb.size() == opacity.size());
@@ -23,27 +24,27 @@ public final class LcdImageLine {
     }
 
     public static final class Builder {
-        
+
         private BitVector.Builder msbBuilder;
         private BitVector.Builder lsbBuilder;
-        
+
         public Builder(int size) {
-           msbBuilder = new BitVector.Builder(size);
-           lsbBuilder = new BitVector.Builder(size);
+            msbBuilder = new BitVector.Builder(size);
+            lsbBuilder = new BitVector.Builder(size);
         }
-        
-        public Builder setBytes(int index, int msbByte, int lsbByte) {            
+
+        public Builder setBytes(int index, int msbByte, int lsbByte) {
             msbBuilder.setByte(index, msbByte);
             lsbBuilder.setByte(index, lsbByte);
-            
+
             return this;
         }
-        
+
         public LcdImageLine build() {
             BitVector finalMsb = msbBuilder.build();
             BitVector finalLsb = lsbBuilder.build();
             BitVector finalOpacity = finalMsb.or(finalLsb);
-            
+
             return new LcdImageLine(finalMsb, finalLsb, finalOpacity);
         }
     }
@@ -77,11 +78,11 @@ public final class LcdImageLine {
     }
 
     // TODO ou preconditions check8
-    // vraiment un byte ?
+    // vraiment un byte ? je pense qu'il faut faire precondition check8
     public LcdImageLine mapColors(byte palette) {
         // TODO cette valeur 0b est elle bien un byte ? le programme va t il
         // vraiment passer par là ?
-        if (palette == 0b11_10_01_00)
+        if (palette == (byte) 0b11_10_01_00)
             return this;
 
         BitVector finalMsb = msb;
@@ -95,6 +96,7 @@ public final class LcdImageLine {
             if (Bits.test(oldColor ^ newColor, 0)) {
                 finalLsb = bitChange(finalLsb, identifyBitsOfColor(oldColor));
             }
+
         }
         return new LcdImageLine(finalMsb, finalLsb, this.opacity);
     }
@@ -167,12 +169,12 @@ public final class LcdImageLine {
                 && opacity.equals(tmp.opacity)) {
             return true;
         }
-        
+
         return false;
     }
-    
+
     @Override
     public int hashCode() {
-        return Objects.hash(msb, lsb, opacity);
+        return Objects.hash(msb,lsb,opacity);
     }
 }
