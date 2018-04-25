@@ -2,8 +2,10 @@ package ch.epfl.gameboj.component.lcd;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import ch.epfl.gameboj.Preconditions;
+import ch.epfl.gameboj.bits.Bits;
 
 public final class LcdImage {
 
@@ -32,6 +34,16 @@ public final class LcdImage {
         return height;
     }
     
+    public int get(int x, int y) {
+        Objects.checkIndex(x, width);
+        Objects.checkIndex(y, height);
+        
+        int msb = lines.get(y).msb().testBit(x) ? 1 : 0;
+        int lsb = lines.get(y).lsb().testBit(y) ? 1 : 0;
+        
+        return (msb << 1) + lsb;
+    }
+    
     public boolean equals(Object that) {
         Preconditions.checkArgument(that instanceof LcdImage);
 
@@ -51,5 +63,42 @@ public final class LcdImage {
     
     public static final class Builder {
         
+        private List<LcdImageLine> lines;
+        private int height;
+        private int width;
+        
+        public Builder(int width, int height) {
+            if (width <= 0 || height <= 0) {
+                throw new IndexOutOfBoundsException();
+            }
+            
+            lines = new ArrayList<>();
+            int i = 0;
+            while (i < height) {
+                LcdImageLine.Builder b = new LcdImageLine.Builder(width);
+                lines.add(b.build());
+                i++;
+            }
+        }
+        
+        public Builder setLine(int index, LcdImageLine newLine) {
+            checkIfBuiltAlready();
+            Objects.checkIndex(index,height);
+            Preconditions.checkArgument(newLine.size() == width);
+            lines.set(index, newLine);
+            return this;
+        }
+        
+        public LcdImage build() {
+            checkIfBuiltAlready();
+            lines = null;
+            return new LcdImage(width, height, lines);
+        }
+        
+        private void checkIfBuiltAlready() {
+            if (lines == null) {
+                throw new IllegalStateException();
+            }
+        }
     }
 }
