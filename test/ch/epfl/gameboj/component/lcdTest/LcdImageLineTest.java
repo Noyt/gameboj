@@ -116,6 +116,7 @@ public class LcdImageLineTest {
 
     @Test
     void belowWorksForValidValue() {
+        //TODO doubler les tableaux maybe ?
         Builder msbBuilder = new Builder(32);
         int[] arrayMsb = { 0b10110001_10110001_10110001_10110001 };
         fillBitVectorBuilder(arrayMsb, msbBuilder);
@@ -189,5 +190,51 @@ public class LcdImageLineTest {
                 lsbResult.build(), opacityResult.build());
 
         assertEquals(result, lcdIm1);
+    }
+    
+    @Test
+    void joinWorksForValidValue() {
+        Builder msbBuilder = new Builder(32);
+        int[] arrayMsb = { 0b10110001_10110001_10110001_10110001 };
+        fillBitVectorBuilder(arrayMsb, msbBuilder);
+        BitVector msb = msbBuilder.build();
+
+        Builder lsbBuilder = new Builder(32);
+        int[] arrayLsb = { 0b01110110_01110110_01110110_01110110 };
+        fillBitVectorBuilder(arrayLsb, lsbBuilder);
+        BitVector lsb = lsbBuilder.build();
+
+        BitVector opacity = new BitVector(32);
+        LcdImageLine lcd = new LcdImageLine(msb, lsb, opacity);
+
+        
+        Builder msbBuilder2 = new Builder(32);
+        int[] arrayMsb2 = { 0b00101101_00101101_00101101_00101101 };
+        fillBitVectorBuilder(arrayMsb2, msbBuilder2);
+        BitVector msb2 = msbBuilder2.build();
+
+        Builder lsbBuilder2 = new Builder(32);
+        int[] arrayLsb2 = { 0b01001111_01001111_01001111_01001111 };
+        fillBitVectorBuilder(arrayLsb2, lsbBuilder2);
+        BitVector lsb2 = lsbBuilder2.build();
+
+        BitVector opacity2 = new BitVector(32);
+        LcdImageLine lcd2 = new LcdImageLine(msb2, lsb2, opacity2);
+        
+        
+        Builder msbBuilder3 = new Builder(32);
+        int[] arrayMsb3 = { 0b00101101_00101101_00101101_00101101 };
+        fillBitVectorBuilder(arrayMsb3, msbBuilder3);
+        BitVector msb3 = msbBuilder3.build();
+
+        Builder lsbBuilder3 = new Builder(32);
+        int[] arrayLsb3 = { 0b01001111_01001111_01001111_01001111 };
+        fillBitVectorBuilder(arrayLsb3, lsbBuilder3);
+        BitVector lsb3 = lsbBuilder3.build();
+
+        BitVector opacity3 = new BitVector(32);
+        LcdImageLine lcd3 = new LcdImageLine(msb3, lsb3, opacity3);
+        
+        assertEquals(lcd3, lcd.join(lcd2, 12));
     }
 }
