@@ -141,7 +141,6 @@ public final class BitVector {
          */
         public BitVector build() {
             checkIfBuiltAlready();
-
             enable = false;
             return new BitVector(bits);
         }
