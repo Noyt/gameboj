@@ -56,7 +56,9 @@ public final class BitVector {
             checkIfBuiltAlready();
             Objects.checkIndex(index, bytes.length);
             Preconditions.checkBits8(value);
+            System.out.println("avant " + value);
             bytes[index] = (byte) value;
+            System.out.println("apres " + bytes[index]);
             return this;
         }
 
@@ -69,7 +71,7 @@ public final class BitVector {
                 int a = 0;
                 int intByteRatio = Integer.SIZE / Byte.SIZE;
                 for (int j = 0; j < intByteRatio; j++) {
-                    a += Byte.toUnsignedInt(
+                    a += (int)(
                             bytes[i * intByteRatio + j]) << (Byte.SIZE * j);
                 }
                 temp[i] = a;
