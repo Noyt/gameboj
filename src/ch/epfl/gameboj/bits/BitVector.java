@@ -56,9 +56,7 @@ public final class BitVector {
             checkIfBuiltAlready();
             Objects.checkIndex(index, bytes.length);
             Preconditions.checkBits8(value);
-            System.out.println("avant " + value);
             bytes[index] = (byte) value;
-            System.out.println("apres " + bytes[index]);
             return this;
         }
 

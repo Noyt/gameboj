@@ -55,18 +55,54 @@ public final class LcdImageLine {
         private BitVector.Builder msbBuilder;
         private BitVector.Builder lsbBuilder;
 
+        /**
+         * A LcdImageLine builder has a BitVector builder for the most
+         * significant bits and a second one for the least significant bits,
+         * both of the same size.
+         * 
+         * @param size
+         *            the size of the future line
+         * @throws IllegalArgumentException
+         *             if size is negative or if it's not divisible by 32
+         */
         public Builder(int size) {
+            Preconditions.checkArgument(size > 0 && is32Multiple(size));
             msbBuilder = new BitVector.Builder(size);
             lsbBuilder = new BitVector.Builder(size);
         }
 
+        /**
+         * Set the value of the most and least significant byte of the line at a
+         * given index
+         * 
+         * @param index
+         *            the bytes to be set
+         * @param msbByte
+         *            the value to which the most significant Byte will be set
+         * @param lsbByte
+         *            the value to which the most significant Byte will be set
+         * @return the current instance of the builder
+         */
+        // TODO vérifier index d'une certaine manière ?
         public Builder setBytes(int index, int msbByte, int lsbByte) {
+            Preconditions.checkBits8(msbByte);
+            Preconditions.checkBits8(lsbByte);
             msbBuilder.setByte(index, msbByte);
             lsbBuilder.setByte(index, lsbByte);
 
             return this;
         }
 
+        /**
+         * Builds the LcdImageLine. The opacity of said line is determined
+         * according to the following convention : pixels of color 0 are
+         * transparent and all others are opaque
+         * 
+         * @return
+         */
+        // TODO remettre une mécanique telle que checkIfBuiltAlready ?
+        // TODO et si on a pas fait setBytes jusqu'à la fin, quelle valeur
+        // prennent les bits manquants ?
         public LcdImageLine build() {
             BitVector finalMsb = msbBuilder.build();
             BitVector finalLsb = lsbBuilder.build();
@@ -139,7 +175,7 @@ public final class LcdImageLine {
      * @return the extracted line
      */
     // TODO pas de restriction au niveau de pixels ? pas de precondition à
-    // vérifier ?
+    // vérifier ? length doit être positif non ?
     public LcdImageLine extractWrapped(int pixel, int length) {
         Preconditions.checkArgument(is32Multiple(length));
         return new LcdImageLine(msb.extractWrapped(pixel, length),
@@ -264,7 +300,9 @@ public final class LcdImageLine {
         return new LcdImageLine(finalMsb, finalLsb, finalOpacity);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -284,7 +322,9 @@ public final class LcdImageLine {
         return false;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#hashCode()
      */
     @Override
@@ -292,7 +332,9 @@ public final class LcdImageLine {
         return Objects.hash(msb, lsb, opacity);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#toString()
      */
     @Override
