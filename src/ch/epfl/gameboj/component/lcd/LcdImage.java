@@ -15,11 +15,10 @@ import ch.epfl.gameboj.Preconditions;
  */
 public final class LcdImage {
 
-    // TODO immuable, on met des finals ?
-    private List<LcdImageLine> lines;
+    private final List<LcdImageLine> lines;
 
-    private int width;
-    private int height;
+    private final int width;
+    private final int height;
 
     public LcdImage(int width, int height, List<LcdImageLine> lines) {
         Preconditions.checkArgument(width > 0 && width % 32 == 0);
@@ -110,9 +109,6 @@ public final class LcdImage {
         private int height;
         private int width;
 
-        // TODO pourquoi enable ?
-        private boolean enable;
-
         /**
          * Creates an LcdImage builder
          * 
@@ -138,8 +134,6 @@ public final class LcdImage {
                 lines.add(b.build());
                 i++;
             }
-
-            enable = true;
         }
 
         /**
@@ -173,10 +167,9 @@ public final class LcdImage {
          */
         public LcdImage build() {
             checkIfBuiltAlready();
-            List<LcdImageLine> temp = lines;
-            temp = lines;
+            LcdImage result = new LcdImage(width, height, lines);
             lines = null;
-            return new LcdImage(width, height, temp);
+            return result;
         }
 
         private void checkIfBuiltAlready() {

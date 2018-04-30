@@ -15,10 +15,9 @@ import ch.epfl.gameboj.bits.Bits;
  */
 public final class LcdImageLine {
 
-    // TODO immuable, donc mettre des finals pour les attributs ?
-    private BitVector msb;
-    private BitVector lsb;
-    private BitVector opacity;
+    private final BitVector msb;
+    private final BitVector lsb;
+    private final BitVector opacity;
 
     // TODO methode public le constructeur?
     /**
@@ -81,9 +80,10 @@ public final class LcdImageLine {
          *            the value to which the most significant Byte will be set
          * @param lsbByte
          *            the value to which the most significant Byte will be set
+         * @throws IllegalArgumentException
+         *             if msbByte or lsbByte are not valid 8 bits values
          * @return the current instance of the builder
          */
-        // TODO vérifier index d'une certaine manière ?
         public Builder setBytes(int index, int msbByte, int lsbByte) {
             Preconditions.checkBits8(msbByte);
             Preconditions.checkBits8(lsbByte);
@@ -101,12 +101,13 @@ public final class LcdImageLine {
          * @return
          */
         // TODO remettre une mécanique telle que checkIfBuiltAlready ?
-        // TODO et si on a pas fait setBytes jusqu'à la fin, quelle valeur
-        // prennent les bits manquants ?
         public LcdImageLine build() {
             BitVector finalMsb = msbBuilder.build();
             BitVector finalLsb = lsbBuilder.build();
             BitVector finalOpacity = finalMsb.or(finalLsb);
+            
+            msbBuilder = null;
+            lsbBuilder = null;
 
             return new LcdImageLine(finalMsb, finalLsb, finalOpacity);
         }
@@ -155,8 +156,6 @@ public final class LcdImageLine {
      *            number of pixels to shift by
      * @return the shifted line
      */
-    // TODO pas de restriction au niveau de pixels ? pas de precondition à
-    // vérifier ?
     public LcdImageLine shift(int pixels) {
         return new LcdImageLine(msb.shift(pixels), lsb.shift(pixels),
                 opacity.shift(pixels));
@@ -171,13 +170,11 @@ public final class LcdImageLine {
      * @param length
      *            the length of the line to extract
      * @throws IllegalArgumentException
-     *             if length is not divisible by 32
+     *             if length is not divisible by 32 or less than or equal to 0
      * @return the extracted line
      */
-    // TODO pas de restriction au niveau de pixels ? pas de precondition à
-    // vérifier ? length doit être positif non ?
     public LcdImageLine extractWrapped(int pixel, int length) {
-        Preconditions.checkArgument(is32Multiple(length));
+        Preconditions.checkArgument(is32Multiple(length) && length > 0);
         return new LcdImageLine(msb.extractWrapped(pixel, length),
                 lsb.extractWrapped(pixel, length),
                 opacity.extractWrapped(pixel, length));

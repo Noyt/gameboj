@@ -77,8 +77,6 @@ public final class BitVector {
      */
     public static final class Builder {
 
-        private boolean enable;
-
         private int[] bits;
 
         /**
@@ -91,7 +89,6 @@ public final class BitVector {
         public Builder(int size) {
             Preconditions.checkArgument(size > 0 && is32Multiple(size));
             bits = new int[size / Integer.SIZE];
-            enable = true;
         }
 
         /**
@@ -140,12 +137,13 @@ public final class BitVector {
          */
         public BitVector build() {
             checkIfBuiltAlready();
-            enable = false;
-            return new BitVector(bits);
+            BitVector result = new BitVector(bits);
+            bits = null;
+            return result;
         }
 
         private void checkIfBuiltAlready() {
-            if (!enable) {
+            if (bits == null) {
                 throw new IllegalStateException();
             }
         }
