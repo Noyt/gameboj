@@ -85,6 +85,7 @@ public final class BitVector {
          * 
          * @param size
          *            : an integer the size of the future BitVector
+         * @throws TODO
          */
         public Builder(int size) {
             Preconditions.checkArgument(size > 0 && is32Multiple(size));
