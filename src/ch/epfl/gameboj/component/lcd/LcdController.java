@@ -29,8 +29,6 @@ public final class LcdController implements Clocked, Component {
     public static final int TILES_CHOICES_PER_IMAGE = 256;
     public static final int OCTETS_PER_TILE = 16;
 
-    public static int tmp = 0; // TODO
-
     private final Cpu cpu;
     private final RegisterFile<Reg> regs;
     private final RamController videoRam;
@@ -64,6 +62,7 @@ public final class LcdController implements Clocked, Component {
                 AddressMap.VIDEO_RAM_START, AddressMap.VIDEO_RAM_END);
         nextNonIdleCycle = 0;
         lcdOnCycle = 0;
+        nextImageBuilder = new Builder(LCD_WIDTH, LCD_HEIGHT);
     }
 
     @Override
@@ -118,15 +117,26 @@ public final class LcdController implements Clocked, Component {
 
     @Override
     public void cycle(long cycle) {
+
+        boolean TODO = false;
+        if ((cycle > 16000 && cycle < 17700) || (cycle > 33800 && cycle < 35200)) {
+            System.out.println("current cycle " + cycle + ", nextNon  "
+                    + nextNonIdleCycle + ", lcdOn " + lcdOnCycle);
+            TODO = true;
+        }
+
         if (nextNonIdleCycle == Long.MAX_VALUE
                 && testLCDCBit(LCDCBit.LCD_STATUS)) {
             lcdOnCycle = 0;
-            reallyCycle(cycle);
+            System.out.println("caca");
+            reallyCycle(TODO);
         }
+
         if (cycle < nextNonIdleCycle) {
+            ++lcdOnCycle;
             return;
         } else {
-            reallyCycle(cycle);
+            reallyCycle(TODO);
         }
         ++lcdOnCycle;
     }
@@ -138,46 +148,50 @@ public final class LcdController implements Clocked, Component {
         return currentImage;
     }
 
-    private void reallyCycle(long cycle) {
+    private void reallyCycle(boolean TODO) {
         switch (lcdOnCycle) {
-        case 114:
+
+        case MODE0_CYCLES + MODE2_CYCLES + MODE3_CYCLES:
         case 0:
             if (getMode() != Mode.M1) {
                 if (regs.get(Reg.LY) == LCD_HEIGHT) {
                     setMode(Mode.M1);
                     currentImage = nextImageBuilder.build();
-                    System.out.println("cycle " + cycle);
-                } else {
+                } else
+                    setMode(Mode.M2);
+            } else {
+                if (regs.get(Reg.LY) == 0) {
                     setMode(Mode.M2);
                     nextImageBuilder = new Builder(LCD_WIDTH, LCD_HEIGHT);
                 }
-            } else {
-                if (regs.get(Reg.LY) == LCD_HEIGHT + MODE1_NB_LINES - 1)
-                    setMode(Mode.M2);
-
             }
 
             lcdOnCycle = 0;
-            nextNonIdleCycle += 20;
+            nextNonIdleCycle += MODE2_CYCLES;
             break;
-        case 20:
+
+        case MODE2_CYCLES:
             if (getMode() != Mode.M1)
                 setMode(Mode.M3);
 
-            nextNonIdleCycle += 43;
-            computeLine();
+            nextNonIdleCycle += MODE3_CYCLES;
+            computeLine(TODO);
             break;
-        case 63:
+
+        case MODE2_CYCLES + MODE3_CYCLES:
             if (getMode() != Mode.M1)
                 setMode(Mode.M0);
-            nextNonIdleCycle += 51;
+            nextNonIdleCycle += MODE0_CYCLES;
             break;
         }
     }
 
-    private void computeLine() {
+    private void computeLine(boolean TODO) {
         int line = regs.get(Reg.LY);
 
+        if (TODO)
+        System.out.println("computing line " + line);
+        
         if (line < LCD_HEIGHT) {
             LcdImageLine.Builder lineBuilder = new LcdImageLine.Builder(
                     LCD_WIDTH);
@@ -292,8 +306,7 @@ public final class LcdController implements Clocked, Component {
     }
 
     private void setMode(Mode m) {
-        ++tmp;
-
+        
         int mode = m.ordinal();
 
         setSTATBit(STATBit.MODE0, (mode % 2) == 1);
