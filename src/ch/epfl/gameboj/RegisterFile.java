@@ -87,6 +87,6 @@ public final class RegisterFile<E extends Register> {
      *            the newValue to set
      */
     public void setBit(E reg, Bit bit, boolean newValue) {
-        Bits.set(get(reg), bit.index(), newValue);
+        file[reg.index()] = Bits.set(get(reg), bit.index(), newValue);
     }
 }
