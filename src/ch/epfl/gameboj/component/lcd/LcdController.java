@@ -208,14 +208,15 @@ public final class LcdController implements Clocked, Component {
             for (int i = 0; i < LCD_WIDTH / Byte.SIZE; ++i) {
                 int tileIndexInRam = tileIndexInRam(i, line)
                         + AddressMap.BG_DISPLAY_DATA[slot];
+                
+                //int tileName = videoRam.read(tileIndexInRam);
+                int tileName = 20;
 
-                System.out.println(tileIndexInRam);
-
-                int tileName = videoRam.read(tileIndexInRam);
-
-                int tileLineAddress = getTileAddress(line, tileName);
-                int lsb = videoRam.read(tileLineAddress);
-                int msb = videoRam.read(tileLineAddress + 1);
+                int tileLineAddress = getTileLineAddress(line, tileName);
+                //int lsb = videoRam.read(tileLineAddress);
+                int msb = videoRam.read(tileLineAddress);
+                int lsb = 0;
+                
 
                 lineBuilder.setBytes(i, msb, lsb);
             }
@@ -235,7 +236,7 @@ public final class LcdController implements Clocked, Component {
         return tileYInImage * nbTileInALine + tileXInImage;
     }
 
-    private int getTileAddress(int line, int tileName) {
+    private int getTileLineAddress(int line, int tileName) {
         int tileAddress;
         int tileInterval = TILES_CHOICES_PER_IMAGE / 2;
 
@@ -246,8 +247,9 @@ public final class LcdController implements Clocked, Component {
         } else {
             tileAddress = AddressMap.TILE_SOURCE[0];
         }
+
         tileAddress += (tileName % tileInterval) * OCTETS_PER_TILE
-                + (line % tileInterval);
+                + ((line % (OCTETS_PER_TILE/2)) * 2);
         return tileAddress;
     }
 
