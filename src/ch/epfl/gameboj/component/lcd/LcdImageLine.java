@@ -194,10 +194,10 @@ public final class LcdImageLine {
      *            a byte encoding the color changes to be done
      * @return the color adjusted line
      */
-    public LcdImageLine mapColors(byte palette) {
+    public LcdImageLine mapColors(int palette) {
         // TODO cette valeur 0b est elle bien un byte ? le programme va t il
         // vraiment passer par là ?
-        if (palette == (byte) 0b11_10_01_00)
+        if (Bits.extract(palette, 0, Byte.SIZE) == 0b11_10_01_00)
             return this;
 
         BitVector finalMsb = msb;

@@ -192,20 +192,21 @@ public final class LcdController implements Clocked, Component {
         int lineInLCD = regs.get(Reg.LY);
         if (lineInLCD < LCD_HEIGHT) {
 
-            int tileLine = ((regs.get(Reg.LY) + regs.get(Reg.SCY))
-                    % IMAGE_DIMENSION) / Byte.SIZE;
+            int tileLine = ((lineInLCD + regs.get(Reg.SCY)) % IMAGE_DIMENSION)
+                    / Byte.SIZE;
 
-            LcdImageLine bgLine = backgroundLine(tileLine);
-            
-            
-            nextImageBuilder.setLine(lineInLCD,bgLine.extractWrapped(regs.get(Reg.SCX), LCD_WIDTH));
+            nextImageBuilder.setLine(lineInLCD,
+                    backgroundLine(tileLine)
+                            .extractWrapped(regs.get(Reg.SCX), LCD_WIDTH)
+                            .mapColors(regs.get(Reg.BGP)));
         }
         updateLYForNewLine();
     }
 
     private LcdImageLine backgroundLine(int tileLine) {
 
-        LcdImageLine.Builder lineBuilder = new LcdImageLine.Builder(IMAGE_DIMENSION);
+        LcdImageLine.Builder lineBuilder = new LcdImageLine.Builder(
+                IMAGE_DIMENSION);
 
         int slot = testLCDCBit(LCDCBit.BG_AREA) ? 1 : 0;
 
