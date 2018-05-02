@@ -20,6 +20,7 @@ public final class LcdController implements Clocked, Component {
 
     public static final int LCD_WIDTH = 160;
     public static final int LCD_HEIGHT = 144;
+    public static final int BG_DIMENSION = 256;
 
     public static final int MODE2_CYCLES = 20;
     public static final int MODE3_CYCLES = 43;
@@ -63,6 +64,9 @@ public final class LcdController implements Clocked, Component {
         nextNonIdleCycle = 0;
         lcdOnCycle = 0;
         nextImageBuilder = new Builder(LCD_WIDTH, LCD_HEIGHT);
+
+        System.out.println(regs.get(Reg.SCX) / Byte.SIZE + " "
+                + regs.get(Reg.SCY) / Byte.SIZE);
     }
 
     @Override
@@ -119,16 +123,16 @@ public final class LcdController implements Clocked, Component {
     public void cycle(long cycle) {
 
         boolean TODO = false;
-        if ((cycle > 16000 && cycle < 17700) || (cycle > 33800 && cycle < 35200)) {
-            System.out.println("current cycle " + cycle + ", nextNon  "
-                    + nextNonIdleCycle + ", lcdOn " + lcdOnCycle);
-            TODO = true;
-        }
+//        if ((cycle > 16000 && cycle < 17700)
+//                || (cycle > 33800 && cycle < 35200)) {
+//            System.out.println("current cycle " + cycle + ", nextNon  "
+//                    + nextNonIdleCycle + ", lcdOn " + lcdOnCycle);
+//            TODO = true;
+//        }
 
         if (nextNonIdleCycle == Long.MAX_VALUE
                 && testLCDCBit(LCDCBit.LCD_STATUS)) {
             lcdOnCycle = 0;
-            System.out.println("caca");
             reallyCycle(TODO);
         }
 
@@ -190,21 +194,27 @@ public final class LcdController implements Clocked, Component {
         int line = regs.get(Reg.LY);
 
         if (TODO)
-        System.out.println("computing line " + line);
-        
+            System.out.println("computing line " + line);
+
         if (line < LCD_HEIGHT) {
             LcdImageLine.Builder lineBuilder = new LcdImageLine.Builder(
                     LCD_WIDTH);
 
             // Image de fond
+            int SCXTile = regs.get(Reg.SCX) / Byte.SIZE;
+            int SCYTile = regs.get(Reg.SCY) / Byte.SIZE;
+
             int slot = testLCDCBit(LCDCBit.BG_AREA) ? 1 : 0;
-
             for (int i = 0; i < LCD_WIDTH / Byte.SIZE; ++i) {
-                int tileIndex = videoRam.read(AddressMap.BG_DISPLAY_DATA[slot]
-                        + i + line * LCD_WIDTH);
+                int tileIndexInRam = tileIndexInRam(i, line)
+                        + AddressMap.BG_DISPLAY_DATA[slot];
 
-                int tileLineAddress = getTileAddress(line, tileIndex);
-                int lsb = videoRam.read(tileLineAddress + 1);
+                System.out.println(tileIndexInRam);
+
+                int tileName = videoRam.read(tileIndexInRam);
+
+                int tileLineAddress = getTileAddress(line, tileName);
+                int lsb = videoRam.read(tileLineAddress);
                 int msb = videoRam.read(tileLineAddress + 1);
 
                 lineBuilder.setBytes(i, msb, lsb);
@@ -215,16 +225,29 @@ public final class LcdController implements Clocked, Component {
         updateLYForNewLine();
     }
 
-    private int getTileAddress(int line, int tileIndex) {
+    private int tileIndexInRam(int xOctetInLcd, int yBitInLcd) {
+
+        int tileXInImage = xOctetInLcd + regs.get(Reg.SCX) / Byte.SIZE;
+        int tileYInImage = (yBitInLcd + regs.get(Reg.SCY)) / Byte.SIZE;
+
+        int nbTileInALine = BG_DIMENSION / Byte.SIZE;
+
+        return tileYInImage * nbTileInALine + tileXInImage;
+    }
+
+    private int getTileAddress(int line, int tileName) {
         int tileAddress;
-        if (tileIndex < TILES_CHOICES_PER_IMAGE / 2) {
+        int tileInterval = TILES_CHOICES_PER_IMAGE / 2;
+
+        if (tileName < tileInterval) {
             tileAddress = testLCDCBit(LCDCBit.TILE_SOURCE)
-                    ? AddressMap.TILE_SOURCE[0]
-                    : (AddressMap.TILE_SOURCE[1] + TILES_CHOICES_PER_IMAGE / 2);
+                    ? AddressMap.TILE_SOURCE[1]
+                    : (AddressMap.TILE_SOURCE[0] + tileInterval);
         } else {
-            tileAddress = AddressMap.TILE_SOURCE[1];
+            tileAddress = AddressMap.TILE_SOURCE[0];
         }
-        tileAddress += tileIndex * OCTETS_PER_TILE + line % OCTETS_PER_TILE / 2;
+        tileAddress += (tileName % tileInterval) * OCTETS_PER_TILE
+                + (line % tileInterval);
         return tileAddress;
     }
 
@@ -306,7 +329,7 @@ public final class LcdController implements Clocked, Component {
     }
 
     private void setMode(Mode m) {
-        
+
         int mode = m.ordinal();
 
         setSTATBit(STATBit.MODE0, (mode % 2) == 1);
