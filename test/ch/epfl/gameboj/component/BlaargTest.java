@@ -8,7 +8,6 @@ import ch.epfl.gameboj.debug.DebugMain;
 
 class BlaargTest {
 
-    
     @Test
     void test() throws IOException {
         DebugMain.main(new String[] {"01-special.gb", "30000000"});
@@ -25,6 +24,4 @@ class BlaargTest {
         DebugMain.main(new String[] {"instr_timing.gb", "30000000"});
         
     }
-
-
 }

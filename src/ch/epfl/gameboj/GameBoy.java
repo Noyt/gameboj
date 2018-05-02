@@ -5,6 +5,7 @@ import java.util.Objects;
 import ch.epfl.gameboj.component.Timer;
 import ch.epfl.gameboj.component.cartridge.Cartridge;
 import ch.epfl.gameboj.component.cpu.Cpu;
+import ch.epfl.gameboj.component.lcd.LcdController;
 import ch.epfl.gameboj.component.memory.BootRomController;
 import ch.epfl.gameboj.component.memory.Ram;
 import ch.epfl.gameboj.component.memory.RamController;
@@ -23,6 +24,7 @@ public final class GameBoy {
     private final RamController workRam;
     private final RamController echoRam;
     private final Cpu cpu;
+    private final LcdController lcd;
     private final Timer timer;
     private long cycleGB;
 
@@ -49,12 +51,15 @@ public final class GameBoy {
         echoRam = new RamController(ram, AddressMap.ECHO_RAM_START,
                 AddressMap.ECHO_RAM_END);
         cpu = new Cpu();
+        
+        lcd = new LcdController(cpu);
 
         timer = new Timer(cpu);
 
         cycleGB = 0;
 
         cpu.attachTo(bus);
+        lcd.attachTo(bus);
         workRam.attachTo(bus);
         echoRam.attachTo(bus);
         brc.attachTo(bus);
@@ -77,6 +82,15 @@ public final class GameBoy {
      */
     public Cpu cpu() {
         return cpu;
+    }
+    
+    /**
+     * Getter for the GameBoy's lcdController
+     * 
+     * @return the current GameBoy's lcdController
+     */
+    public LcdController lcdController() {
+        return lcd;
     }
 
     /**
@@ -108,6 +122,7 @@ public final class GameBoy {
         while (cycleGB < cycle) {
             timer.cycle(cycleGB);
             cpu.cycle(cycleGB);
+            lcd.cycle(cycleGB);
             cycleGB++;
         }
     }

@@ -22,7 +22,7 @@ public final class LcdImage {
 
     public LcdImage(int width, int height, List<LcdImageLine> lines) {
         Preconditions.checkArgument(width > 0 && width % 32 == 0);
-        Preconditions.checkArgument(height > 0 && height % 32 == 0);
+        Preconditions.checkArgument(height > 0);
 
         this.width = width;
         this.height = height;

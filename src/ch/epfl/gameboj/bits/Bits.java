@@ -91,6 +91,27 @@ public final class Bits {
         }
         return bits;
     }
+    
+    //TODO est-ce que j'ai le droit d'ajouter cette methode?
+    /**
+     * Returns an integer which the binary representation is the same as the
+     * given value, except one bit at the given index, which will be set to 1 or
+     * 0
+     * 
+     * @param bits
+     *            an int : the value which we want to copy and modify
+     * @param bit
+     *            a Bit: the bit int bits that will take the new value
+     * @param newValue
+     *            a boolean : bit will take value "1" if true, "0" if false
+     * @return an int : the value with potentially one bit inverted
+     * @throws IndexOutOfBoundsException
+     *             if the index is negative or indicates a position higher than
+     *             the maximum position possible in a Integer
+     */
+    public static int set(int bits, Bit bit, boolean newValue) {
+       return set(bits,bit.index(),newValue);
+    }
 
     /**
      * Keeps only a given number of the low bits of a given value
