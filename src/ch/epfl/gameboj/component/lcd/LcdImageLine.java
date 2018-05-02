@@ -19,7 +19,6 @@ public final class LcdImageLine {
     private final BitVector lsb;
     private final BitVector opacity;
 
-    // TODO methode public le constructeur?
     /**
      * Builds an LcdImageLine, all three BitVector given as parameters must have
      * the same size
@@ -195,8 +194,6 @@ public final class LcdImageLine {
      * @return the color adjusted line
      */
     public LcdImageLine mapColors(int palette) {
-        // TODO cette valeur 0b est elle bien un byte ? le programme va t il
-        // vraiment passer par là ?
         if (Bits.extract(palette, 0, Byte.SIZE) == 0b11_10_01_00)
             return this;
 

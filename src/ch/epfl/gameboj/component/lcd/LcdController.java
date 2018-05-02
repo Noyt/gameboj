@@ -189,22 +189,22 @@ public final class LcdController implements Clocked, Component {
     }
 
     private void computeLine() {
-        int lineInLCD = regs.get(Reg.LY);
-        if (lineInLCD < LCD_HEIGHT) {
+        int bitLineInLCD = regs.get(Reg.LY);
+        if (bitLineInLCD < LCD_HEIGHT) {
 
-            int tileLine = ((lineInLCD + regs.get(Reg.SCY)) % IMAGE_DIMENSION)
-                    / Byte.SIZE;
+            int bitLine = (bitLineInLCD + regs.get(Reg.SCY)) % IMAGE_DIMENSION;
 
-            nextImageBuilder.setLine(lineInLCD,
-                    backgroundLine(tileLine)
-                            .extractWrapped(regs.get(Reg.SCX), LCD_WIDTH)
-                            .mapColors(regs.get(Reg.BGP)));
+            nextImageBuilder.setLine(bitLineInLCD,
+                    backgroundLine(bitLine)
+                            .extractWrapped(regs.get(Reg.SCX), LCD_WIDTH));
         }
         updateLYForNewLine();
     }
 
-    private LcdImageLine backgroundLine(int tileLine) {
+    private LcdImageLine backgroundLine(int bitLine) {
 
+        int tileLine = bitLine/Byte.SIZE;
+        
         LcdImageLine.Builder lineBuilder = new LcdImageLine.Builder(
                 IMAGE_DIMENSION);
 
@@ -217,7 +217,7 @@ public final class LcdController implements Clocked, Component {
 
             int tileName = videoRam.read(tileIndexInRam);
 
-            int tileLineAddress = getTileLineAddress(tileLine, tileName);
+            int tileLineAddress = getTileLineAddress(bitLine, tileName);
             int lsb = Bits.reverse8(videoRam.read(tileLineAddress));
             int msb = Bits.reverse8(videoRam.read(tileLineAddress + 1));
 
