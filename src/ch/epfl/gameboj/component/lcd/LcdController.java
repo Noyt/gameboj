@@ -64,9 +64,6 @@ public final class LcdController implements Clocked, Component {
         nextNonIdleCycle = 0;
         lcdOnCycle = 0;
         nextImageBuilder = new Builder(LCD_WIDTH, LCD_HEIGHT);
-
-        System.out.println(regs.get(Reg.SCX) / Byte.SIZE + " "
-                + regs.get(Reg.SCY) / Byte.SIZE);
     }
 
     @Override
@@ -204,18 +201,16 @@ public final class LcdController implements Clocked, Component {
             int SCXTile = regs.get(Reg.SCX) / Byte.SIZE;
             int SCYTile = regs.get(Reg.SCY) / Byte.SIZE;
 
-            int slot = testLCDCBit(LCDCBit.BG_AREA) ? 1 : 0;
+            int slot = testLCDCBit(LCDCBit.BG_AREA) ? 1 : 0; 
             for (int i = 0; i < LCD_WIDTH / Byte.SIZE; ++i) {
                 int tileIndexInRam = tileIndexInRam(i, line)
                         + AddressMap.BG_DISPLAY_DATA[slot];
-                
-                //int tileName = videoRam.read(tileIndexInRam);
-                int tileName = 20;
+
+                int tileName = videoRam.read(tileIndexInRam);
 
                 int tileLineAddress = getTileLineAddress(line, tileName);
-                //int lsb = videoRam.read(tileLineAddress);
-                int msb = videoRam.read(tileLineAddress);
-                int lsb = 0;
+                int lsb = Bits.reverse8(videoRam.read(tileLineAddress));
+                int msb = Bits.reverse8(videoRam.read(tileLineAddress+1));
                 
 
                 lineBuilder.setBytes(i, msb, lsb);
@@ -243,7 +238,7 @@ public final class LcdController implements Clocked, Component {
         if (tileName < tileInterval) {
             tileAddress = testLCDCBit(LCDCBit.TILE_SOURCE)
                     ? AddressMap.TILE_SOURCE[1]
-                    : (AddressMap.TILE_SOURCE[0] + tileInterval);
+                    : (AddressMap.TILE_SOURCE[0] + tileInterval * OCTETS_PER_TILE);
         } else {
             tileAddress = AddressMap.TILE_SOURCE[0];
         }
