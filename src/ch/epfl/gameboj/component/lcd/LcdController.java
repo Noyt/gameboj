@@ -40,6 +40,8 @@ public final class LcdController implements Clocked, Component {
     private LcdImage.Builder nextImageBuilder;
     private LcdImage currentImage;
 
+    private int winY;
+
     private enum Reg implements Register {
         LCDC, STAT, SCY, SCX, LY, LYC, DMA, BGP, OBP0, OBP1, WY, WX
     }
@@ -54,6 +56,10 @@ public final class LcdController implements Clocked, Component {
 
     private enum Mode {
         M0, M1, M2, M3
+    }
+
+    private enum ImageType {
+        BACKGROUND, WINDOW
     }
 
     public LcdController(Cpu cpu) {
@@ -159,6 +165,7 @@ public final class LcdController implements Clocked, Component {
                 if (regs.get(Reg.LY) == LCD_HEIGHT) {
                     setMode(Mode.M1);
                     currentImage = nextImageBuilder.build();
+                    winY = 0;
                 } else
                     setMode(Mode.M2);
             } else {
@@ -190,25 +197,61 @@ public final class LcdController implements Clocked, Component {
 
     private void computeLine() {
         int bitLineInLCD = regs.get(Reg.LY);
+        int adjustedWX = regs.get(Reg.WX) - 7;
         if (bitLineInLCD < LCD_HEIGHT) {
 
             int bitLine = (bitLineInLCD + regs.get(Reg.SCY)) % IMAGE_DIMENSION;
 
-            nextImageBuilder.setLine(bitLineInLCD,
-                    backgroundLine(bitLine)
-                            .extractWrapped(regs.get(Reg.SCX), LCD_WIDTH));
+            LcdImageLine lcdLineFromBG = backgroundLine(bitLine)
+                    .extractWrapped(regs.get(Reg.SCX), LCD_WIDTH);
+
+            if (testLCDCBit(LCDCBit.WIN)
+                    && (adjustedWX >= 0 && adjustedWX < LCD_WIDTH)
+                    && regs.get(Reg.WY) <= bitLineInLCD) {
+
+                LcdImageLine adjustedWindowLine = windowLine(winY)
+                        .shift(adjustedWX).extractWrapped(0, LCD_WIDTH);
+
+                nextImageBuilder.setLine(bitLineInLCD,
+                        lcdLineFromBG.join(adjustedWindowLine, adjustedWX)
+                                .mapColors(regs.get(Reg.BGP)));
+                winY++;
+            } else {
+                nextImageBuilder.setLine(bitLineInLCD,
+                        lcdLineFromBG.mapColors(regs.get(Reg.BGP)));
+            }
         }
         updateLYForNewLine();
     }
 
     private LcdImageLine backgroundLine(int bitLine) {
+        // return extractLine(bitLine, ImageType.BACKGROUND);
+        return extractLine(bitLine, true);
+    }
 
-        int tileLine = bitLine/Byte.SIZE;
-        
+    private LcdImageLine windowLine(int bitLine) {
+        // return extractLine(bitLine, ImageType.WINDOW);
+        return extractLine(bitLine, false);
+    }
+
+    private LcdImageLine extractLine(int bitLine, boolean type) {
+        int tileLine = bitLine / Byte.SIZE;
+
         LcdImageLine.Builder lineBuilder = new LcdImageLine.Builder(
                 IMAGE_DIMENSION);
 
-        int slot = testLCDCBit(LCDCBit.BG_AREA) ? 1 : 0;
+        int slot = testLCDCBit(type ? LCDCBit.BG_AREA : LCDCBit.WIN_AREA) ? 1
+                : 0;
+        //
+        // switch (type) {
+        // case BACKGROUND:
+        // slot = testLCDCBit(LCDCBit.BG_AREA) ? 1 : 0;
+        // case WINDOW:
+        // slot = testLCDCBit(LCDCBit.WIN_AREA) ? 1 : 0;
+        // default:
+        // // TODO que mettre ici ?
+        // // slot = testLCDCBit(LCDCBit.BG_AREA) ? 1 : 0;
+        // }
 
         for (int i = 0; i < IMAGE_DIMENSION / Byte.SIZE; ++i) {
 
