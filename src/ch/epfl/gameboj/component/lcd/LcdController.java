@@ -3,6 +3,7 @@ package ch.epfl.gameboj.component.lcd;
 import java.util.Objects;
 
 import ch.epfl.gameboj.AddressMap;
+import ch.epfl.gameboj.Bus;
 import ch.epfl.gameboj.Preconditions;
 import ch.epfl.gameboj.Register;
 import ch.epfl.gameboj.RegisterFile;
@@ -33,6 +34,8 @@ public final class LcdController implements Clocked, Component {
     private final Cpu cpu;
     private final RegisterFile<Reg> regs;
     private final RamController videoRam;
+    private final RamController OAM;
+    private Bus bus;
 
     private long nextNonIdleCycle;
     private int lcdOnCycle;
@@ -67,6 +70,8 @@ public final class LcdController implements Clocked, Component {
         regs = new RegisterFile<Reg>(Reg.values());
         videoRam = new RamController(new Ram(AddressMap.VIDEO_RAM_SIZE),
                 AddressMap.VIDEO_RAM_START, AddressMap.VIDEO_RAM_END);
+        OAM = new RamController(new Ram(AddressMap.OAM_RAM_SIZE),
+                AddressMap.OAM_START, AddressMap.OAM_END);
         nextNonIdleCycle = 0;
         lcdOnCycle = 0;
         nextImageBuilder = new Builder(LCD_WIDTH, LCD_HEIGHT);
@@ -79,6 +84,9 @@ public final class LcdController implements Clocked, Component {
                 && address < AddressMap.REGS_LCDC_END) {
             int index = address - AddressMap.REGS_LCDC_START;
             return regs.get(Reg.values()[index]);
+        } else if (address >= AddressMap.OAM_START
+                && address < AddressMap.OAM_END) {
+            return OAM.read(address);
         }
 
         return videoRam.read(address);
@@ -116,13 +124,26 @@ public final class LcdController implements Clocked, Component {
                 regs.set(Reg.LCDC, data);
                 checkLCDC();
                 break;
+            
+                //TODO activer copie rapide
+            case DMA:
+                //fastCopy(data << Byte.SIZE);
 
             default:
                 regs.set(r, data);
             }
+        } else if (address >= AddressMap.OAM_START
+                && address < AddressMap.OAM_END) {
+            OAM.write(address, data);
         } else {
             videoRam.write(address, data);
         }
+    }
+
+    @Override
+    public void attachTo(Bus bus) {
+        Component.super.attachTo(bus);
+        this.bus = bus;
     }
 
     @Override
@@ -146,6 +167,9 @@ public final class LcdController implements Clocked, Component {
         } else {
             reallyCycle();
         }
+        
+        if ()
+        
         ++lcdOnCycle;
     }
 
@@ -373,7 +397,6 @@ public final class LcdController implements Clocked, Component {
     }
 
     private void setMode(Mode m) {
-
         int mode = m.ordinal();
 
         setSTATBit(STATBit.MODE0, (mode % 2) == 1);
@@ -382,5 +405,9 @@ public final class LcdController implements Clocked, Component {
         if (m == Mode.M1) {
             cpu.requestInterrupt(Interrupt.VBLANK);
         }
+    }
+    
+    private void fastCopy(int start) {
+        
     }
 }
