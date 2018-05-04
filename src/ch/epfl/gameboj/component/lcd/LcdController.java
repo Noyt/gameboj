@@ -44,6 +44,9 @@ public final class LcdController implements Clocked, Component {
     private LcdImage currentImage;
 
     private int winY;
+    
+    private int copySource;
+    private int copyDestination;
 
     private enum Reg implements Register {
         LCDC, STAT, SCY, SCX, LY, LYC, DMA, BGP, OBP0, OBP1, WY, WX
@@ -75,6 +78,7 @@ public final class LcdController implements Clocked, Component {
         nextNonIdleCycle = 0;
         lcdOnCycle = 0;
         nextImageBuilder = new Builder(LCD_WIDTH, LCD_HEIGHT);
+        copyDestination = AddressMap.OAM_END;
     }
 
     @Override
@@ -125,9 +129,9 @@ public final class LcdController implements Clocked, Component {
                 checkLCDC();
                 break;
             
-                //TODO activer copie rapide
             case DMA:
-                //fastCopy(data << Byte.SIZE);
+                copySource = data << Byte.SIZE;
+                copyDestination = AddressMap.OAM_START;
 
             default:
                 regs.set(r, data);
@@ -168,7 +172,12 @@ public final class LcdController implements Clocked, Component {
             reallyCycle();
         }
         
-        if ()
+        if(copyDestination != AddressMap.OAM_END) {
+            //TODO OAM ou bus ?
+            OAM.write(copyDestination, bus.read(copySource));
+            copySource++;
+            copyDestination++;
+        }
         
         ++lcdOnCycle;
     }
@@ -405,9 +414,5 @@ public final class LcdController implements Clocked, Component {
         if (m == Mode.M1) {
             cpu.requestInterrupt(Interrupt.VBLANK);
         }
-    }
-    
-    private void fastCopy(int start) {
-        
     }
 }
