@@ -110,10 +110,8 @@ public final class LcdController implements Clocked, Component {
 
             switch (r) {
             case STAT:
-                int oldState = regs.get(Reg.STAT);
                 regs.set(Reg.STAT, (regs.get(Reg.STAT) & 0b00000111)
                         | (data & 0b11111000));
-                checkSTAT(oldState);
                 break;
 
             case LY:
@@ -406,6 +404,7 @@ public final class LcdController implements Clocked, Component {
     }
 
     private void setMode(Mode m) {
+        int oldMode = regs.get(Reg.STAT);
         int mode = m.ordinal();
 
         setSTATBit(STATBit.MODE0, (mode % 2) == 1);
@@ -414,5 +413,6 @@ public final class LcdController implements Clocked, Component {
         if (m == Mode.M1) {
             cpu.requestInterrupt(Interrupt.VBLANK);
         }
+        checkSTAT(oldMode);
     }
 }
