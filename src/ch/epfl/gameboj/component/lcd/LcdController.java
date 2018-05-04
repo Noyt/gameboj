@@ -3,6 +3,7 @@ package ch.epfl.gameboj.component.lcd;
 import java.util.Objects;
 
 import ch.epfl.gameboj.AddressMap;
+import ch.epfl.gameboj.Bus;
 import ch.epfl.gameboj.Preconditions;
 import ch.epfl.gameboj.Register;
 import ch.epfl.gameboj.RegisterFile;
@@ -12,7 +13,7 @@ import ch.epfl.gameboj.component.Clocked;
 import ch.epfl.gameboj.component.Component;
 import ch.epfl.gameboj.component.cpu.Cpu;
 import ch.epfl.gameboj.component.cpu.Cpu.Interrupt;
-import ch.epfl.gameboj.component.lcd.LcdImage.Builder;
+import ch.epfl.gameboj.component.lcd.LcdImage;
 import ch.epfl.gameboj.component.memory.Ram;
 import ch.epfl.gameboj.component.memory.RamController;
 
@@ -33,12 +34,19 @@ public final class LcdController implements Clocked, Component {
     private final Cpu cpu;
     private final RegisterFile<Reg> regs;
     private final RamController videoRam;
+    private final RamController OAM;
+    private Bus bus;
 
     private long nextNonIdleCycle;
     private int lcdOnCycle;
 
     private LcdImage.Builder nextImageBuilder;
     private LcdImage currentImage;
+
+    private int winY;
+    
+    private int copySource;
+    private int copyDestination;
 
     private enum Reg implements Register {
         LCDC, STAT, SCY, SCX, LY, LYC, DMA, BGP, OBP0, OBP1, WY, WX
@@ -56,14 +64,21 @@ public final class LcdController implements Clocked, Component {
         M0, M1, M2, M3
     }
 
+    private enum ImageType {
+        BACKGROUND, WINDOW
+    }
+
     public LcdController(Cpu cpu) {
         this.cpu = Objects.requireNonNull(cpu);
         regs = new RegisterFile<Reg>(Reg.values());
         videoRam = new RamController(new Ram(AddressMap.VIDEO_RAM_SIZE),
                 AddressMap.VIDEO_RAM_START, AddressMap.VIDEO_RAM_END);
+        OAM = new RamController(new Ram(AddressMap.OAM_RAM_SIZE),
+                AddressMap.OAM_START, AddressMap.OAM_END);
         nextNonIdleCycle = 0;
         lcdOnCycle = 0;
         nextImageBuilder = new Builder(LCD_WIDTH, LCD_HEIGHT);
+        copyDestination = AddressMap.OAM_END;
     }
 
     @Override
@@ -73,6 +88,9 @@ public final class LcdController implements Clocked, Component {
                 && address < AddressMap.REGS_LCDC_END) {
             int index = address - AddressMap.REGS_LCDC_START;
             return regs.get(Reg.values()[index]);
+        } else if (address >= AddressMap.OAM_START
+                && address < AddressMap.OAM_END) {
+            return OAM.read(address);
         }
 
         return videoRam.read(address);
@@ -110,13 +128,26 @@ public final class LcdController implements Clocked, Component {
                 regs.set(Reg.LCDC, data);
                 checkLCDC();
                 break;
+            
+            case DMA:
+                copySource = data << Byte.SIZE;
+                copyDestination = AddressMap.OAM_START;
 
             default:
                 regs.set(r, data);
             }
+        } else if (address >= AddressMap.OAM_START
+                && address < AddressMap.OAM_END) {
+            OAM.write(address, data);
         } else {
             videoRam.write(address, data);
         }
+    }
+
+    @Override
+    public void attachTo(Bus bus) {
+        Component.super.attachTo(bus);
+        this.bus = bus;
     }
 
     @Override
@@ -140,6 +171,14 @@ public final class LcdController implements Clocked, Component {
         } else {
             reallyCycle();
         }
+        
+        if(copyDestination != AddressMap.OAM_END) {
+            //TODO OAM ou bus ?
+            OAM.write(copyDestination, bus.read(copySource));
+            copySource++;
+            copyDestination++;
+        }
+        
         ++lcdOnCycle;
     }
 
@@ -159,6 +198,7 @@ public final class LcdController implements Clocked, Component {
                 if (regs.get(Reg.LY) == LCD_HEIGHT) {
                     setMode(Mode.M1);
                     currentImage = nextImageBuilder.build();
+                    winY = 0;
                 } else
                     setMode(Mode.M2);
             } else {
@@ -190,25 +230,61 @@ public final class LcdController implements Clocked, Component {
 
     private void computeLine() {
         int bitLineInLCD = regs.get(Reg.LY);
+        int adjustedWX = regs.get(Reg.WX) - 7;
         if (bitLineInLCD < LCD_HEIGHT) {
 
             int bitLine = (bitLineInLCD + regs.get(Reg.SCY)) % IMAGE_DIMENSION;
 
-            nextImageBuilder.setLine(bitLineInLCD,
-                    backgroundLine(bitLine)
-                            .extractWrapped(regs.get(Reg.SCX), LCD_WIDTH));
+            LcdImageLine lcdLineFromBG = backgroundLine(bitLine)
+                    .extractWrapped(regs.get(Reg.SCX), LCD_WIDTH);
+
+            if (testLCDCBit(LCDCBit.WIN)
+                    && (adjustedWX >= 0 && adjustedWX < LCD_WIDTH)
+                    && regs.get(Reg.WY) <= bitLineInLCD) {
+
+                LcdImageLine adjustedWindowLine = windowLine(winY)
+                        .shift(adjustedWX).extractWrapped(0, LCD_WIDTH);
+
+                nextImageBuilder.setLine(bitLineInLCD,
+                        lcdLineFromBG.join(adjustedWindowLine, adjustedWX)
+                                .mapColors(regs.get(Reg.BGP)));
+                winY++;
+            } else {
+                nextImageBuilder.setLine(bitLineInLCD,
+                        lcdLineFromBG.mapColors(regs.get(Reg.BGP)));
+            }
         }
         updateLYForNewLine();
     }
 
     private LcdImageLine backgroundLine(int bitLine) {
+        // return extractLine(bitLine, ImageType.BACKGROUND);
+        return extractLine(bitLine, true);
+    }
 
-        int tileLine = bitLine/Byte.SIZE;
-        
+    private LcdImageLine windowLine(int bitLine) {
+        // return extractLine(bitLine, ImageType.WINDOW);
+        return extractLine(bitLine, false);
+    }
+
+    private LcdImageLine extractLine(int bitLine, boolean type) {
+        int tileLine = bitLine / Byte.SIZE;
+
         LcdImageLine.Builder lineBuilder = new LcdImageLine.Builder(
                 IMAGE_DIMENSION);
 
-        int slot = testLCDCBit(LCDCBit.BG_AREA) ? 1 : 0;
+        int slot = testLCDCBit(type ? LCDCBit.BG_AREA : LCDCBit.WIN_AREA) ? 1
+                : 0;
+        //
+        // switch (type) {
+        // case BACKGROUND:
+        // slot = testLCDCBit(LCDCBit.BG_AREA) ? 1 : 0;
+        // case WINDOW:
+        // slot = testLCDCBit(LCDCBit.WIN_AREA) ? 1 : 0;
+        // default:
+        // // TODO que mettre ici ?
+        // // slot = testLCDCBit(LCDCBit.BG_AREA) ? 1 : 0;
+        // }
 
         for (int i = 0; i < IMAGE_DIMENSION / Byte.SIZE; ++i) {
 
@@ -330,7 +406,6 @@ public final class LcdController implements Clocked, Component {
     }
 
     private void setMode(Mode m) {
-
         int mode = m.ordinal();
 
         setSTATBit(STATBit.MODE0, (mode % 2) == 1);
