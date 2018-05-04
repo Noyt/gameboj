@@ -172,8 +172,10 @@ public final class LcdImage {
             return result;
         }
 
-        private void checkIfBuiltAlready() {
+        public void checkIfBuiltAlready() { // TODO
             if (lines == null) {
+
+                System.out.println("already built");
                 throw new IllegalStateException();
             }
         }

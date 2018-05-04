@@ -44,7 +44,7 @@ public final class LcdController implements Clocked, Component {
     private LcdImage currentImage;
 
     private int winY;
-    
+
     private int copySource;
     private int copyDestination;
 
@@ -126,7 +126,7 @@ public final class LcdController implements Clocked, Component {
                 regs.set(Reg.LCDC, data);
                 checkLCDC();
                 break;
-            
+
             case DMA:
                 copySource = data << Byte.SIZE;
                 copyDestination = AddressMap.OAM_START;
@@ -161,6 +161,7 @@ public final class LcdController implements Clocked, Component {
                 && testLCDCBit(LCDCBit.LCD_STATUS)) {
             lcdOnCycle = 0;
             reallyCycle();
+            System.out.println("on se rallume");
         }
 
         if (cycle < nextNonIdleCycle) {
@@ -169,14 +170,14 @@ public final class LcdController implements Clocked, Component {
         } else {
             reallyCycle();
         }
-        
-        if(copyDestination != AddressMap.OAM_END) {
-            //TODO OAM ou bus ?
+
+        if (copyDestination != AddressMap.OAM_END) {
+            // TODO OAM ou bus ?
             OAM.write(copyDestination, bus.read(copySource));
             copySource++;
             copyDestination++;
         }
-        
+
         ++lcdOnCycle;
     }
 
@@ -190,8 +191,12 @@ public final class LcdController implements Clocked, Component {
     private void reallyCycle() {
         switch (lcdOnCycle) {
 
-        case MODE0_CYCLES + MODE2_CYCLES + MODE3_CYCLES:
         case 0:
+        case MODE0_CYCLES + MODE2_CYCLES + MODE3_CYCLES:
+            if (regs.get(Reg.LY) == 0) {
+                setMode(Mode.M2);
+                nextImageBuilder = new Builder(LCD_WIDTH, LCD_HEIGHT);
+            }
             if (getMode() != Mode.M1) {
                 if (regs.get(Reg.LY) == LCD_HEIGHT) {
                     setMode(Mode.M1);
@@ -199,11 +204,6 @@ public final class LcdController implements Clocked, Component {
                     winY = 0;
                 } else
                     setMode(Mode.M2);
-            } else {
-                if (regs.get(Reg.LY) == 0) {
-                    setMode(Mode.M2);
-                    nextImageBuilder = new Builder(LCD_WIDTH, LCD_HEIGHT);
-                }
             }
 
             lcdOnCycle = 0;
