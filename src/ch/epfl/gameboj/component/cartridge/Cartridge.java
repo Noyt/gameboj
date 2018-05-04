@@ -87,9 +87,7 @@ public final class Cartridge implements Component {
         try (InputStream s = new FileInputStream(romFile)) {
             byte[] tab = new byte[(int) romFile.length()];
             tab = s.readAllBytes().clone();
-            if (!(Byte.toUnsignedInt(tab[CARTRIDGE_TYPE_ADDRESS]) == 0)) {
-                throw new IllegalArgumentException();
-            }
+            Preconditions.checkArgument(Byte.toUnsignedInt(tab[CARTRIDGE_TYPE_ADDRESS]) == 0);
 
             Cartridge cart = new Cartridge(new MBC0(new Rom(tab)));
             return cart;

@@ -65,7 +65,7 @@ public final class LcdController implements Clocked, Component {
     }
 
     private enum ImageType {
-        BACKGROUND, WINDOW
+        BACKGROUND, WINDOW, SPRITE_BG, SPRITE_FG
     }
 
     public LcdController(Cpu cpu) {
@@ -151,11 +151,11 @@ public final class LcdController implements Clocked, Component {
     @Override
     public void cycle(long cycle) {
 
-//         if ((cycle > 16000 && cycle < 17700)
-//         || (cycle > 33800 && cycle < 35200)) {
-//         System.out.println("current cycle " + cycle + ", nextNon "
-//         + nextNonIdleCycle + ", lcdOn " + lcdOnCycle);
-//         }
+        // if ((cycle > 16000 && cycle < 17700)
+        // || (cycle > 33800 && cycle < 35200)) {
+        // System.out.println("current cycle " + cycle + ", nextNon "
+        // + nextNonIdleCycle + ", lcdOn " + lcdOnCycle);
+        // }
 
         if (nextNonIdleCycle == Long.MAX_VALUE
                 && testLCDCBit(LCDCBit.LCD_STATUS)) {
@@ -172,7 +172,6 @@ public final class LcdController implements Clocked, Component {
         }
 
         if (copyDestination != AddressMap.OAM_END) {
-            // TODO OAM ou bus ?
             OAM.write(copyDestination, bus.read(copySource));
             copySource++;
             copyDestination++;
@@ -256,44 +255,43 @@ public final class LcdController implements Clocked, Component {
     }
 
     private LcdImageLine backgroundLine(int bitLine) {
-        // return extractLine(bitLine, ImageType.BACKGROUND);
-        return extractLine(bitLine, true);
+        return extractLine(bitLine, ImageType.BACKGROUND);
     }
 
     private LcdImageLine windowLine(int bitLine) {
-        // return extractLine(bitLine, ImageType.WINDOW);
-        return extractLine(bitLine, false);
+        return extractLine(bitLine, ImageType.WINDOW);
     }
 
-    private LcdImageLine extractLine(int bitLine, boolean type) {
-        int tileLine = bitLine / Byte.SIZE;
+    private LcdImageLine extractLine(int bitLine, ImageType type) {
+        int lineOfTheTile = bitLine / Byte.SIZE;
 
         LcdImageLine.Builder lineBuilder = new LcdImageLine.Builder(
                 IMAGE_DIMENSION);
 
-        int slot = testLCDCBit(type ? LCDCBit.BG_AREA : LCDCBit.WIN_AREA) ? 1
-                : 0;
-        //
-        // switch (type) {
-        // case BACKGROUND:
-        // slot = testLCDCBit(LCDCBit.BG_AREA) ? 1 : 0;
-        // case WINDOW:
-        // slot = testLCDCBit(LCDCBit.WIN_AREA) ? 1 : 0;
-        // default:
-        // // TODO que mettre ici ?
-        // // slot = testLCDCBit(LCDCBit.BG_AREA) ? 1 : 0;
-        // }
+        int slot;
+
+        switch (type) {
+        case BACKGROUND:
+            slot = testLCDCBit(LCDCBit.BG_AREA) ? 1 : 0;
+            break;
+        case WINDOW:
+            slot = testLCDCBit(LCDCBit.WIN_AREA) ? 1 : 0;
+            break;
+        default:
+            throw new Error();
+        }
 
         for (int i = 0; i < IMAGE_DIMENSION / Byte.SIZE; ++i) {
 
-            int tileIndexInRam = tileIndexInRam(i, tileLine)
+            int tileIndexInRam = tileIndexInRam(i, lineOfTheTile)
                     + AddressMap.BG_DISPLAY_DATA[slot];
 
             int tileName = videoRam.read(tileIndexInRam);
+            int lineInTheTile = bitLine % (OCTETS_PER_TILE / 2);
 
-            int tileLineAddress = getTileLineAddress(bitLine, tileName);
-            int lsb = Bits.reverse8(videoRam.read(tileLineAddress));
-            int msb = Bits.reverse8(videoRam.read(tileLineAddress + 1));
+           
+            int lsb = getTileLineAddressLsb(lineInTheTile, tileName);
+            int msb = getTileLineAddressMsb(lineInTheTile, tileName);
 
             lineBuilder.setBytes(i, msb, lsb);
         }
@@ -321,9 +319,16 @@ public final class LcdController implements Clocked, Component {
             tileAddress = AddressMap.TILE_SOURCE[0];
         }
 
-        tileAddress += (tileName % tileInterval) * OCTETS_PER_TILE
-                + ((line % (OCTETS_PER_TILE / 2)) * 2);
+        tileAddress += (tileName % tileInterval) * OCTETS_PER_TILE + line * 2;
         return tileAddress;
+    }
+
+    private int getTileLineAddressMsb(int line, int tileName) {
+        return Bits.reverse8(videoRam.read(getTileLineAddress(line, tileName)+1));
+    }
+
+    private int getTileLineAddressLsb(int line, int tileName) {
+        return Bits.reverse8(videoRam.read(getTileLineAddress(line, tileName)));
     }
 
     private void updateLYForNewLine() {

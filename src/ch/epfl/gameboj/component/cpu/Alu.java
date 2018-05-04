@@ -508,13 +508,8 @@ public final class Alu {
      */
     public static int swap(int v) {
         Preconditions.checkBits8(v);
-
-        int lowBits = Bits.clip(4, v) << 4;
-        int highBits = Bits.extract(v, 4, 4);
-
-        boolean z = (v == 0);
-
-        return packValueZNHC(highBits | lowBits, z, false, false, false);
+        v = Bits.rotate(Byte.SIZE, v, 4);
+        return packValueZNHC(v, v == 0, false, false, false);
     }
 
     /**

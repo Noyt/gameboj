@@ -3,6 +3,7 @@ package ch.epfl.gameboj.component.cpu;
 import java.util.ArrayList;
 import java.util.Objects;
 
+import javax.lang.model.element.ModuleElement.DirectiveKind;
 import javax.swing.plaf.synth.SynthSpinnerUI;
 
 import ch.epfl.gameboj.AddressMap;
@@ -27,6 +28,7 @@ import ch.epfl.gameboj.component.memory.Ram;
 public final class Cpu implements Component, Clocked {
 
     private static final int PREFIX_IDENTIFICATOR = 0xCB;
+    private static final int NUMBER_OF_OPCODES_OF_A_KIND = 256;
 
     private final RegisterFile<Reg> file;
     private int SP;
@@ -118,18 +120,10 @@ public final class Cpu implements Component, Clocked {
             Opcode instruction = null;
 
             if (nextInstruction != PREFIX_IDENTIFICATOR) {
-                for (Opcode o : DIRECT_OPCODE_TABLE) {
-                    if (o.encoding == nextInstruction) {
-                        instruction = o;
-                    }
-                }
+                instruction = DIRECT_OPCODE_TABLE[nextInstruction];
             } else {
-                nextInstruction = read8(PC + 1);
-                for (Opcode o : PREFIXED_OPCODE_TABLE) {
-                    if (o.encoding == nextInstruction) {
-                        instruction = o;
-                    }
-                }
+                nextInstruction = read8AfterOpcode();
+                instruction = PREFIXED_OPCODE_TABLE[nextInstruction];
             }
             dispatch(Objects.requireNonNull(instruction));
         }
@@ -596,18 +590,13 @@ public final class Cpu implements Component, Clocked {
         }
             break;
         case JR_E8: {
-            int signedValue = Bits.clip(16,
-                    Bits.signExtend8(read8AfterOpcode()));
-
-            nextPC = Alu.unpackValue(Alu.add16H(nextPC, signedValue));
+            nextPC += signedValue();
         }
             break;
         case JR_CC_E8: {
             if (extractCondition(instruction)) {
                 conditionVerified = true;
-                int signedValue = Bits.clip(16,
-                        Bits.signExtend8(read8AfterOpcode()));
-                nextPC = Alu.unpackValue(Alu.add16H(nextPC, signedValue));
+                nextPC += signedValue();
             }
         }
             break;
@@ -645,16 +634,7 @@ public final class Cpu implements Component, Clocked {
 
         // Interrupts
         case EDI: {
-            switch (Bits.extract(instruction.encoding, 3, 1)) {
-            case 1:
-                IME = true;
-                break;
-            case 0:
-                IME = false;
-                break;
-            default:
-                throw new Error("not an EDI instruction");
-            }
+            IME = Bits.test(instruction.encoding, 3);
         }
             break;
         case RETI: {
@@ -737,35 +717,13 @@ public final class Cpu implements Component, Clocked {
 
     private void push16(int v) {
         Preconditions.checkBits16(v);
-
-        switch (SP) {
-        case 1:
-            SP = 0xFFFF;
-            break;
-        case 0:
-            SP = 0xFFFE;
-            break;
-        default:
-            SP -= 2;
-        }
-
+        SP = Bits.clip(Short.SIZE, SP - 2);
         write16(SP, v);
-
     };
 
     private int pop16() {
-
-        switch (SP) {
-        case 0xFFFE:
-            SP = 0;
-            return read16(0xFFFE);
-        case 0xFFFF:
-            SP = 1;
-            return read16(0xFFFF);
-        default:
-            SP += 2;
-            return read16(SP - 2);
-        }
+        SP += 2;
+        return read16(Bits.clip(Short.SIZE, SP - 2));
     };
 
     /*
@@ -774,6 +732,7 @@ public final class Cpu implements Component, Clocked {
     private Reg extractReg(Opcode opcode, int startBit) {
         int reg = Bits.extract(opcode.encoding, startBit, 3);
 
+        //TODO
         switch (reg) {
         case 0b000:
             return Reg.B;
@@ -870,15 +829,15 @@ public final class Cpu implements Component, Clocked {
     private static Opcode[] buildOpcodeTable(Opcode.Kind kind) {
         Opcode[] allOpcodes = Opcode.values();
 
-        ArrayList<Opcode> opcodesOfAKind = new ArrayList<Opcode>();
+        Opcode[] opcodesOfAKind = new Opcode[NUMBER_OF_OPCODES_OF_A_KIND];
 
         for (Opcode o : allOpcodes) {
             if (o.kind == kind) {
-                opcodesOfAKind.add(o);
+                opcodesOfAKind[o.encoding] = o;
             }
         }
 
-        return opcodesOfAKind.toArray(new Opcode[opcodesOfAKind.size()]);
+        return opcodesOfAKind;
     }
 
     /**
@@ -1066,6 +1025,10 @@ public final class Cpu implements Component, Clocked {
             throw new Error("This is not a condition");
 
         }
+    }
+    
+    private int signedValue() {
+        return Bits.clip(16, Bits.signExtend8(read8AfterOpcode()));
     }
 
     // These methods are to be used only when doing tests, they are therefore
