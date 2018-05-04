@@ -13,6 +13,7 @@ import ch.epfl.gameboj.component.Clocked;
 import ch.epfl.gameboj.component.Component;
 import ch.epfl.gameboj.component.cpu.Cpu;
 import ch.epfl.gameboj.component.cpu.Cpu.Interrupt;
+import ch.epfl.gameboj.component.lcd.LcdImageLine.Builder;
 import ch.epfl.gameboj.component.lcd.LcdImage;
 import ch.epfl.gameboj.component.memory.Ram;
 import ch.epfl.gameboj.component.memory.RamController;
@@ -110,10 +111,8 @@ public final class LcdController implements Clocked, Component {
 
             switch (r) {
             case STAT:
-                int oldState = regs.get(Reg.STAT);
                 regs.set(Reg.STAT, (regs.get(Reg.STAT) & 0b00000111)
                         | (data & 0b11111000));
-                checkSTAT(oldState);
                 break;
 
             case LY:
@@ -406,6 +405,7 @@ public final class LcdController implements Clocked, Component {
     }
 
     private void setMode(Mode m) {
+        int oldMode = regs.get(Reg.STAT);
         int mode = m.ordinal();
 
         setSTATBit(STATBit.MODE0, (mode % 2) == 1);
@@ -414,5 +414,6 @@ public final class LcdController implements Clocked, Component {
         if (m == Mode.M1) {
             cpu.requestInterrupt(Interrupt.VBLANK);
         }
+        checkSTAT(oldMode);
     }
 }

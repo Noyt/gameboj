@@ -9,7 +9,7 @@ import javax.imageio.ImageIO;
 import ch.epfl.gameboj.GameBoy;
 import ch.epfl.gameboj.component.cartridge.Cartridge;
 import ch.epfl.gameboj.component.cpu.Cpu;
-import ch.epfl.gameboj.component.lcd.LcdImage;
+import ch.epfl.gameboj.component.lcd.LcdImageLine;
 
 public final class DebugMain2 {
     private static final int[] COLOR_MAP = new int[] { 0xFF_FF_FF, 0xD3_D3_D3,
