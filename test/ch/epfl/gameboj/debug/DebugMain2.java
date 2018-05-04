@@ -8,7 +8,6 @@ import javax.imageio.ImageIO;
 
 import ch.epfl.gameboj.GameBoy;
 import ch.epfl.gameboj.component.cartridge.Cartridge;
-import ch.epfl.gameboj.component.cpu.Cpu;
 import ch.epfl.gameboj.component.lcd.LcdImage;
 
 public final class DebugMain2 {
