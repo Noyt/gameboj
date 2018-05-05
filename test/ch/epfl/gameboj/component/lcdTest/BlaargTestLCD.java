@@ -25,6 +25,7 @@ public class BlaargTestLCD {
         // DebugMain2.main(new String[] {"10-bit ops.gb", "30000000"});
         // DebugMain2.main(new String[] {"11-op a,(hl).gb", "30000000"});
         // DebugMain2.main(new String[] {"instr_timing.gb", "30000000"});
-         DebugMain2.main(new String[] { "tasmaniaStory.gb", "30000000" });
+        // DebugMain2.main(new String[] { "tasmaniaStory.gb", "30000000" });
+         DebugMain2.main(new String[] { "sprite_priority.gb", "30000000" });
     }
 }

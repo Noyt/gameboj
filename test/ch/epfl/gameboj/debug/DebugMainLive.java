@@ -1,5 +1,6 @@
-package ch.epfl.gameboj;
+package ch.epfl.gameboj.debug;
 
+import ch.epfl.gameboj.GameBoy;
 import ch.epfl.gameboj.component.cartridge.Cartridge;
 import ch.epfl.gameboj.component.lcd.LcdController;
 import ch.epfl.gameboj.component.lcd.LcdImage;
@@ -23,7 +24,7 @@ public final class DebugMainLive extends Application {
 
     /** Configuration */
 
-    private static final String ROM_PATH = "flappyboy.gb";
+    private static final String ROM_PATH = "tasmaniaStory.gb";
 
     private static final float EMULATION_SPEED = 1f;
     private static final int CYCLES_PER_ITERATION = (int)(17_556 * EMULATION_SPEED);
