@@ -175,7 +175,6 @@ public final class LcdController implements Clocked, Component {
                 && testLCDCBit(LCDCBit.LCD_STATUS)) {
             lcdOnCycle = 0;
             reallyCycle();
-            System.out.println("on se rallume");
         }
 
         if (cycle < nextNonIdleCycle) {
