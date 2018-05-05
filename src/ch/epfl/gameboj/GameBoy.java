@@ -114,10 +114,7 @@ public final class GameBoy {
      *             simulated
      */
     public void runUntil(long cycle) {
-
-        if (cycleGB > cycle) {
-            throw new IllegalArgumentException();
-        }
+        Preconditions.checkArgument(cycleGB > cycle);
 
         while (cycleGB < cycle) {
             timer.cycle(cycleGB);

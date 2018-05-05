@@ -30,11 +30,7 @@ public interface Preconditions {
      * @throws IllegalArgumentException if v is not between 0 and FF
      */
     static int checkBits8(int v) throws IllegalArgumentException {
-        
-        if (v < 0 || v > 0xFF) {
-            throw new IllegalArgumentException();
-        }
-        
+        checkArgument(v >= 0 && v < 0x100);
         return v;
     }
     
@@ -46,11 +42,7 @@ public interface Preconditions {
      * @throws IllegalArgumentException if v is not between 0 and FFFF
      */
     static int checkBits16(int v) throws IllegalArgumentException {
-        
-        if (v < 0 || v > 0xFFFF) {
-            throw new IllegalArgumentException();
-        }
-        
+        checkArgument(v >= 0 && v < 0x10000);
         return v;
     }
     

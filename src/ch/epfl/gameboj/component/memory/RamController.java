@@ -77,18 +77,7 @@ public final class RamController implements Component {
         if (address < startAddress || address >= endAddress) {
             return NO_DATA;
         }
-
-        try {
             return ram.read(address - startAddress);
-        }
-
-        catch (IndexOutOfBoundsException e) {
-            return NO_DATA;
-        }
-
-        catch (NullPointerException e) {
-            return NO_DATA;
-        }
     }
 
     /**
