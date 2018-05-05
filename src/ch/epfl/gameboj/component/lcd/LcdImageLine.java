@@ -196,10 +196,10 @@ public final class LcdImageLine {
     public LcdImageLine mapColors(int palette) {
         if (Bits.extract(palette, 0, Byte.SIZE) == 0b11_10_01_00)
             return this;
-
+        
         BitVector finalMsb = msb;
         BitVector finalLsb = lsb;
-
+                
         for (int oldColor = 0; oldColor < Byte.SIZE / 2; oldColor++) {
             int newColor = Bits.extract(palette, oldColor * 2, 2);
             if (Bits.test(oldColor ^ newColor, 1)) {

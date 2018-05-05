@@ -10,6 +10,7 @@ import ch.epfl.gameboj.Preconditions;
 import ch.epfl.gameboj.Register;
 import ch.epfl.gameboj.RegisterFile;
 import ch.epfl.gameboj.bits.Bit;
+import ch.epfl.gameboj.bits.BitVector;
 import ch.epfl.gameboj.bits.Bits;
 import ch.epfl.gameboj.component.Clocked;
 import ch.epfl.gameboj.component.Component;
@@ -262,30 +263,51 @@ public final class LcdController implements Clocked, Component {
                     && (adjustedWX >= 0 && adjustedWX < LCD_WIDTH)
                     && regs.get(Reg.WY) <= bitLineInLCD) {
 
-                LcdImageLine adjustedWindowLine = windowLine(winY)
+                LcdImageLine lineOfZeros = new LcdImageLine.Builder(
+                        IMAGE_DIMENSION).build();
+                LcdImageLine adjustedWindowLine = lineOfZeros
+                        .below(windowLine(winY),
+                                new BitVector(IMAGE_DIMENSION, true))
                         .shift(adjustedWX).extractWrapped(0, LCD_WIDTH);
 
                 finalLine = finalLine.join(adjustedWindowLine, adjustedWX);
                 winY++;
             }
 
+            BitVector BGWINOpacity = finalLine.opacity();
+            LcdImageLine BGSprites = new LcdImageLine.Builder(LCD_WIDTH)
+                    .build();
+            BitVector BGSpritesOpacity = new BitVector(LCD_WIDTH);
+
             if (testLCDCBit(LCDCBit.OBJ)) {
+
                 int[] allSprites = spritesIntersectingLine(bitLineInLCD);
-                LcdImageLine BGSprites = backGroundSprites(bitLineInLCD,
-                        allSprites);
+
+                BGSprites = backGroundSprites(bitLineInLCD, allSprites);
+                BGSpritesOpacity = BGSprites.opacity();
+
                 LcdImageLine FGSprites = foreGroundSprites(bitLineInLCD,
                         allSprites);
-                finalLine = BGSprites.below(finalLine).below(FGSprites);
+
+                finalLine = finalLine.below(FGSprites);
             }
 
+            BitVector bothTransparents = BGSpritesOpacity.or(BGWINOpacity)
+                    .not();
+            finalLine = BGSprites.below(finalLine,
+                    bothTransparents.or(BGWINOpacity));
+
+            if(!finalLine.opacity().equals(new BitVector(LCD_WIDTH, true)))
+                throw new Error();
+            
             nextImageBuilder.setLine(bitLineInLCD,
-                    finalLine.mapColors(regs.get(Reg.BGP)));
+                    finalLine);
         }
         updateLYForNewLine();
     }
 
     private LcdImageLine backgroundLine(int bitLine) {
-        return extractLine(bitLine, ImageType.BACKGROUND);
+        return extractLine(bitLine, ImageType.BACKGROUND).mapColors(regs.get(Reg.BGP));
     }
 
     private LcdImageLine windowLine(int bitLine) {
@@ -473,7 +495,7 @@ public final class LcdController implements Clocked, Component {
         Arrays.fill(sprites, Integer.MAX_VALUE);
         int j = 0;
         for (int index = 0; index < NUMBER_OF_SPRITES
-                && j <= MAX_NUMBER_OF_SPRITES_PER_LINE; index++) {
+                && j < MAX_NUMBER_OF_SPRITES_PER_LINE; index++) {
             int yCood = getAttribute(index, SpriteAttribute.Y) - Y_AXIS_DELAY;
             if (lcdLine >= yCood && lcdLine < yCood + TILE_DIMENSION
                     * (testLCDCBit(LCDCBit.OBJ_SIZE) ? 2 : 1)) {
@@ -513,13 +535,6 @@ public final class LcdController implements Clocked, Component {
         return Bits.test(getAttribute(spriteIndex, SpriteAttribute.SPECIAL),
                 bit);
     }
-    // private int[] backgroundSprites(int[] allSprites) {
-    // return depth(allSprites, true);
-    // }
-    //
-    // private int[] foregroundSprites(int[] allSprites) {
-    // return depth(allSprites, false);
-    // }
 
     private int[] depthSprites(int[] allSprites, boolean bg) {
         int[] sprites = new int[MAX_NUMBER_OF_SPRITES_PER_LINE];
@@ -571,7 +586,7 @@ public final class LcdController implements Clocked, Component {
                 getAttribute(spriteIndex, SpriteAttribute.TILE), true);
         int lsb = getTileLineLsb(lineInTheTile,
                 getAttribute(spriteIndex, SpriteAttribute.TILE), true);
-        
+
         if (testSPECIALbit(spriteIndex, SPECIALBit.FLIP_H)) {
             msb = Bits.reverse8(msb);
             lsb = Bits.reverse8(lsb);
@@ -582,8 +597,7 @@ public final class LcdController implements Clocked, Component {
                 ? regs.get(Reg.OBP1)
                 : regs.get(Reg.OBP0);
 
-        return b.build().shift(
-                getAttribute(spriteIndex, SpriteAttribute.X) - X_AXIS_DELAY)
-                .mapColors(palette);
+        return b.build().mapColors(palette).shift(
+                getAttribute(spriteIndex, SpriteAttribute.X) - X_AXIS_DELAY);
     }
 }

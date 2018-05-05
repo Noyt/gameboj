@@ -98,6 +98,35 @@ public class LcdImageLineTest {
     }
 
     @Test
+    void mapColorsBlackGreyDouble() {
+        Builder msbBuilder = new Builder(64);
+        int[] arrayMsb = { 0b11111111_11111111_11111111_11111111, 0b11111111_11111111_11111111_11111111 };
+        fillBitVectorBuilder(arrayMsb, msbBuilder);
+        BitVector msb = msbBuilder.build();
+
+        Builder lsbBuilder = new Builder(64);
+        int[] arrayLsb = { 0b11111111_11111111_11111111_11111111, 0b11111111_11111111_11111111_11111111};
+        fillBitVectorBuilder(arrayLsb, lsbBuilder);
+        BitVector lsb = lsbBuilder.build();
+
+        BitVector opacity = new BitVector(64);
+        LcdImageLine lcd = new LcdImageLine(msb, lsb, opacity);
+
+        Builder msbResultBuilder = new Builder(64);
+        int[] arrayMsbResult = { 0b00000000_00000000_00000000_00000000, 0b00000000_00000000_00000000_00000000 };
+        fillBitVectorBuilder(arrayMsbResult, msbResultBuilder);
+        BitVector msbResult = msbResultBuilder.build();
+
+        Builder lsbResultBuilder = new Builder(64);
+        int[] arrayLsbResult = { 0b11111111_11111111_11111111_11111111, 0b11111111_11111111_11111111_11111111 };
+        fillBitVectorBuilder(arrayLsbResult, lsbResultBuilder);
+        BitVector lsbResult = lsbResultBuilder.build();
+        
+        assertEquals(msbResult, lcd.mapColors((byte) 0b01_01_01_01).msb());
+        assertEquals(lsbResult, lcd.mapColors((byte) 0b01_01_01_01).lsb());
+    }
+    
+    @Test
     void mapColorsWorksForNoChangeColor() {
         Builder msbBuilder = new Builder(32);
         int[] arrayMsb = { 0b00110011_00110011_00110011_11000011 };
@@ -116,6 +145,35 @@ public class LcdImageLineTest {
         assertEquals(lsb, lcd.mapColors((byte) 0b11_10_01_00).lsb());
     }
 
+    @Test
+    void mapColorsWorksFromBlackToLightGrey() {
+        Builder msbBuilder = new Builder(32);
+        int[] arrayMsb = { 0b11111111_11111111_11111111_11111111 };
+        fillBitVectorBuilder(arrayMsb, msbBuilder);
+        BitVector msb = msbBuilder.build();
+
+        Builder lsbBuilder = new Builder(32);
+        int[] arrayLsb = { 0b11111111_11111111_11111111_11111111 };
+        fillBitVectorBuilder(arrayLsb, lsbBuilder);
+        BitVector lsb = lsbBuilder.build();
+
+        BitVector opacity = new BitVector(32);
+        LcdImageLine lcd = new LcdImageLine(msb, lsb, opacity);
+
+        Builder msbResultBuilder = new Builder(32);
+        int[] arrayMsbResult = { 0b00000000_00000000_00000000_00000000 };
+        fillBitVectorBuilder(arrayMsbResult, msbResultBuilder);
+        BitVector msbResult = msbResultBuilder.build();
+
+        Builder lsbResultBuilder = new Builder(32);
+        int[] arrayLsbResult = { 0b11111111_11111111_11111111_11111111 };
+        fillBitVectorBuilder(arrayLsbResult, lsbResultBuilder);
+        BitVector lsbResult = lsbResultBuilder.build();
+
+        assertEquals(msbResult, lcd.mapColors((byte) 0b01_01_01_01).msb());
+        assertEquals(lsbResult, lcd.mapColors((byte) 0b01_01_01_01).lsb());
+    }
+    
     @Test
     void belowWorksForValidValue() {
         //TODO doubler les tableaux maybe ?
