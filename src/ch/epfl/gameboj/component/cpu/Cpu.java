@@ -1,11 +1,6 @@
 package ch.epfl.gameboj.component.cpu;
 
-import java.util.ArrayList;
 import java.util.Objects;
-
-import javax.lang.model.element.ModuleElement.DirectiveKind;
-import javax.swing.plaf.synth.SynthSpinnerUI;
-
 import ch.epfl.gameboj.AddressMap;
 import ch.epfl.gameboj.Bus;
 import ch.epfl.gameboj.Preconditions;
@@ -590,13 +585,14 @@ public final class Cpu implements Component, Clocked {
         }
             break;
         case JR_E8: {
-            nextPC += signedValue();
+            nextPC = Bits.clip(16, nextPC + signedValue());
+            
         }
             break;
         case JR_CC_E8: {
             if (extractCondition(instruction)) {
                 conditionVerified = true;
-                nextPC += signedValue();
+                nextPC = Bits.clip(16, nextPC + signedValue());
             }
         }
             break;
