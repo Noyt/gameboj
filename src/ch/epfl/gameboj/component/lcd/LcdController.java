@@ -79,7 +79,7 @@ public final class LcdController implements Clocked, Component {
     }
 
     private enum SpriteAttribute {
-        X, Y, TILE, SPECIAL
+        Y, X, TILE, SPECIAL
     }
 
     private enum SPECIALBit implements Bit {
@@ -496,9 +496,9 @@ public final class LcdController implements Clocked, Component {
         int address = AddressMap.OAM_START
                 + spriteIndex * NUMBER_OF_OCTETS_PER_SPRITE;
         switch (att) {
-        case X:
-            return OAM.read(address);
         case Y:
+            return OAM.read(address);
+        case X:
             return OAM.read(address + 1);
         case TILE:
             return OAM.read(address + 2);
