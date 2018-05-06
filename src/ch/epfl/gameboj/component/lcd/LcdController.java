@@ -1,6 +1,5 @@
 package ch.epfl.gameboj.component.lcd;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
 

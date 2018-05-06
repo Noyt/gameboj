@@ -9,7 +9,7 @@ import ch.epfl.gameboj.debug.DebugMain3;
 public class BlaargTestLCD {
     @Test
     void test2() throws IOException {
-         DebugMain3.main(new String[] { "flappyboy.gb", "30000000" });
+         DebugMain3.main(new String[] { "finalflappyboy.gb", "30000000" });
         // DebugMain3.main(new String[] {"newflappyboy.gb", "30000000"});
         // DebugMain2.main(new String[] {"Tetris(JUE) (V1.1) [!].gb","30000000"});
         // DebugMain2.main(new String[] {"01-special.gb", "30000000"});
