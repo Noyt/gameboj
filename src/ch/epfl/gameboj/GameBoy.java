@@ -2,6 +2,7 @@ package ch.epfl.gameboj;
 
 import java.util.Objects;
 
+import ch.epfl.gameboj.component.Joypad;
 import ch.epfl.gameboj.component.Timer;
 import ch.epfl.gameboj.component.cartridge.Cartridge;
 import ch.epfl.gameboj.component.cpu.Cpu;
@@ -26,8 +27,14 @@ public final class GameBoy {
     private final Cpu cpu;
     private final LcdController lcd;
     private final Timer timer;
+    private final Joypad joypad;
+    
     private long cycleGB;
 
+    private final static long NUMBER_OF_CYCLES_PER_SECOND = 1 << 20;
+    private final static double NUMBER_OF_CYCLE_PER_NANOSECOND = NUMBER_OF_CYCLES_PER_SECOND*1e-9;
+
+            
     /**
      * Builds a GameBoy and its different components and then proceeds to attach
      * those to the GameBoy
@@ -36,7 +43,8 @@ public final class GameBoy {
      *            : The cartridge used to build the GameBoy, access to its
      *            information will allow the GameBoy to run the game contained
      *            inside
-     * @throws NullPointerException if cartridge is null
+     * @throws NullPointerException
+     *             if cartridge is null
      */
     public GameBoy(Cartridge cartridge) {
         Objects.requireNonNull(cartridge);
@@ -51,10 +59,9 @@ public final class GameBoy {
         echoRam = new RamController(ram, AddressMap.ECHO_RAM_START,
                 AddressMap.ECHO_RAM_END);
         cpu = new Cpu();
-        
         lcd = new LcdController(cpu);
-
         timer = new Timer(cpu);
+        joypad = new Joypad(cpu);
 
         cycleGB = 0;
 
@@ -64,6 +71,7 @@ public final class GameBoy {
         echoRam.attachTo(bus);
         brc.attachTo(bus);
         timer.attachTo(bus);
+        joypad.attachTo(bus);
     }
 
     /**
@@ -83,7 +91,7 @@ public final class GameBoy {
     public Cpu cpu() {
         return cpu;
     }
-    
+
     /**
      * Getter for the GameBoy's lcdController
      * 
@@ -100,6 +108,15 @@ public final class GameBoy {
      */
     public Timer timer() {
         return timer;
+    }
+    
+    /**
+     * Getter for the GameBoy's joypad
+     * 
+     * @return the current GameBoy's joypad
+     */
+    public Joypad joypad() {
+        return joypad;
     }
 
     /**
