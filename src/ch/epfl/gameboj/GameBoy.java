@@ -31,8 +31,8 @@ public final class GameBoy {
     
     private long cycleGB;
 
-    private final static long NUMBER_OF_CYCLES_PER_SECOND = 1 << 20;
-    private final static double NUMBER_OF_CYCLE_PER_NANOSECOND = NUMBER_OF_CYCLES_PER_SECOND*1e-9;
+    public final static long NUMBER_OF_CYCLES_PER_SECOND = 1 << 20;
+    public final static double NUMBER_OF_CYCLE_PER_NANOSECOND = NUMBER_OF_CYCLES_PER_SECOND/1e9;
 
             
     /**
