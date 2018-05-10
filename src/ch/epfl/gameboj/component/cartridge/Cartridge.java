@@ -22,7 +22,7 @@ public final class Cartridge implements Component {
 
     private final MBC0 mbc;
     private final static int CARTRIDGE_TYPE_ADDRESS = 0x147;
-    
+
     private Cartridge(MBC0 mbc) {
         this.mbc = Objects.requireNonNull(mbc);
     }
@@ -72,7 +72,8 @@ public final class Cartridge implements Component {
     /**
      * Constructs and returns a new Cartridge of type 0 which the read-only
      * memory contains the bytes of the given file (the file must contain 0 at
-     * position 0x147 (CARTRIDGE_TYPE_ADDRESS) and must be of the size of 32768 bytes)
+     * position 0x147 (CARTRIDGE_TYPE_ADDRESS) and must be of the size of 32768
+     * bytes)
      * 
      * @param romFile
      *            a File : the file with the required bytes
@@ -87,8 +88,9 @@ public final class Cartridge implements Component {
         try (InputStream s = new FileInputStream(romFile)) {
             byte[] tab = new byte[(int) romFile.length()];
             tab = s.readAllBytes().clone();
-            Preconditions.checkArgument(Byte.toUnsignedInt(tab[CARTRIDGE_TYPE_ADDRESS]) == 0);
 
+            Preconditions.checkArgument(
+                    Byte.toUnsignedInt(tab[CARTRIDGE_TYPE_ADDRESS]) == 0);
             Cartridge cart = new Cartridge(new MBC0(new Rom(tab)));
             return cart;
 
