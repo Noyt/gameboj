@@ -13,7 +13,7 @@ import ch.epfl.gameboj.component.memory.Rom;
  * @author Sophie du Couédic (26007)
  * @author Arnaud Robert (287964)
  */
-public final class MBC0 implements Component {
+public final class MBC0 extends MBC {
 
     private final Rom rom;
     private final static int MB_ROM_SIZE = 0x8000;
