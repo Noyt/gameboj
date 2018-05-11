@@ -17,5 +17,6 @@ public class FinalTest {
         Main.main(new String[] {"snake.gb"});
         //Main.main(new String[] {"Donkey_Kong.gb"});
         //Main.main(new String[] {"Bomberman.gb"});
+        //Main.main(new String[] {"The Legend of Zelda.gb"});
     }
 }

@@ -20,12 +20,12 @@ import ch.epfl.gameboj.component.memory.Rom;
  */
 public final class Cartridge implements Component {
 
-    private final MBC mbc;
+    private final Component mbc;
     private final static int CARTRIDGE_TYPE_ADDRESS = 0x147;
     private final static int[] MBC1_RAM_SIZE = {0,2048,8192,3276};
     private final static int MBC1_RAM_SIZE_ADDRESS = 0x149;
 
-    private Cartridge(MBC mbc) {
+    private Cartridge(Component mbc) {
         this.mbc = Objects.requireNonNull(mbc);
     }
 

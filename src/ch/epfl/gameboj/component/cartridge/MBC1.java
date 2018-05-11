@@ -8,7 +8,7 @@ import ch.epfl.gameboj.component.Component;
 import ch.epfl.gameboj.component.memory.Ram;
 import ch.epfl.gameboj.component.memory.Rom;
 
-public final class MBC1 extends MBC {
+public final class MBC1 implements Component {
     private static final int RAM_ENABLE = 0xA;
 
     private enum Mode { MODE_0, MODE_1 };

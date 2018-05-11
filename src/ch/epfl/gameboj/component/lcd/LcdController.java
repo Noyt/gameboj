@@ -244,8 +244,9 @@ public final class LcdController implements Clocked, Component {
 
     private void computeLine() {
         int bitLineInLCD = regs.get(Reg.LY);
-        int adjustedWX = regs.get(Reg.WX) - 7; // TODO mettre 7 dans une
-                                               // constante
+        int adjustedWX = Math.max(regs.get(Reg.WX) - 7, 0); // TODO mettre 7
+                                                            // dans une
+        // constante
         if (bitLineInLCD < LCD_HEIGHT) {
 
             int bitLine = (bitLineInLCD + regs.get(Reg.SCY)) % IMAGE_DIMENSION;
@@ -253,15 +254,18 @@ public final class LcdController implements Clocked, Component {
             LcdImageLine finalLine = new LcdImageLine.Builder(LCD_WIDTH)
                     .build();
 
+            // Background management
+
             if (testLCDCBit(LCDCBit.BG)) {
                 finalLine = backgroundLine(bitLine)
                         .extractWrapped(regs.get(Reg.SCX), LCD_WIDTH);
             }
 
+            // Window management
+
             if (testLCDCBit(LCDCBit.WIN)
                     && (adjustedWX >= 0 && adjustedWX < LCD_WIDTH)
                     && regs.get(Reg.WY) <= bitLineInLCD) {
-
                 LcdImageLine lineOfZeros = new LcdImageLine.Builder(
                         IMAGE_DIMENSION).build();
                 LcdImageLine adjustedWindowLine = lineOfZeros
@@ -278,6 +282,8 @@ public final class LcdController implements Clocked, Component {
                     .build();
             BitVector BGSpritesOpacity = new BitVector(LCD_WIDTH);
 
+            // Sprites management
+
             if (testLCDCBit(LCDCBit.OBJ)) {
 
                 int[] allSprites = spritesIntersectingLine(bitLineInLCD);
@@ -291,6 +297,8 @@ public final class LcdController implements Clocked, Component {
                 finalLine = finalLine.below(FGSprites);
             }
 
+            // This prevents background sprites and background/window image bits to be
+            // both transparents
             BitVector bothTransparents = BGSpritesOpacity.or(BGWINOpacity)
                     .not();
             finalLine = BGSprites.below(finalLine,
