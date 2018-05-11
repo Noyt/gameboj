@@ -296,17 +296,17 @@ public final class LcdController implements Clocked, Component {
             finalLine = BGSprites.below(finalLine,
                     bothTransparents.or(BGWINOpacity));
 
-            if(!finalLine.opacity().equals(new BitVector(LCD_WIDTH, true)))
+            if (!finalLine.opacity().equals(new BitVector(LCD_WIDTH, true)))
                 throw new Error();
-            
-            nextImageBuilder.setLine(bitLineInLCD,
-                    finalLine);
+
+            nextImageBuilder.setLine(bitLineInLCD, finalLine);
         }
         updateLYForNewLine();
     }
 
     private LcdImageLine backgroundLine(int bitLine) {
-        return extractLine(bitLine, ImageType.BACKGROUND).mapColors(regs.get(Reg.BGP));
+        return extractLine(bitLine, ImageType.BACKGROUND)
+                .mapColors(regs.get(Reg.BGP));
     }
 
     private LcdImageLine windowLine(int bitLine) {

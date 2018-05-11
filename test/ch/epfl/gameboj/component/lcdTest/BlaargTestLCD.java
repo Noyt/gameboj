@@ -4,13 +4,18 @@ import java.io.IOException;
 
 import org.junit.jupiter.api.Test;
 
+import com.sun.javafx.tools.packager.Main;
+
+import ch.epfl.gameboj.debug.DebugMain2;
 import ch.epfl.gameboj.debug.DebugMain3;
 
 public class BlaargTestLCD {
     @Test
-    void test2() throws IOException {
-         DebugMain3.main(new String[] { "finalflappyboy.gb", "30000000" });
-        // DebugMain3.main(new String[] {"newflappyboy.gb", "30000000"});
+    void test2() throws Exception {
+        
+        //Main.main(new String[] {"finalflappyboy.gb"});
+         //DebugMain3.main(new String[] { "finalflappyboy.gb", "30000000" });
+         //DebugMain3.main(new String[] {"newflappyboy.gb", "30000000"});
         // DebugMain2.main(new String[] {"Tetris(JUE) (V1.1) [!].gb","30000000"});
         // DebugMain2.main(new String[] {"01-special.gb", "30000000"});
         // DebugMain2.main(new String[] {"02-interrupts.gb", "30000000"});
@@ -26,6 +31,6 @@ public class BlaargTestLCD {
         // DebugMain2.main(new String[] {"11-op a,(hl).gb", "30000000"});
         // DebugMain2.main(new String[] {"instr_timing.gb", "30000000"});
         // DebugMain2.main(new String[] { "tasmaniaStory.gb", "30000000" });
-        // DebugMain2.main(new String[] { "sprite_priority.gb", "30000000" });
+         DebugMain2.main(new String[] { "sprite_priority.gb", "30000000" });
     }
 }
