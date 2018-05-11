@@ -49,6 +49,10 @@ public final class Main extends Application {
         Application.launch(args);
     }
 
+    int S = 0;
+    int M = 0;
+    int delay = 0;
+
     @Override
     public void start(Stage stage) throws IOException, InterruptedException {
         // Create GameBoy
@@ -83,31 +87,43 @@ public final class Main extends Application {
 
             @Override
             public void handle(long currentNanoTime) {
+                if(delay == 2) {  
+                    delay = 0;
                 long elapsedTime = (currentNanoTime - startTime);
-                double elapsedSeconds = elapsedTime / 1e9;
+                    double elapsedSeconds = elapsedTime / 1e9;
 
-                long cycle = (long) (elapsedSeconds
-                        * gb.NUMBER_OF_CYCLES_PER_SECOND);
-
-                scene.setOnKeyPressed(e -> {
-                    Key k = getJoypadKey(e);
-                            
-                    if (k != null) {
-                        gb.joypad().keyPressed(k);
-                    }
-                });
-                
-                scene.setOnKeyReleased(e-> {
-                    Key k = getJoypadKey(e);
+                    long cycle = (long) (elapsedSeconds
+                            * gb.NUMBER_OF_CYCLES_PER_SECOND);
                     
-                    if (k != null) {
-                        gb.joypad().keyReleased(k);
+                    if(elapsedSeconds> S) {
+                        System.out.println(elapsedSeconds);
+                        S++;
+                        System.out.println("nb appels " + M);
                     }
-                });
+                    
+                    M++;
+                                    
+                    scene.setOnKeyPressed(e -> {
+                        Key k = getJoypadKey(e);
+                                
+                        if (k != null) {
+                            gb.joypad().keyPressed(k);
+                        }
+                    });
+                    
+                    scene.setOnKeyReleased(e-> {
+                        Key k = getJoypadKey(e);
+                        
+                        if (k != null) {
+                            gb.joypad().keyReleased(k);
+                        }
+                    });
 
-                gb.runUntil(cycle);
-                imageView.setImage(null);
-                imageView.setImage(getImage(gb));
+                    gb.runUntil(cycle);
+                    imageView.setImage(null);
+                    imageView.setImage(getImage(gb));
+                }    
+                delay++;
             }
         };
 
@@ -116,13 +132,13 @@ public final class Main extends Application {
 
     private Key getJoypadKey(KeyEvent e) {
         Key k = null;
-        
+
         k = keyCode.get(e.getCode());
-        
+
         if (k == null) {
             k = keyString.get(e.getText());
         }
-        
+
         return k;
     }
 

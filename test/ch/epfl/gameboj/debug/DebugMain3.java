@@ -22,11 +22,11 @@ public final class DebugMain3 {
 
       GameBoy gb = new GameBoy(Cartridge.ofFile(romFile));
       gb.runUntil(cycles);
-      gb.joypad().keyPressed(Key.A);
+      gb.joypad().keyPressed(Key.START);
       gb.runUntil(cycles + (1L << 20));
-      gb.joypad().keyReleased(Key.A);   
+      gb.joypad().keyReleased(Key.START);   
       gb.runUntil(cycles + 2 * (1L << 20));
-      gb.joypad().keyPressed(Key.A);
+      //gb.joypad().keyPressed(Key.A);
       gb.runUntil(cycles + (long) Math.floor(2.5 * (1L << 20)));
       
 
