@@ -84,6 +84,7 @@ public final class LcdImageLine {
          * @return the current instance of the builder
          */
         public Builder setBytes(int index, int msbByte, int lsbByte) {
+            checkIfBuiltAlready();
             Preconditions.checkBits8(msbByte);
             Preconditions.checkBits8(lsbByte);
             msbBuilder.setByte(index, msbByte);
@@ -99,8 +100,8 @@ public final class LcdImageLine {
          * 
          * @return
          */
-        // TODO remettre une mécanique telle que checkIfBuiltAlready ?
         public LcdImageLine build() {
+            checkIfBuiltAlready();
             BitVector finalMsb = msbBuilder.build();
             BitVector finalLsb = lsbBuilder.build();
             BitVector finalOpacity = finalMsb.or(finalLsb);
@@ -109,6 +110,12 @@ public final class LcdImageLine {
             lsbBuilder = null;
 
             return new LcdImageLine(finalMsb, finalLsb, finalOpacity);
+        }
+        
+        private void checkIfBuiltAlready() {
+            if (msbBuilder == null || lsbBuilder == null) {
+                throw new IllegalStateException();
+            }
         }
     }
 
@@ -179,9 +186,6 @@ public final class LcdImageLine {
                 opacity.extractWrapped(pixel, length));
     }
 
-    // TODO ou preconditions check8
-    // vraiment un byte ? je pense qu'il faut faire precondition check8, du coup
-    // mettre un throws dans la javadoc ?
     /**
      * Transforms the colors of a line according to a "palette" When the palette
      * doesn't actually require any changes in terms of colors, the line is

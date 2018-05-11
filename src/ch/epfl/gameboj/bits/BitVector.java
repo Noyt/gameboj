@@ -19,10 +19,8 @@ public final class BitVector {
     public static final int ALL_ZEROS_INTEGER = 0b00000000_00000000_00000000_00000000;
     public static final int ALL_ONES_INTEGER = 0b11111111_11111111_11111111_11111111;
 
-    // TODO à discuter
     private final int[] vector;
 
-    // TODO il faudra mettre en private quand on aura fini les tests
     private enum Extraction {
         WRAPPED, ZERO_EXTENDED
     };
@@ -210,15 +208,22 @@ public final class BitVector {
      * @param that
      *            : a BitVector, the BitVector with which we want to compute the
      *            logical disjunction
-     * @return a BitVector : the result of the bit-by-bit disjunction "or" of
-     *         the current BitVector and that
+     * @return the result of the bit-by-bit disjunction "or" of the current
+     *         BitVector and that
      */
     public BitVector or(BitVector that) {
         return andOr(that, false);
     }
-    
 
-    //TODO pourquoi on a fait ça?? apparememnt y'a pas besoin
+    /**
+     * Computes the bit-by-bit logical "xor" of the current BitVector with
+     * another BitVector
+     * 
+     * @param that
+     *            : the BitVector with which we want to compute the logical xor
+     * @return the result of the bit-by-bit disjunction "or" of the current
+     *         BitVector and that
+     */
     public BitVector xor(BitVector that) {
         Preconditions.checkArgument(that.size() == size());
         int length = vector.length;
@@ -288,6 +293,7 @@ public final class BitVector {
 
     /**
      * non java-doc
+     * 
      * @see java.lang.Object
      */
     @Override
@@ -306,6 +312,7 @@ public final class BitVector {
 
     /**
      * non java-doc
+     * 
      * @see java.lang.Object
      */
     @Override
@@ -315,6 +322,7 @@ public final class BitVector {
 
     /**
      * non java-doc
+     * 
      * @see java.lang.Object
      */
     @Override
@@ -330,7 +338,6 @@ public final class BitVector {
         return a % 32 == 0;
     }
 
-    // TODO enumeration maybe pour le type
     private int computeInt(Extraction type, int index) {
         int size = vector.length;
         if (size <= index || index < 0) {
@@ -356,7 +363,7 @@ public final class BitVector {
 
         return new BitVector(result);
     }
-    
+
     private int[] extract(int index, int length, Extraction type) {
 
         Preconditions.checkArgument(is32Multiple(length) && length != 0);
@@ -382,9 +389,5 @@ public final class BitVector {
         }
 
         return array;
-    }
-
-    private int[] extractP(int index, int length, Extraction type) {
-        return extract(index, length, type);
     }
 }
