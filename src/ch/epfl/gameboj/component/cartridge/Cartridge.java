@@ -95,8 +95,6 @@ public final class Cartridge implements Component {
             Preconditions
                     .checkArgument(cartridgeType >= 0 && cartridgeType <= 3);
             
-            System.out.println(cartridgeType);
-
             Cartridge cart;
             switch(cartridgeType) {
                 case 0 : cart = new Cartridge(new MBC0(new Rom(tab))); break;

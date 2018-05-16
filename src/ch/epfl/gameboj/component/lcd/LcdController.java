@@ -24,6 +24,7 @@ public final class LcdController implements Clocked, Component {
     public static final int LCD_WIDTH = 160;
     public static final int LCD_HEIGHT = 144;
     public static final int IMAGE_DIMENSION = 256;
+    public static final int WXDELAY = 7;
 
     public static final int MODE2_CYCLES = 20;
     public static final int MODE3_CYCLES = 43;
@@ -244,9 +245,7 @@ public final class LcdController implements Clocked, Component {
 
     private void computeLine() {
         int bitLineInLCD = regs.get(Reg.LY);
-        int adjustedWX = Math.max(regs.get(Reg.WX) - 7, 0); // TODO mettre 7
-                                                            // dans une
-        // constante
+        int adjustedWX = Math.max(regs.get(Reg.WX) - WXDELAY, 0);
         if (bitLineInLCD < LCD_HEIGHT) {
 
             int bitLine = (bitLineInLCD + regs.get(Reg.SCY)) % IMAGE_DIMENSION;
@@ -297,15 +296,15 @@ public final class LcdController implements Clocked, Component {
                 finalLine = finalLine.below(FGSprites);
             }
 
-            // This prevents background sprites and background/window image bits to be
+            // This prevents background sprites and background/window image bits
+            // to be
             // both transparents
             BitVector bothTransparents = BGSpritesOpacity.or(BGWINOpacity)
                     .not();
             finalLine = BGSprites.below(finalLine,
                     bothTransparents.or(BGWINOpacity));
 
-            if (!finalLine.opacity().equals(new BitVector(LCD_WIDTH, true)))
-                throw new Error();
+            assert (finalLine.opacity().equals(new BitVector(LCD_WIDTH, true)));
 
             nextImageBuilder.setLine(bitLineInLCD, finalLine);
         }
@@ -499,7 +498,6 @@ public final class LcdController implements Clocked, Component {
 
     private int[] spritesIntersectingLine(int lcdLine) {
         int[] sprites = new int[MAX_NUMBER_OF_SPRITES_PER_LINE];
-        Arrays.fill(sprites, Integer.MAX_VALUE);
         int j = 0;
         for (int index = 0; index < NUMBER_OF_SPRITES
                 && j < MAX_NUMBER_OF_SPRITES_PER_LINE; index++) {
@@ -511,14 +509,15 @@ public final class LcdController implements Clocked, Component {
                 j++;
             }
         }
-        Arrays.sort(sprites);
+        Arrays.sort(sprites, 0, j);
 
-        for (int i = 0; i < sprites.length; i++) {
-            if (sprites[i] != Integer.MAX_VALUE)
-                sprites[i] = Bits.clip(Byte.SIZE, sprites[i]);
+        int[] finalSprites = Arrays.copyOf(sprites, j);
+
+        for (int i = 0; i < finalSprites.length; i++) {
+            finalSprites[i] = Bits.clip(Byte.SIZE, finalSprites[i]);
         }
 
-        return sprites;
+        return finalSprites;
     }
 
     private int getAttribute(int spriteIndex, SpriteAttribute att) {
@@ -545,16 +544,14 @@ public final class LcdController implements Clocked, Component {
 
     private int[] depthSprites(int[] allSprites, boolean bg) {
         int[] sprites = new int[MAX_NUMBER_OF_SPRITES_PER_LINE];
-        Arrays.fill(sprites, Integer.MAX_VALUE);
         int j = 0;
         for (int index : allSprites) {
-            if (index != Integer.MAX_VALUE
-                    && testSPECIALbit(index, SPECIALBit.BEHIND_BG) == bg) {
+                     if(testSPECIALbit(index, SPECIALBit.BEHIND_BG) == bg) {
                 sprites[j] = index;
                 ++j;
             }
         }
-        return sprites;
+        return Arrays.copyOf(sprites, j);
     }
 
     private LcdImageLine backGroundSprites(int bitLineInLcd, int[] allSprites) {
@@ -571,11 +568,9 @@ public final class LcdController implements Clocked, Component {
 
         LcdImageLine combinedSprites = new LcdImageLine.Builder(LCD_WIDTH)
                 .build();
-        for (int sprite : sprites) {
-            if (sprite != Integer.MAX_VALUE)
-                combinedSprites = individualSprite(sprite, bitLineInLcd)
-                        .below(combinedSprites);
-        }
+        for (int sprite : sprites)
+            combinedSprites = individualSprite(sprite, bitLineInLcd)
+                    .below(combinedSprites);
         return combinedSprites;
     }
 

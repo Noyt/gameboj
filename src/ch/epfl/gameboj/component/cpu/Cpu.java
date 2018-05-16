@@ -93,11 +93,8 @@ public final class Cpu implements Component, Clocked {
         if (nextNonIdleCycle == Long.MAX_VALUE && checkInterruptionIEIF()) {
             nextNonIdleCycle = cycle;
         }
-        if (cycle < nextNonIdleCycle) {
-            return;
-        } else {
+        if (cycle >= nextNonIdleCycle)
             reallyCycle();
-        }
     }
 
     private void reallyCycle() {
@@ -586,7 +583,6 @@ public final class Cpu implements Component, Clocked {
             break;
         case JR_E8: {
             nextPC = Bits.clip(16, nextPC + signedValue());
-            
         }
             break;
         case JR_CC_E8: {

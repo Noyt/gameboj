@@ -95,14 +95,6 @@ public final class Main extends Application {
                     long cycle = (long) (elapsedSeconds
                             * gb.NUMBER_OF_CYCLES_PER_SECOND);
                     
-                    if(elapsedSeconds> S) {
-                        System.out.println(elapsedSeconds);
-                        S++;
-                        System.out.println("nb appels " + M);
-                    }
-                    
-                    M++;
-                                    
                     scene.setOnKeyPressed(e -> {
                         Key k = getJoypadKey(e);
                                 
