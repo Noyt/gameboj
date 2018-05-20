@@ -20,9 +20,27 @@ public final class LcdImage {
     private final int width;
     private final int height;
 
+    /**
+     * Constructs an LcdImage of the given size (width, height), and containing
+     * the given lines
+     * 
+     * @param width
+     *            the width of the image
+     * @param height
+     *            the height of the image
+     * @param lines
+     *            a list of LcdImageLine, the lines of the image
+     * @throws IllegalArgumentException
+     *             if the width or the height is not a multiple of 32 or if it
+     *             is less or equal to zero
+     * @throws IllegalArgumentException
+     *             if at least one line of lines is not of size width of if the
+     *             list is not of size height
+     */
     public LcdImage(int width, int height, List<LcdImageLine> lines) {
         Preconditions.checkArgument(width > 0 && width % 32 == 0);
         Preconditions.checkArgument(height > 0);
+        Preconditions.checkArgument(lines.size() == height);
 
         this.width = width;
         this.height = height;
@@ -172,7 +190,7 @@ public final class LcdImage {
             return result;
         }
 
-        public void checkIfBuiltAlready() { // TODO
+        private void checkIfBuiltAlready() {
             if (lines == null) {
                 throw new IllegalStateException();
             }

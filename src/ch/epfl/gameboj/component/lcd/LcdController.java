@@ -169,12 +169,6 @@ public final class LcdController implements Clocked, Component {
     @Override
     public void cycle(long cycle) {
 
-        // if ((cycle > 16000 && cycle < 17700)
-        // || (cycle > 33800 && cycle < 35200)) {
-        // System.out.println("current cycle " + cycle + ", nextNon "
-        // + nextNonIdleCycle + ", lcdOn " + lcdOnCycle);
-        // }
-
         if (nextNonIdleCycle == Long.MAX_VALUE
                 && testLCDCBit(LCDCBit.LCD_STATUS)) {
             lcdOnCycle = 0;
