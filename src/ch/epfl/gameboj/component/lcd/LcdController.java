@@ -23,24 +23,24 @@ public final class LcdController implements Clocked, Component {
 
     public static final int LCD_WIDTH = 160;
     public static final int LCD_HEIGHT = 144;
-    public static final int IMAGE_DIMENSION = 256;
     public static final int WXDELAY = 7;
+    private static final int IMAGE_DIMENSION = 256;
 
-    public static final int MODE2_CYCLES = 20;
-    public static final int MODE3_CYCLES = 43;
-    public static final int MODE0_CYCLES = 51;
-    public static final int MODE1_NB_LINES = 10;
+    private static final int MODE2_CYCLES = 20;
+    private static final int MODE3_CYCLES = 43;
+    private static final int MODE0_CYCLES = 51;
+    private static final int MODE1_NB_LINES = 10;
 
-    public static final int TILES_CHOICES_PER_IMAGE = 256;
-    public static final int TILE_DIMENSION = 8;
-    public static final int OCTETS_PER_TILE = 16;
+    private static final int TILES_CHOICES_PER_IMAGE = 256;
+    private static final int TILE_DIMENSION = 8;
+    private static final int OCTETS_PER_TILE = 16;
 
-    public static final int NUMBER_OF_SPRITES = 40;
-    public static final int NUMBER_OF_OCTETS_PER_SPRITE = AddressMap.OAM_RAM_SIZE
+    private static final int NUMBER_OF_SPRITES = 40;
+    private static final int NUMBER_OF_OCTETS_PER_SPRITE = AddressMap.OAM_RAM_SIZE
             / NUMBER_OF_SPRITES;
-    public static final int MAX_NUMBER_OF_SPRITES_PER_LINE = 10;
-    public static final int Y_AXIS_DELAY = 16;
-    public static final int X_AXIS_DELAY = 8;
+    private static final int MAX_NUMBER_OF_SPRITES_PER_LINE = 10;
+    private static final int Y_AXIS_DELAY = 16;
+    private static final int X_AXIS_DELAY = 8;
 
     private final Cpu cpu;
     private final RegisterFile<Reg> regs;
@@ -169,12 +169,6 @@ public final class LcdController implements Clocked, Component {
 
     @Override
     public void cycle(long cycle) {
-
-        // if ((cycle > 16000 && cycle < 17700)
-        // || (cycle > 33800 && cycle < 35200)) {
-        // System.out.println("current cycle " + cycle + ", nextNon "
-        // + nextNonIdleCycle + ", lcdOn " + lcdOnCycle);
-        // }
 
         if (nextNonIdleCycle == Long.MAX_VALUE
                 && testLCDCBit(LCDCBit.LCD_STATUS)) {
