@@ -93,6 +93,7 @@ public final class Cpu implements Component, Clocked {
         if (nextNonIdleCycle == Long.MAX_VALUE && checkInterruptionIEIF()) {
             nextNonIdleCycle = cycle;
         }
+        
         if (cycle >= nextNonIdleCycle)
             reallyCycle();
     }
