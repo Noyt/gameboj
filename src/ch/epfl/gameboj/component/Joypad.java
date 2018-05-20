@@ -6,10 +6,25 @@ import ch.epfl.gameboj.bits.Bits;
 import ch.epfl.gameboj.component.cpu.Cpu;
 import ch.epfl.gameboj.component.cpu.Cpu.Interrupt;
 
+/**
+ * The Joypad : the small "keyboard" of the GameBoy that reacts to the pressures
+ * on the buttons Left,Right,Up,Down, "A", "B", Start and Select
+ * 
+ * @author Sophie du Couédic (260007)
+ * @author Arnaud Robert (287964)
+ *
+ */
 public final class Joypad implements Component {
 
     private static final int NUMBER_OF_KEYS = 8;
 
+    /**
+     * An enum to represents keys of the GameBoy
+     * 
+     * @author Sophie du Couédic (260007)
+     * @author Arnaud Robert (287964)
+     *
+     */
     public enum Key {
         RIGHT, LEFT, UP, DOWN, A, B, SELECT, START
     }
@@ -20,12 +35,32 @@ public final class Joypad implements Component {
 
     private final int[] allKeys;
 
+    /**
+     * Constructs and return a new Joypad, linked to the given cpu (used to
+     * throw the corresponding interruption)
+     * 
+     * @param cpu
+     *            : the CPU of the gameboy
+     * @return a new Joypad
+     */
     public Joypad(Cpu cpu) {
         this.cpu = cpu;
         P1 = Bits.clip(Byte.SIZE, -1);
         allKeys = new int[NUMBER_OF_KEYS];
     }
 
+    /**
+     * Implements the method read of Component, that returns the value stored in
+     * the register P1, or NO_DATA if the address doesn't belong the register P1
+     * 
+     * @param address
+     *            : the address that contains the desired data
+     * @return an integer (byte) : the value stored at P1 register or NO_DATA if
+     *         the address does not corresponds to P1
+     * @throws IllegalArgumentException
+     *             if the address is not a 16-bits value
+     * @see ch.epfl.gameboj.component.Component#read(int)
+     */
     @Override
     public int read(int address) {
         Preconditions.checkBits16(address);
@@ -36,6 +71,20 @@ public final class Joypad implements Component {
         return NO_DATA;
     }
 
+    /**
+     * Implements the method write of Component, that stores a value in the
+     * register P1, if the address corresponds to it. This method also adapt the
+     * state of P1 and the reaction of the gameboy if one of the keys is pressed.
+     * 
+     * @param address
+     *            the address
+     * @param data
+     *            the value to store
+     * @throws IllegalArgumentException
+     *             if the address is not a 16-bits value or if data is not a
+     *             8-bits value
+     * @see ch.epfl.gameboj.component.Component#write(int,int)
+     */
     @Override
     public void write(int address, int data) {
         Preconditions.checkBits16(address);
@@ -52,11 +101,25 @@ public final class Joypad implements Component {
         }
     }
 
+    /**
+     * This method simulates the effect in the gameboy, when someone press one
+     * of the buttons of the gameboy
+     * 
+     * @param key
+     *            : the key of the gameboy that is pressed
+     */
     public void keyPressed(Key key) {
         int keyIndex = key.ordinal();
         allKeys[keyIndex] = Bits.set(0, keyIndex, true);
     }
 
+    /**
+     * This method simulates the effect in the gameboy, when someone release the
+     * pressure of a key of the gameboy
+     * 
+     * @param key
+     *            : the key of the gameboy the is released
+     */
     public void keyReleased(Key key) {
         int keyIndex = key.ordinal();
         allKeys[keyIndex] = 0;
