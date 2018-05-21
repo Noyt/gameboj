@@ -21,8 +21,12 @@ import ch.epfl.gameboj.component.memory.RamController;
 
 public final class LcdController implements Clocked, Component {
 
+    /**
+     * The width and the height of the LCD screen in pixels
+     */
     public static final int LCD_WIDTH = 160;
     public static final int LCD_HEIGHT = 144;
+    
     private static final int IMAGE_DIMENSION = 256;
 
     private static final int MODE2_CYCLES = 20;
