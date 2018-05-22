@@ -117,7 +117,6 @@ public final class LcdController implements Clocked, Component {
                 && address < AddressMap.OAM_END) {
             return OAM.read(address);
         }
-
         return videoRam.read(address);
     }
 

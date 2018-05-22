@@ -25,6 +25,11 @@ public final class ImageConverter {
      * @return an image of type javafx.scene.image.Image
      */
     public static Image convert(LcdImage image) {
+        
+        if (image == null) {
+            return null;
+        }
+        
         int width = image.width();
         int height = image.height();
         WritableImage wi = new WritableImage(width, height);
