@@ -159,10 +159,8 @@ public final class LcdController implements Clocked, Component {
             default:
                 regs.set(r, data);
             }
-        } else if (address >= AddressMap.OAM_START
-                && address < AddressMap.OAM_END) {
-            OAM.write(address, data);
         } else {
+            OAM.write(address, data);
             videoRam.write(address, data);
         }
     }
