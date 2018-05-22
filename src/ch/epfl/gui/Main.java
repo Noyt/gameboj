@@ -22,6 +22,9 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
 public final class Main extends Application {
+    
+    private int speed = 3;
+    private boolean turbo;
 
     private static int WIDTH = LcdController.LCD_WIDTH * 4;
     private static int HEIGHT = LcdController.LCD_HEIGHT * 4;
@@ -48,9 +51,9 @@ public final class Main extends Application {
     public static void main(String[] args) {
         Application.launch(args);
     }
-
-    int S = 0;
-    int M = 0;
+    //TODO
+//    int S = 0;
+//    int M = 0;
     int delay = 0;
 
     @Override
@@ -87,6 +90,7 @@ public final class Main extends Application {
 
             @Override
             public void handle(long currentNanoTime) {
+                //TODO enlever delay
                 if(delay == 2) {  
                     delay = 0;
                 long elapsedTime = (currentNanoTime - startTime);
@@ -101,6 +105,11 @@ public final class Main extends Application {
                         if (k != null) {
                             gb.joypad().keyPressed(k);
                         }
+                        
+                        //TODO
+                        if(e.getCode() == KeyCode.T)
+                            System.out.println("T IS PRESSED");
+                            turbo = !turbo;
                     });
                     
                     scene.setOnKeyReleased(e-> {
@@ -111,6 +120,7 @@ public final class Main extends Application {
                         }
                     });
 
+                   // gb.runUntil(cycle + (turbo ? 17556*speed : 0));
                     gb.runUntil(cycle);
                     imageView.setImage(null);
                     imageView.setImage(getImage(gb));

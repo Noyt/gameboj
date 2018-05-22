@@ -19,6 +19,13 @@ import ch.epfl.gameboj.component.lcd.LcdImage.Builder;
 import ch.epfl.gameboj.component.memory.Ram;
 import ch.epfl.gameboj.component.memory.RamController;
 
+/**
+ * The LCD screen controller
+ * 
+ * @author Arnaud Robert (287964)
+ * @author Sophie Du Couedic (260007)
+ * 
+ */
 public final class LcdController implements Clocked, Component {
 
     public static final int LCD_WIDTH = 160;
@@ -59,34 +66,90 @@ public final class LcdController implements Clocked, Component {
     private int copySource;
     private int copyDestination;
 
+    /**
+     * Registers acting on the LCD controller
+     * 
+     * @author Arnaud Robert (287964)
+     * @author Sophie Du Couedic (260007)
+     * 
+     */
     private enum Reg implements Register {
         LCDC, STAT, SCY, SCX, LY, LYC, DMA, BGP, OBP0, OBP1, WY, WX
     }
 
+    /**
+     * Bits in the LCDC register
+     * 
+     * @author Arnaud Robert (287964)
+     * @author Sophie Du Couedic (260007)
+     * 
+     */
     private enum LCDCBit implements Bit {
         BG, OBJ, OBJ_SIZE, BG_AREA, TILE_SOURCE, WIN, WIN_AREA, LCD_STATUS
     }
 
+    /**
+     * Bits in the STAT register The three LSB are read only
+     * 
+     * @author Arnaud Robert (287964)
+     * @author Sophie Du Couedic (260007)
+     * 
+     */
     private enum STATBit implements Bit {
         MODE0, MODE1, LYC_EQ_LY, INT_MODE0, INT_MODE1, INT_MODE2, INT_LYC
     }
 
+    /**
+     * The four modes the LCD controller can be set to
+     * 
+     * @author Arnaud Robert (287964)
+     * @author Sophie Du Couedic (260007)
+     * 
+     */
     private enum Mode {
         M0, M1, M2, M3
     }
 
+    /**
+     * The different components of the final image displayed on screen
+     * 
+     * @author Arnaud Robert (287964)
+     * @author Sophie Du Couedic (260007)
+     * 
+     */
     private enum ImageType {
         BACKGROUND, WINDOW, SPRITE_BG, SPRITE_FG
     }
 
+    /**
+     * Four bytes that describe a sprite
+     * 
+     * @author Arnaud Robert (287964)
+     * @author Sophie Du Couedic (260007)
+     * 
+     */
     private enum SpriteAttribute {
         Y, X, TILE, SPECIAL
     }
 
+    /**
+     * Bits of the last sprite attribute, SPECIAL, that contain additional
+     * informations
+     * 
+     * @author Arnaud Robert (287964)
+     * @author Sophie Du Couedic (260007)
+     * 
+     */
     private enum SPECIALBit implements Bit {
         UNUSED0, UNUSED1, UNUSED2, UNUSED3, PALETTE, FLIP_H, FLIP_V, BEHIND_BG
     }
 
+    /**
+     * Builds an LCD controller associated to a given CPU
+     * 
+     * @param cpu
+     *            the CPU to which the LCD controller belongs
+     */
     public LcdController(Cpu cpu) {
         this.cpu = Objects.requireNonNull(cpu);
         regs = new RegisterFile<Reg>(Reg.values());
@@ -100,6 +163,11 @@ public final class LcdController implements Clocked, Component {
         copyDestination = AddressMap.OAM_END;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see ch.epfl.gameboj.component.Component#read(int)
+     */
     @Override
     public int read(int address) {
 
@@ -115,6 +183,11 @@ public final class LcdController implements Clocked, Component {
         return videoRam.read(address);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see ch.epfl.gameboj.component.Component#write(int, int)
+     */
     @Override
     public void write(int address, int data) {
         Preconditions.checkBits16(address);
@@ -161,12 +234,23 @@ public final class LcdController implements Clocked, Component {
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see ch.epfl.gameboj.component.Component#attachTo(ch.epfl.gameboj.Bus)
+     */
     @Override
     public void attachTo(Bus bus) {
         Component.super.attachTo(bus);
         this.bus = bus;
     }
 
+    /*
+     * Determines if the LCD controller has something to do during the current
+     * cycle, if so, reallyCycle is executed. Handles screen activation. Handles
+     * fast copy by copying one value in the OAM per cycle when fast copy is
+     * required
+     */
     @Override
     public void cycle(long cycle) {
 
@@ -192,6 +276,11 @@ public final class LcdController implements Clocked, Component {
         ++lcdOnCycle;
     }
 
+    /**
+     * Returns the current image displayed on screen
+     * 
+     * @return current image displayed on screen
+     */
     public LcdImage currentImage() {
         if (currentImage == null) {
             return new LcdImage.Builder(LCD_WIDTH, LCD_HEIGHT).build();
@@ -199,6 +288,10 @@ public final class LcdController implements Clocked, Component {
         return currentImage;
     }
 
+    /**
+     * Changes mode by determining how many cycles have been gone through since
+     * the beginning of the image drawing and draws the image's lines one by one
+     */
     private void reallyCycle() {
         switch (lcdOnCycle) {
 
@@ -237,6 +330,10 @@ public final class LcdController implements Clocked, Component {
         }
     }
 
+    /**
+     * Computes the nextLine to be drawn by combining background, window and
+     * sprites. This method is called whenever the controller enters mode 3
+     */
     private void computeLine() {
         int bitLineInLCD = regs.get(Reg.LY);
         int adjustedWX = Math.max(regs.get(Reg.WX) - WXDELAY, 0);
@@ -540,7 +637,7 @@ public final class LcdController implements Clocked, Component {
         int[] sprites = new int[MAX_NUMBER_OF_SPRITES_PER_LINE];
         int j = 0;
         for (int index : allSprites) {
-                     if(testSPECIALbit(index, SPECIALBit.BEHIND_BG) == bg) {
+            if (testSPECIALbit(index, SPECIALBit.BEHIND_BG) == bg) {
                 sprites[j] = index;
                 ++j;
             }
