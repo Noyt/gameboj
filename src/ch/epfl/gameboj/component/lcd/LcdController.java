@@ -26,7 +26,7 @@ public final class LcdController implements Clocked, Component {
      */
     public static final int LCD_WIDTH = 160;
     public static final int LCD_HEIGHT = 144;
-    
+
     private static final int IMAGE_DIMENSION = 256;
 
     private static final int MODE2_CYCLES = 20;
@@ -42,10 +42,10 @@ public final class LcdController implements Clocked, Component {
     private static final int NUMBER_OF_OCTETS_PER_SPRITE = AddressMap.OAM_RAM_SIZE
             / NUMBER_OF_SPRITES;
     private static final int MAX_NUMBER_OF_SPRITES_PER_LINE = 10;
-    
+
     private static final int Y_AXIS_DELAY = 16;
     private static final int X_AXIS_DELAY = 8;
-    
+
     private static final int WX_DELAY = 7;
 
     private final Cpu cpu;
@@ -245,8 +245,8 @@ public final class LcdController implements Clocked, Component {
 
     private void computeLine() {
         int bitLineInLCD = regs.get(Reg.LY);
-        int adjustedWX = Math.max(regs.get(Reg.WX) - WX_DELAY, 0); 
-                                                            
+        int adjustedWX = Math.max(regs.get(Reg.WX) - WX_DELAY, 0);
+
         // constante
         if (bitLineInLCD < LCD_HEIGHT) {
 
@@ -298,7 +298,8 @@ public final class LcdController implements Clocked, Component {
                 finalLine = finalLine.below(FGSprites);
             }
 
-            // This prevents background sprites and background/window image bits to be
+            // This prevents background sprites and background/window image bits
+            // to be
             // both transparents
             BitVector bothTransparents = BGSpritesOpacity.or(BGWINOpacity)
                     .not();
@@ -338,7 +339,8 @@ public final class LcdController implements Clocked, Component {
             slot = testLCDCBit(LCDCBit.WIN_AREA) ? 1 : 0;
             break;
         default:
-            throw new Error();
+            throw new IllegalArgumentException(
+                    "The type must be BACKGROUND or WINDOW");
         }
 
         for (int i = 0; i < IMAGE_DIMENSION / Byte.SIZE; ++i) {
