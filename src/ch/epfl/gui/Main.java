@@ -78,12 +78,13 @@ public final class Main extends Application {
      * @param stage
      *            : the primary stage for the application
      *            
-     * @throws //TODO
+     * @throws IOException
+     *             if an I/O error occurs or if the file doesn't exist
      * 
      * @see javafx.application#start(Stage)
      */
     @Override
-    public void start(Stage stage) throws IOException, InterruptedException {
+    public void start(Stage stage) throws IOException {
         // Create GameBoy
         if (getParameters().getRaw().size() != 1) {
             System.exit(1);
@@ -111,6 +112,7 @@ public final class Main extends Application {
         stage.requestFocus();
 
         long startTime = System.nanoTime();
+        
         // Update GameBoy
         AnimationTimer timer = new AnimationTimer() {
 

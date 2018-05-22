@@ -36,14 +36,17 @@ public final class LcdController implements Clocked, Component {
 
     private static final int TILES_CHOICES_PER_IMAGE = 256;
     private static final int TILE_DIMENSION = 8;
-    private static final int OCTETS_PER_TILE = 16;
+    private static final int OCTETS_INFOS_PER_TILE = 16;
 
     private static final int NUMBER_OF_SPRITES = 40;
     private static final int NUMBER_OF_OCTETS_PER_SPRITE = AddressMap.OAM_RAM_SIZE
             / NUMBER_OF_SPRITES;
     private static final int MAX_NUMBER_OF_SPRITES_PER_LINE = 10;
+    
     private static final int Y_AXIS_DELAY = 16;
     private static final int X_AXIS_DELAY = 8;
+    
+    private static final int WX_DELAY = 7;
 
     private final Cpu cpu;
     private final RegisterFile<Reg> regs;
@@ -242,8 +245,8 @@ public final class LcdController implements Clocked, Component {
 
     private void computeLine() {
         int bitLineInLCD = regs.get(Reg.LY);
-        int adjustedWX = Math.max(regs.get(Reg.WX) - 7, 0); // TODO mettre 7
-                                                            // dans une
+        int adjustedWX = Math.max(regs.get(Reg.WX) - WX_DELAY, 0); 
+                                                            
         // constante
         if (bitLineInLCD < LCD_HEIGHT) {
 
@@ -344,7 +347,7 @@ public final class LcdController implements Clocked, Component {
                     + AddressMap.BG_DISPLAY_DATA[slot];
 
             int tileName = videoRam.read(tileIndexInRam);
-            int lineInTheTile = bitLine % (OCTETS_PER_TILE / 2);
+            int lineInTheTile = bitLine % (OCTETS_INFOS_PER_TILE / 2);
 
             int lsb = getTileLineLsb(lineInTheTile, tileName);
             int msb = getTileLineMsb(lineInTheTile, tileName);
@@ -373,12 +376,12 @@ public final class LcdController implements Clocked, Component {
                 tileAddress = testLCDCBit(LCDCBit.TILE_SOURCE) || isSprite
                         ? AddressMap.TILE_SOURCE[1]
                         : (AddressMap.TILE_SOURCE[0]
-                                + tileInterval * OCTETS_PER_TILE);
+                                + tileInterval * OCTETS_INFOS_PER_TILE);
             } else {
                 tileAddress = AddressMap.TILE_SOURCE[0];
             }
 
-            tileAddress += (tileName % tileInterval) * OCTETS_PER_TILE
+            tileAddress += (tileName % tileInterval) * OCTETS_INFOS_PER_TILE
                     + line * 2;
             return tileAddress;
         } else {
