@@ -28,9 +28,12 @@ import ch.epfl.gameboj.component.memory.RamController;
  */
 public final class LcdController implements Clocked, Component {
 
+    /**
+     * The width and the height of the LCD screen in pixels
+     */
     public static final int LCD_WIDTH = 160;
     public static final int LCD_HEIGHT = 144;
-    public static final int WXDELAY = 7;
+
     private static final int IMAGE_DIMENSION = 256;
 
     private static final int MODE2_CYCLES = 20;
@@ -40,14 +43,17 @@ public final class LcdController implements Clocked, Component {
 
     private static final int TILES_CHOICES_PER_IMAGE = 256;
     private static final int TILE_DIMENSION = 8;
-    private static final int OCTETS_PER_TILE = 16;
+    private static final int OCTETS_INFOS_PER_TILE = 16;
 
     private static final int NUMBER_OF_SPRITES = 40;
     private static final int NUMBER_OF_OCTETS_PER_SPRITE = AddressMap.OAM_RAM_SIZE
             / NUMBER_OF_SPRITES;
     private static final int MAX_NUMBER_OF_SPRITES_PER_LINE = 10;
+
     private static final int Y_AXIS_DELAY = 16;
     private static final int X_AXIS_DELAY = 8;
+
+    private static final int WX_DELAY = 7;
 
     private final Cpu cpu;
     private final RegisterFile<Reg> regs;
@@ -179,7 +185,6 @@ public final class LcdController implements Clocked, Component {
                 && address < AddressMap.OAM_END) {
             return OAM.read(address);
         }
-
         return videoRam.read(address);
     }
 
@@ -226,10 +231,8 @@ public final class LcdController implements Clocked, Component {
             default:
                 regs.set(r, data);
             }
-        } else if (address >= AddressMap.OAM_START
-                && address < AddressMap.OAM_END) {
-            OAM.write(address, data);
         } else {
+            OAM.write(address, data);
             videoRam.write(address, data);
         }
     }
@@ -336,7 +339,10 @@ public final class LcdController implements Clocked, Component {
      */
     private void computeLine() {
         int bitLineInLCD = regs.get(Reg.LY);
-        int adjustedWX = Math.max(regs.get(Reg.WX) - WXDELAY, 0);
+
+        int adjustedWX = Math.max(regs.get(Reg.WX) - WX_DELAY, 0);
+
+        // constante
         if (bitLineInLCD < LCD_HEIGHT) {
 
             int bitLine = (bitLineInLCD + regs.get(Reg.SCY)) % IMAGE_DIMENSION;
@@ -427,7 +433,8 @@ public final class LcdController implements Clocked, Component {
             slot = testLCDCBit(LCDCBit.WIN_AREA) ? 1 : 0;
             break;
         default:
-            throw new Error();
+            throw new IllegalArgumentException(
+                    "The type must be BACKGROUND or WINDOW");
         }
 
         for (int i = 0; i < IMAGE_DIMENSION / Byte.SIZE; ++i) {
@@ -436,7 +443,7 @@ public final class LcdController implements Clocked, Component {
                     + AddressMap.BG_DISPLAY_DATA[slot];
 
             int tileName = videoRam.read(tileIndexInRam);
-            int lineInTheTile = bitLine % (OCTETS_PER_TILE / 2);
+            int lineInTheTile = bitLine % (OCTETS_INFOS_PER_TILE / 2);
 
             int lsb = getTileLineLsb(lineInTheTile, tileName);
             int msb = getTileLineMsb(lineInTheTile, tileName);
@@ -465,12 +472,12 @@ public final class LcdController implements Clocked, Component {
                 tileAddress = testLCDCBit(LCDCBit.TILE_SOURCE) || isSprite
                         ? AddressMap.TILE_SOURCE[1]
                         : (AddressMap.TILE_SOURCE[0]
-                                + tileInterval * OCTETS_PER_TILE);
+                                + tileInterval * OCTETS_INFOS_PER_TILE);
             } else {
                 tileAddress = AddressMap.TILE_SOURCE[0];
             }
 
-            tileAddress += (tileName % tileInterval) * OCTETS_PER_TILE
+            tileAddress += (tileName % tileInterval) * OCTETS_INFOS_PER_TILE
                     + line * 2;
             return tileAddress;
         } else {

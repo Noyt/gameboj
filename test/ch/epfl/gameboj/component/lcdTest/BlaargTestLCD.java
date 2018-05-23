@@ -4,8 +4,6 @@ import java.io.IOException;
 
 import org.junit.jupiter.api.Test;
 
-import com.sun.javafx.tools.packager.Main;
-
 import ch.epfl.gameboj.debug.DebugMain2;
 import ch.epfl.gameboj.debug.DebugMain3;
 

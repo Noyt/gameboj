@@ -12,7 +12,6 @@ import ch.epfl.gameboj.component.cartridge.Cartridge;
 import ch.epfl.gameboj.component.lcd.LcdController;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
-import javafx.event.EventType;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -21,15 +20,26 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
+/**
+ * The main programm of the simulation, a JavaFX application
+ * 
+ * @author Sophie du Couédic (260007)
+ * @author Arnaud Robert (287964)
+ */
 public final class Main extends Application {
     
     private int speed = 3;
     private boolean turbo;
 
-    private static int WIDTH = LcdController.LCD_WIDTH * 4;
-    private static int HEIGHT = LcdController.LCD_HEIGHT * 4;
+    private final static int WIDTH = LcdController.LCD_WIDTH * 4;
+    private final static int HEIGHT = LcdController.LCD_HEIGHT * 4;
 
-    // KeyMap
+    /**
+     * TODO this is used in order to slow down the running of the Gameboy
+     */
+    private static int delay = 0;
+
+    // KeyMaps
     private static Map<KeyCode, Joypad.Key> keyCode = new HashMap<>() {
         {
             put(KeyCode.RIGHT, Key.RIGHT);
@@ -48,16 +58,36 @@ public final class Main extends Application {
         }
     };
 
+    /**
+     * The main method of the main class that launches the application. This
+     * method is called with the name of the given ROM file when we run the
+     * program
+     * 
+     * @param args
+     *            : the given argument that has to be the name of the ROM file
+     *            of the Gameboy program
+     * 
+     */
     public static void main(String[] args) {
         Application.launch(args);
     }
-    //TODO
-//    int S = 0;
-//    int M = 0;
-    int delay = 0;
 
+    /**
+     * Implements the method start of Application. Exits if the parameter raw (a
+     * list of Strings) of the stage is not of size 1. The methods creates and
+     * runs a GameBoy which the cartridge is obtained from the given ROM file,
+     * and updates periodically the image displayed on the screen
+     * 
+     * @param stage
+     *            : the primary stage for the application
+     *            
+     * @throws IOException
+     *             if an I/O error occurs or if the file doesn't exist
+     * 
+     * @see javafx.application#start(Stage)
+     */
     @Override
-    public void start(Stage stage) throws IOException, InterruptedException {
+    public void start(Stage stage) throws IOException {
         // Create GameBoy
         if (getParameters().getRaw().size() != 1) {
             System.exit(1);
@@ -85,15 +115,25 @@ public final class Main extends Application {
         stage.requestFocus();
 
         long startTime = System.nanoTime();
+        
         // Update GameBoy
         AnimationTimer timer = new AnimationTimer() {
 
+            /**
+             * Implements the method handle of AnimationTimer, the timer of the
+             * animation. The method simulates the progression of the Gameboy,
+             * in function of the time, given in nanosecond.
+             * 
+             * @param currentNanoTime : the current time in nanosecond units
+             * 
+             * @see javafx.animation#handle(long)
+             */
             @Override
             public void handle(long currentNanoTime) {
-                //TODO enlever delay
-                if(delay == 2) {  
-                    delay = 0;
-                long elapsedTime = (currentNanoTime - startTime);
+
+//                if (delay == 2) {
+//                    delay = 0;
+                    long elapsedTime = (currentNanoTime - startTime);
                     double elapsedSeconds = elapsedTime / 1e9;
 
                     long cycle = (long) (elapsedSeconds
@@ -101,7 +141,7 @@ public final class Main extends Application {
                     
                     scene.setOnKeyPressed(e -> {
                         Key k = getJoypadKey(e);
-                                
+
                         if (k != null) {
                             gb.joypad().keyPressed(k);
                         }
@@ -111,10 +151,10 @@ public final class Main extends Application {
                             System.out.println("T IS PRESSED");
                             turbo = !turbo;
                     });
-                    
-                    scene.setOnKeyReleased(e-> {
+
+                    scene.setOnKeyReleased(e -> {
                         Key k = getJoypadKey(e);
-                        
+
                         if (k != null) {
                             gb.joypad().keyReleased(k);
                         }
@@ -124,9 +164,9 @@ public final class Main extends Application {
                     gb.runUntil(cycle);
                     imageView.setImage(null);
                     imageView.setImage(getImage(gb));
-                }    
-                delay++;
-            }
+                }
+//                delay++;
+//            }
         };
 
         timer.start();

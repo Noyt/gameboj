@@ -725,7 +725,6 @@ public final class Cpu implements Component, Clocked {
     private Reg extractReg(Opcode opcode, int startBit) {
         int reg = Bits.extract(opcode.encoding, startBit, 3);
 
-        //TODO
         switch (reg) {
         case 0b000:
             return Reg.B;

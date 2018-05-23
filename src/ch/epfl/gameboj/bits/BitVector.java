@@ -82,8 +82,11 @@ public final class BitVector {
          * given size
          * 
          * @param size
-         *            : an integer the size of the future BitVector
-         * @throws TODO
+         *            : an integer the size of the future BitVector, must be a
+         *            multiple of 32
+         * @throws IllegalArgumentException
+         *             if the size less or equal to zero or if it is not a
+         *             multiple of 32
          */
         public Builder(int size) {
             Preconditions.checkArgument(size > 0 && is32Multiple(size));
@@ -107,6 +110,8 @@ public final class BitVector {
          *             the size of the future BitVector, divided by 8
          * @throws IllegalArgumentException
          *             : if the value is not an 8-bits value
+         * @throws IllegalStateException
+         *             if the builder has already been used to build a BitVector
          */
         public Builder setByte(int index, int value) {
             checkIfBuiltAlready();
@@ -133,6 +138,9 @@ public final class BitVector {
          * Creates a new BitVector
          * 
          * @return the newly created BitVector, not null
+         * 
+         * @throws IllegalStateException
+         *             if the builder has already been used to build a BitVector
          */
         public BitVector build() {
             checkIfBuiltAlready();
