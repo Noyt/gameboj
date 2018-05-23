@@ -643,26 +643,6 @@ public final class LcdController implements Clocked, Component {
         return Arrays.copyOf(sprites, j);
     }
 
-    private LcdImageLine backGroundSprites(int bitLineInLcd, int[] allSprites) {
-        return combinedSprites(bitLineInLcd, allSprites, true);
-    }
-
-    private LcdImageLine foreGroundSprites(int bitLineInLcd, int[] allSprites) {
-        return combinedSprites(bitLineInLcd, allSprites, false);
-    }
-
-    private LcdImageLine combinedSprites(int bitLineInLcd, int[] allSprites,
-            boolean bg) {
-        int[] sprites = depthSprites(allSprites, bg);
-
-        LcdImageLine combinedSprites = new LcdImageLine.Builder(LCD_WIDTH)
-                .build();
-        for (int sprite : sprites)
-            combinedSprites = individualSprite(sprite, bitLineInLcd)
-                    .below(combinedSprites);
-        return combinedSprites;
-    }
-
     /**
      * Returns a line with a single sprite, later to be joined with other
      * similar lines
@@ -700,6 +680,26 @@ public final class LcdController implements Clocked, Component {
 
         return b.build().mapColors(palette).shift(
                 getAttribute(spriteIndex, SpriteAttribute.X) - X_AXIS_DELAY);
+    }
+    
+    private LcdImageLine backGroundSprites(int bitLineInLcd, int[] allSprites) {
+        return combinedSprites(bitLineInLcd, allSprites, true);
+    }
+
+    private LcdImageLine foreGroundSprites(int bitLineInLcd, int[] allSprites) {
+        return combinedSprites(bitLineInLcd, allSprites, false);
+    }
+
+    private LcdImageLine combinedSprites(int bitLineInLcd, int[] allSprites,
+            boolean bg) {
+        int[] sprites = depthSprites(allSprites, bg);
+
+        LcdImageLine combinedSprites = new LcdImageLine.Builder(LCD_WIDTH)
+                .build();
+        for (int sprite : sprites)
+            combinedSprites = individualSprite(sprite, bitLineInLcd)
+                    .below(combinedSprites);
+        return combinedSprites;
     }
 
 
