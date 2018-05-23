@@ -398,13 +398,13 @@ public final class LcdController implements Clocked, Component {
                 getTileLineAddress(lineInTheTile, tileName, isSprite) + 1));
     }
 
-    private int getTileLineLsb(int line, int tileName) {
-        return getTileLineLsb(line, tileName, false);
+    private int getTileLineLsb(int lineInTheTile, int tileName) {
+        return getTileLineLsb(lineInTheTile, tileName, false);
     }
 
-    private int getTileLineLsb(int line, int tileName, boolean isSprite) {
+    private int getTileLineLsb(int lineInTheTile, int tileName, boolean isSprite) {
         return Bits.reverse8(
-                videoRam.read(getTileLineAddress(line, tileName, isSprite)));
+                videoRam.read(getTileLineAddress(lineInTheTile, tileName, isSprite)));
     }
 
     private void updateLYForNewLine() {
