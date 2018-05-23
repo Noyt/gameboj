@@ -131,8 +131,13 @@ public final class Main extends Application {
                     double elapsedSeconds = elapsedTime / 1e9;
 
                     long cycle = (long) (elapsedSeconds
+<<<<<<< HEAD
                             * (GameBoy.NUMBER_OF_CYCLES_PER_SECOND));
                     
+=======
+                            * GameBoy.NUMBER_OF_CYCLES_PER_SECOND);
+
+>>>>>>> 8eb7934d057b07189957545678f17bb5aa8683aa
                     scene.setOnKeyPressed(e -> {
                         Key k = getJoypadKey(e);
 

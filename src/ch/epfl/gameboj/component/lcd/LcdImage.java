@@ -31,8 +31,8 @@ public final class LcdImage {
      * @param lines
      *            a list of LcdImageLine, the lines of the image
      * @throws IllegalArgumentException
-     *             if the width or the height is not a multiple of 32 or if it
-     *             is less or equal to zero
+     *             if the width is not a multiple of 32 or if it is less or
+     *             equal to zero or if the height is not strictly positive
      * @throws IllegalArgumentException
      *             if at least one line of lines is not of size width of if the
      *             list is not of size height
