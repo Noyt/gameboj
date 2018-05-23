@@ -1,15 +1,19 @@
 package ch.epfl.gui;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.imageio.ImageIO;
 
 import ch.epfl.gameboj.GameBoy;
 import ch.epfl.gameboj.component.Joypad;
 import ch.epfl.gameboj.component.Joypad.Key;
 import ch.epfl.gameboj.component.cartridge.Cartridge;
 import ch.epfl.gameboj.component.lcd.LcdController;
+import ch.epfl.gameboj.component.lcd.LcdImage;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -28,16 +32,8 @@ import javafx.stage.Stage;
  */
 public final class Main extends Application {
     
-    private int speed = 3;
-    private boolean turbo;
-
     private final static int WIDTH = LcdController.LCD_WIDTH * 4;
     private final static int HEIGHT = LcdController.LCD_HEIGHT * 4;
-
-    /**
-     * TODO this is used in order to slow down the running of the Gameboy
-     */
-    private static int delay = 0;
 
     // KeyMaps
     private static Map<KeyCode, Joypad.Key> keyCode = new HashMap<>() {
@@ -131,13 +127,11 @@ public final class Main extends Application {
             @Override
             public void handle(long currentNanoTime) {
 
-//                if (delay == 2) {
-//                    delay = 0;
                     long elapsedTime = (currentNanoTime - startTime);
                     double elapsedSeconds = elapsedTime / 1e9;
 
                     long cycle = (long) (elapsedSeconds
-                            * gb.NUMBER_OF_CYCLES_PER_SECOND);
+                            * (GameBoy.NUMBER_OF_CYCLES_PER_SECOND));
                     
                     scene.setOnKeyPressed(e -> {
                         Key k = getJoypadKey(e);
@@ -145,11 +139,6 @@ public final class Main extends Application {
                         if (k != null) {
                             gb.joypad().keyPressed(k);
                         }
-                        
-                        //TODO
-                        if(e.getCode() == KeyCode.T)
-                            System.out.println("T IS PRESSED");
-                            turbo = !turbo;
                     });
 
                     scene.setOnKeyReleased(e -> {
@@ -160,13 +149,11 @@ public final class Main extends Application {
                         }
                     });
 
-                   // gb.runUntil(cycle + (turbo ? 17556*speed : 0));
+                    
                     gb.runUntil(cycle);
                     imageView.setImage(null);
                     imageView.setImage(getImage(gb));
                 }
-//                delay++;
-//            }
         };
 
         timer.start();
@@ -187,5 +174,4 @@ public final class Main extends Application {
     private static final Image getImage(GameBoy gb) {
         return ImageConverter.convert(gb.lcdController().currentImage());
     }
-
 }
