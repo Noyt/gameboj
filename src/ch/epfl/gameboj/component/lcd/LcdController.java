@@ -280,18 +280,6 @@ public final class LcdController implements Clocked, Component {
     }
 
     /**
-     * Returns the current image displayed on screen
-     * 
-     * @return current image displayed on screen
-     */
-    public LcdImage currentImage() {
-        if (currentImage == null) {
-            return new LcdImage.Builder(LCD_WIDTH, LCD_HEIGHT).build();
-        }
-        return currentImage;
-    }
-
-    /**
      * Changes mode by determining how many cycles have been gone through since
      * the beginning of the image drawing and draws the image's lines one by one
      */
@@ -331,177 +319,6 @@ public final class LcdController implements Clocked, Component {
             nextNonIdleCycle += MODE0_CYCLES;
             break;
         }
-    }
-
-    /**
-     * Computes the nextLine to be drawn by combining background, window and
-     * sprites. This method is called whenever the controller enters mode 3
-     */
-    private void computeLine() {
-        int bitLineInLCD = regs.get(Reg.LY);
-
-        int adjustedWX = Math.max(regs.get(Reg.WX) - WX_DELAY, 0);
-
-        // constante
-        if (bitLineInLCD < LCD_HEIGHT) {
-
-            int bitLine = (bitLineInLCD + regs.get(Reg.SCY)) % IMAGE_DIMENSION;
-
-            LcdImageLine finalLine = new LcdImageLine.Builder(LCD_WIDTH)
-                    .build();
-
-            // Background management
-
-            if (testLCDCBit(LCDCBit.BG)) {
-                finalLine = backgroundLine(bitLine)
-                        .extractWrapped(regs.get(Reg.SCX), LCD_WIDTH);
-            }
-
-            // Window management
-
-            if (testLCDCBit(LCDCBit.WIN)
-                    && (adjustedWX >= 0 && adjustedWX < LCD_WIDTH)
-                    && regs.get(Reg.WY) <= bitLineInLCD) {
-                LcdImageLine lineOfZeros = new LcdImageLine.Builder(
-                        IMAGE_DIMENSION).build();
-                LcdImageLine adjustedWindowLine = lineOfZeros
-                        .below(windowLine(winY),
-                                new BitVector(IMAGE_DIMENSION, true))
-                        .shift(adjustedWX).extractWrapped(0, LCD_WIDTH);
-
-                finalLine = finalLine.join(adjustedWindowLine, adjustedWX);
-                winY++;
-            }
-
-            BitVector BGWINOpacity = finalLine.opacity();
-            LcdImageLine BGSprites = new LcdImageLine.Builder(LCD_WIDTH)
-                    .build();
-            BitVector BGSpritesOpacity = new BitVector(LCD_WIDTH);
-
-            // Sprites management
-
-            if (testLCDCBit(LCDCBit.OBJ)) {
-
-                int[] allSprites = spritesIntersectingLine(bitLineInLCD);
-
-                BGSprites = backGroundSprites(bitLineInLCD, allSprites);
-                BGSpritesOpacity = BGSprites.opacity();
-
-                LcdImageLine FGSprites = foreGroundSprites(bitLineInLCD,
-                        allSprites);
-
-                finalLine = finalLine.below(FGSprites);
-            }
-
-            // This prevents background sprites and background/window image bits
-            // to be
-            // both transparents
-            BitVector bothTransparents = BGSpritesOpacity.or(BGWINOpacity)
-                    .not();
-            finalLine = BGSprites.below(finalLine,
-                    bothTransparents.or(BGWINOpacity));
-
-            assert (finalLine.opacity().equals(new BitVector(LCD_WIDTH, true)));
-
-            nextImageBuilder.setLine(bitLineInLCD, finalLine);
-        }
-        updateLYForNewLine();
-    }
-
-    private LcdImageLine backgroundLine(int bitLine) {
-        return extractLine(bitLine, ImageType.BACKGROUND)
-                .mapColors(regs.get(Reg.BGP));
-    }
-
-    private LcdImageLine windowLine(int bitLine) {
-        return extractLine(bitLine, ImageType.WINDOW);
-    }
-
-    private LcdImageLine extractLine(int bitLine, ImageType type) {
-        int lineOfTheTile = bitLine / Byte.SIZE;
-
-        LcdImageLine.Builder lineBuilder = new LcdImageLine.Builder(
-                IMAGE_DIMENSION);
-
-        int slot;
-
-        switch (type) {
-        case BACKGROUND:
-            slot = testLCDCBit(LCDCBit.BG_AREA) ? 1 : 0;
-            break;
-        case WINDOW:
-            slot = testLCDCBit(LCDCBit.WIN_AREA) ? 1 : 0;
-            break;
-        default:
-            throw new IllegalArgumentException(
-                    "The type must be BACKGROUND or WINDOW");
-        }
-
-        for (int i = 0; i < IMAGE_DIMENSION / Byte.SIZE; ++i) {
-
-            int tileIndexInRam = tileIndexInRam(i, lineOfTheTile)
-                    + AddressMap.BG_DISPLAY_DATA[slot];
-
-            int tileName = videoRam.read(tileIndexInRam);
-            int lineInTheTile = bitLine % (OCTETS_INFOS_PER_TILE / 2);
-
-            int lsb = getTileLineLsb(lineInTheTile, tileName);
-            int msb = getTileLineMsb(lineInTheTile, tileName);
-
-            lineBuilder.setBytes(i, msb, lsb);
-        }
-
-        return lineBuilder.build();
-    }
-
-    private int tileIndexInRam(int tileX, int tileY) {
-
-        int nbTileInALine = IMAGE_DIMENSION / Byte.SIZE;
-
-        return tileY * nbTileInALine + tileX;
-    }
-
-    private int getTileLineAddress(int line, int tileName, boolean isSprite) {
-        Preconditions.checkArgument(line >= 0 && line < TILE_DIMENSION * 2);
-
-        if (line >= 0 && line < TILE_DIMENSION) {
-            int tileAddress;
-            int tileInterval = TILES_CHOICES_PER_IMAGE / 2;
-
-            if (tileName < tileInterval) {
-                tileAddress = testLCDCBit(LCDCBit.TILE_SOURCE) || isSprite
-                        ? AddressMap.TILE_SOURCE[1]
-                        : (AddressMap.TILE_SOURCE[0]
-                                + tileInterval * OCTETS_INFOS_PER_TILE);
-            } else {
-                tileAddress = AddressMap.TILE_SOURCE[0];
-            }
-
-            tileAddress += (tileName % tileInterval) * OCTETS_INFOS_PER_TILE
-                    + line * 2;
-            return tileAddress;
-        } else {
-            return getTileLineAddress(line - 8, tileName + 1, true);
-        }
-    }
-
-    private int getTileLineMsb(int lineInTheTile, int tileName) {
-        return getTileLineMsb(lineInTheTile, tileName, false);
-    }
-
-    private int getTileLineMsb(int lineInTheTile, int tileName,
-            boolean isSprite) {
-        return Bits.reverse8(videoRam.read(
-                getTileLineAddress(lineInTheTile, tileName, isSprite) + 1));
-    }
-
-    private int getTileLineLsb(int lineInTheTile, int tileName) {
-        return getTileLineLsb(lineInTheTile, tileName, false);
-    }
-
-    private int getTileLineLsb(int lineInTheTile, int tileName, boolean isSprite) {
-        return Bits.reverse8(
-                videoRam.read(getTileLineAddress(lineInTheTile, tileName, isSprite)));
     }
 
     private void updateLYForNewLine() {
@@ -593,6 +410,202 @@ public final class LcdController implements Clocked, Component {
         }
         checkSTAT(oldMode);
     }
+    
+    /**
+     * Returns the current image displayed on screen
+     * 
+     * @return current image displayed on screen
+     */
+    public LcdImage currentImage() {
+        if (currentImage == null) {
+            return new LcdImage.Builder(LCD_WIDTH, LCD_HEIGHT).build();
+        }
+        return currentImage;
+    }
+
+    /**
+     * Computes the next Line to be drawn by combining background, window and
+     * sprites. This method is called whenever the controller enters mode 3
+     */
+    private void computeLine() {
+        int bitLineInLCD = regs.get(Reg.LY);
+
+        int adjustedWX = Math.max(regs.get(Reg.WX) - WX_DELAY, 0);
+
+        if (bitLineInLCD < LCD_HEIGHT) {
+
+            int bitLine = (bitLineInLCD + regs.get(Reg.SCY)) % IMAGE_DIMENSION;
+
+            LcdImageLine finalLine = new LcdImageLine.Builder(LCD_WIDTH)
+                    .build();
+
+            // Background management
+
+            if (testLCDCBit(LCDCBit.BG)) {
+                finalLine = backgroundLine(bitLine)
+                        .extractWrapped(regs.get(Reg.SCX), LCD_WIDTH);
+            }
+
+            // Window management
+
+            if (testLCDCBit(LCDCBit.WIN)
+                    && (adjustedWX >= 0 && adjustedWX < LCD_WIDTH)
+                    && regs.get(Reg.WY) <= bitLineInLCD) {
+                LcdImageLine lineOfZeros = new LcdImageLine.Builder(
+                        IMAGE_DIMENSION).build();
+                LcdImageLine adjustedWindowLine = lineOfZeros
+                        .below(windowLine(winY),
+                                new BitVector(IMAGE_DIMENSION, true))
+                        .shift(adjustedWX).extractWrapped(0, LCD_WIDTH);
+
+                finalLine = finalLine.join(adjustedWindowLine, adjustedWX);
+                winY++;
+            }
+
+            BitVector BGWINOpacity = finalLine.opacity();
+            LcdImageLine BGSprites = new LcdImageLine.Builder(LCD_WIDTH)
+                    .build();
+            BitVector BGSpritesOpacity = new BitVector(LCD_WIDTH);
+
+            // Sprites management
+
+            if (testLCDCBit(LCDCBit.OBJ)) {
+
+                int[] allSprites = spritesIntersectingLine(bitLineInLCD);
+
+                BGSprites = backGroundSprites(bitLineInLCD, allSprites);
+                BGSpritesOpacity = BGSprites.opacity();
+
+                LcdImageLine FGSprites = foreGroundSprites(bitLineInLCD,
+                        allSprites);
+
+                finalLine = finalLine.below(FGSprites);
+            }
+
+            // This prevents background sprites and background/window image bits
+            // from being
+            // both transparents
+            BitVector bothTransparents = BGSpritesOpacity.or(BGWINOpacity)
+                    .not();
+            finalLine = BGSprites.below(finalLine,
+                    bothTransparents.or(BGWINOpacity));
+
+            assert (finalLine.opacity().equals(new BitVector(LCD_WIDTH, true)));
+
+            nextImageBuilder.setLine(bitLineInLCD, finalLine);
+        }
+        updateLYForNewLine();
+    }
+
+    private LcdImageLine backgroundLine(int bitLine) {
+        return extractLine(bitLine, ImageType.BACKGROUND)
+                .mapColors(regs.get(Reg.BGP));
+    }
+
+    private LcdImageLine windowLine(int bitLine) {
+        return extractLine(bitLine, ImageType.WINDOW);
+    }
+
+    private LcdImageLine extractLine(int bitLine, ImageType type) {
+        int lineOfTheTile = bitLine / Byte.SIZE;
+
+        LcdImageLine.Builder lineBuilder = new LcdImageLine.Builder(
+                IMAGE_DIMENSION);
+
+        int slot;
+
+        switch (type) {
+        case BACKGROUND:
+            slot = testLCDCBit(LCDCBit.BG_AREA) ? 1 : 0;
+            break;
+        case WINDOW:
+            slot = testLCDCBit(LCDCBit.WIN_AREA) ? 1 : 0;
+            break;
+        default:
+            throw new IllegalArgumentException(
+                    "The type must be BACKGROUND or WINDOW");
+        }
+
+        for (int i = 0; i < IMAGE_DIMENSION / Byte.SIZE; ++i) {
+
+            int tileIndexInRam = tileIndexInRam(i, lineOfTheTile)
+                    + AddressMap.BG_DISPLAY_DATA[slot];
+
+            int tileName = videoRam.read(tileIndexInRam);
+            int lineInTheTile = bitLine % (OCTETS_INFOS_PER_TILE / 2);
+
+            int lsb = getTileLineLsb(lineInTheTile, tileName);
+            int msb = getTileLineMsb(lineInTheTile, tileName);
+
+            lineBuilder.setBytes(i, msb, lsb);
+        }
+
+        return lineBuilder.build();
+    }
+
+    private int tileIndexInRam(int tileX, int tileY) {
+
+        int nbTileInALine = IMAGE_DIMENSION / Byte.SIZE;
+
+        return tileY * nbTileInALine + tileX;
+    }
+
+    /**
+     * Obtains the address where the description of a given line of a given tile
+     * is. The method handles 16 pixels sprites by recursive calling.
+     * 
+     * @param line
+     *            the line whose description we want
+     * @param tileName
+     *            the tile owning the line
+     * @param isSprite
+     *            if the tile is a sprite or not
+     * @return
+     */
+    private int getTileLineAddress(int line, int tileName, boolean isSprite) {
+        Preconditions.checkArgument(line >= 0 && line < TILE_DIMENSION * 2);
+
+        if (line >= 0 && line < TILE_DIMENSION) {
+            int tileAddress;
+            int tileInterval = TILES_CHOICES_PER_IMAGE / 2;
+
+            if (tileName < tileInterval) {
+                tileAddress = testLCDCBit(LCDCBit.TILE_SOURCE) || isSprite
+                        ? AddressMap.TILE_SOURCE[1]
+                        : (AddressMap.TILE_SOURCE[0]
+                                + tileInterval * OCTETS_INFOS_PER_TILE);
+            } else {
+                tileAddress = AddressMap.TILE_SOURCE[0];
+            }
+
+            tileAddress += (tileName % tileInterval) * OCTETS_INFOS_PER_TILE
+                    + line * 2;
+            return tileAddress;
+        } else {
+            return getTileLineAddress(line - TILE_DIMENSION, tileName + 1,
+                    true);
+        }
+    }
+
+    private int getTileLineMsb(int lineInTheTile, int tileName) {
+        return getTileLineMsb(lineInTheTile, tileName, false);
+    }
+
+    private int getTileLineMsb(int lineInTheTile, int tileName,
+            boolean isSprite) {
+        return Bits.reverse8(videoRam.read(
+                getTileLineAddress(lineInTheTile, tileName, isSprite) + 1));
+    }
+
+    private int getTileLineLsb(int lineInTheTile, int tileName) {
+        return getTileLineLsb(lineInTheTile, tileName, false);
+    }
+
+    private int getTileLineLsb(int lineInTheTile, int tileName,
+            boolean isSprite) {
+        return Bits.reverse8(videoRam
+                .read(getTileLineAddress(lineInTheTile, tileName, isSprite)));
+    }
 
     private int[] spritesIntersectingLine(int lcdLine) {
         int[] sprites = new int[MAX_NUMBER_OF_SPRITES_PER_LINE];
@@ -616,28 +629,6 @@ public final class LcdController implements Clocked, Component {
         }
 
         return finalSprites;
-    }
-
-    private int getAttribute(int spriteIndex, SpriteAttribute att) {
-        int address = AddressMap.OAM_START
-                + spriteIndex * NUMBER_OF_OCTETS_PER_SPRITE;
-        switch (att) {
-        case Y:
-            return OAM.read(address);
-        case X:
-            return OAM.read(address + 1);
-        case TILE:
-            return OAM.read(address + 2);
-        case SPECIAL:
-            return OAM.read(address + 3);
-        default:
-            throw new Error();
-        }
-    }
-
-    private boolean testSPECIALbit(int spriteIndex, SPECIALBit bit) {
-        return Bits.test(getAttribute(spriteIndex, SpriteAttribute.SPECIAL),
-                bit);
     }
 
     private int[] depthSprites(int[] allSprites, boolean bg) {
@@ -672,6 +663,16 @@ public final class LcdController implements Clocked, Component {
         return combinedSprites;
     }
 
+    /**
+     * Returns a line with a single sprite, later to be joined with other
+     * similar lines
+     * 
+     * @param spriteIndex
+     *            the index of the single sprite
+     * @param lineInLcd
+     *            the line in screen to display
+     * @return a line with a single sprite
+     */
     private LcdImageLine individualSprite(int spriteIndex, int lineInLcd) {
         LcdImageLine.Builder b = new LcdImageLine.Builder(LCD_WIDTH);
         int lineInTheTile = lineInLcd
@@ -699,5 +700,28 @@ public final class LcdController implements Clocked, Component {
 
         return b.build().mapColors(palette).shift(
                 getAttribute(spriteIndex, SpriteAttribute.X) - X_AXIS_DELAY);
+    }
+
+
+    private int getAttribute(int spriteIndex, SpriteAttribute att) {
+        int address = AddressMap.OAM_START
+                + spriteIndex * NUMBER_OF_OCTETS_PER_SPRITE;
+        switch (att) {
+        case Y:
+            return OAM.read(address);
+        case X:
+            return OAM.read(address + 1);
+        case TILE:
+            return OAM.read(address + 2);
+        case SPECIAL:
+            return OAM.read(address + 3);
+        default:
+            throw new Error();
+        }
+    }
+
+    private boolean testSPECIALbit(int spriteIndex, SPECIALBit bit) {
+        return Bits.test(getAttribute(spriteIndex, SpriteAttribute.SPECIAL),
+                bit);
     }
 }
