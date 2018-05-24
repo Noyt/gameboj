@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import org.junit.jupiter.api.Test;
 
-import ch.epfl.gui.Main;
+import ch.epfl.gameboj.gui.Main;
 
 public class FinalTest {
     @Test

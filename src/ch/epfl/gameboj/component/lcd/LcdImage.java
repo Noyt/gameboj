@@ -38,6 +38,7 @@ public final class LcdImage {
      *             list is not of size height
      */
     public LcdImage(int width, int height, List<LcdImageLine> lines) {
+        Objects.requireNonNull(lines);
         Preconditions.checkArgument(width > 0 && width % 32 == 0);
         Preconditions.checkArgument(height > 0);
         Preconditions.checkArgument(lines.size() == height);
@@ -98,6 +99,7 @@ public final class LcdImage {
      */
     @Override
     public boolean equals(Object that) {
+        Objects.requireNonNull(that);
         Preconditions.checkArgument(that instanceof LcdImage);
 
         LcdImage tmp = (LcdImage) that;
@@ -168,6 +170,7 @@ public final class LcdImage {
          * @return the current instance of the builder
          */
         public Builder setLine(int index, LcdImageLine newLine) {
+            Objects.requireNonNull(newLine);
             checkIfBuiltAlready();
             Objects.checkIndex(index, height);
 

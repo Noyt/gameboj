@@ -1,4 +1,4 @@
-package ch.epfl.gui;
+package ch.epfl.gameboj.gui;
 
 import ch.epfl.gameboj.component.lcd.LcdImage;
 import javafx.scene.image.Image;

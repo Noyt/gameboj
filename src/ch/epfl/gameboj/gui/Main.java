@@ -1,4 +1,4 @@
-package ch.epfl.gui;
+package ch.epfl.gameboj.gui;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -31,7 +31,7 @@ import javafx.stage.Stage;
  * @author Arnaud Robert (287964)
  */
 public final class Main extends Application {
-    
+
     private final static int WIDTH = LcdController.LCD_WIDTH * 4;
     private final static int HEIGHT = LcdController.LCD_HEIGHT * 4;
 
@@ -76,7 +76,7 @@ public final class Main extends Application {
      * 
      * @param stage
      *            : the primary stage for the application
-     *            
+     * 
      * @throws IOException
      *             if an I/O error occurs or if the file doesn't exist
      * 
@@ -111,7 +111,7 @@ public final class Main extends Application {
         stage.requestFocus();
 
         long startTime = System.nanoTime();
-        
+
         // Update GameBoy
         AnimationTimer timer = new AnimationTimer() {
 
@@ -120,45 +120,40 @@ public final class Main extends Application {
              * animation. The method simulates the progression of the Gameboy,
              * in function of the time, given in nanosecond.
              * 
-             * @param currentNanoTime : the current time in nanosecond units
+             * @param currentNanoTime
+             *            : the current time in nanosecond units
              * 
              * @see javafx.animation#handle(long)
              */
             @Override
             public void handle(long currentNanoTime) {
 
-                    long elapsedTime = (currentNanoTime - startTime);
-                    double elapsedSeconds = elapsedTime / 1e9;
+                long elapsedTime = (currentNanoTime - startTime);
+                double elapsedSeconds = elapsedTime / 1e9;
 
-                    long cycle = (long) (elapsedSeconds
-<<<<<<< HEAD
-                            * (GameBoy.NUMBER_OF_CYCLES_PER_SECOND));
-                    
-=======
-                            * GameBoy.NUMBER_OF_CYCLES_PER_SECOND);
+                long cycle = (long) (elapsedSeconds
+                        * GameBoy.NUMBER_OF_CYCLES_PER_SECOND);
 
->>>>>>> 8eb7934d057b07189957545678f17bb5aa8683aa
-                    scene.setOnKeyPressed(e -> {
-                        Key k = getJoypadKey(e);
+                scene.setOnKeyPressed(e -> {
+                    Key k = getJoypadKey(e);
 
-                        if (k != null) {
-                            gb.joypad().keyPressed(k);
-                        }
-                    });
+                    if (k != null) {
+                        gb.joypad().keyPressed(k);
+                    }
+                });
 
-                    scene.setOnKeyReleased(e -> {
-                        Key k = getJoypadKey(e);
+                scene.setOnKeyReleased(e -> {
+                    Key k = getJoypadKey(e);
 
-                        if (k != null) {
-                            gb.joypad().keyReleased(k);
-                        }
-                    });
+                    if (k != null) {
+                        gb.joypad().keyReleased(k);
+                    }
+                });
 
-                    
-                    gb.runUntil(cycle);
-                    imageView.setImage(null);
-                    imageView.setImage(getImage(gb));
-                }
+                gb.runUntil(cycle);
+                imageView.setImage(null);
+                imageView.setImage(getImage(gb));
+            }
         };
 
         timer.start();
