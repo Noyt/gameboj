@@ -564,7 +564,8 @@ public final class LcdController implements Clocked, Component {
      *            the tile owning the line
      * @param isSprite
      *            if the tile is a sprite or not
-     * @return
+     * @return the address of the lsb value of the the given line (in tile
+     *         reference), of the given tile
      */
     private int getTileLineAddress(int line, int tileName, boolean isSprite) {
         Objects.checkIndex(line, TILE_DIMENSION * 2);
@@ -718,7 +719,7 @@ public final class LcdController implements Clocked, Component {
 
     private int getAttribute(int spriteIndex, SpriteAttribute att) {
         Objects.checkIndex(spriteIndex, NUMBER_OF_SPRITES);
-        
+
         int address = AddressMap.OAM_START
                 + spriteIndex * NUMBER_OF_OCTETS_PER_SPRITE;
         switch (att) {
