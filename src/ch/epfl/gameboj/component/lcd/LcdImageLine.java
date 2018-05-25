@@ -101,7 +101,7 @@ public final class LcdImageLine {
          * according to the following convention : pixels of color 0 are
          * transparent and all others are opaque
          * 
-         * @return
+         * @return the LcdImageLine the builder was processing
          */
         public LcdImageLine build() {
             checkIfBuiltAlready();

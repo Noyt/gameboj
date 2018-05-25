@@ -1,19 +1,15 @@
 package ch.epfl.gameboj.gui;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.imageio.ImageIO;
 
 import ch.epfl.gameboj.GameBoy;
 import ch.epfl.gameboj.component.Joypad;
 import ch.epfl.gameboj.component.Joypad.Key;
 import ch.epfl.gameboj.component.cartridge.Cartridge;
 import ch.epfl.gameboj.component.lcd.LcdController;
-import ch.epfl.gameboj.component.lcd.LcdImage;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -36,7 +32,7 @@ public final class Main extends Application {
     private final static int HEIGHT = LcdController.LCD_HEIGHT * 4;
 
     // KeyMaps
-    private static Map<KeyCode, Joypad.Key> keyCode = new HashMap<>() {
+    private final static Map<KeyCode, Joypad.Key> keyCode = new HashMap<>() {
         {
             put(KeyCode.RIGHT, Key.RIGHT);
             put(KeyCode.LEFT, Key.LEFT);
@@ -45,7 +41,7 @@ public final class Main extends Application {
         }
     };
 
-    private static Map<String, Joypad.Key> keyString = new HashMap<>() {
+    private final static Map<String, Joypad.Key> keyString = new HashMap<>() {
         {
             put("a", Key.A);
             put("b", Key.B);

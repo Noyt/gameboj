@@ -68,10 +68,6 @@ public final class MBC0 implements Component {
      * @param data
      *            an int : the value
      * 
-     * @throws IllegalArgumentException
-     *             if the address is not a 16-bits value or if data is not a
-     *             8-bits value
-     * 
      * @see ch.epfl.gameboj.component.Component#write(int,int)
      */
     @Override

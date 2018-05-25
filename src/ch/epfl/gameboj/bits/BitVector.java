@@ -16,7 +16,14 @@ import ch.epfl.gameboj.Preconditions;
  */
 public final class BitVector {
 
+    /**
+     * A BitVector content filled with zeros
+     */
     public static final int ALL_ZEROS_INTEGER = 0b00000000_00000000_00000000_00000000;
+    
+    /**
+     * A BitVector content filled with ones
+     */
     public static final int ALL_ONES_INTEGER = 0b11111111_11111111_11111111_11111111;
 
     private final int[] vector;

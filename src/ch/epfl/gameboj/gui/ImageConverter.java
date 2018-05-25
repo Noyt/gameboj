@@ -2,7 +2,6 @@ package ch.epfl.gameboj.gui;
 
 import ch.epfl.gameboj.component.lcd.LcdImage;
 import javafx.scene.image.Image;
-import javafx.scene.image.PixelReader;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 
