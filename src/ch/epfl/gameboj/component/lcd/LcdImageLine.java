@@ -33,6 +33,9 @@ public final class LcdImageLine {
      *             if vectors do not all have the same size
      */
     public LcdImageLine(BitVector msb, BitVector lsb, BitVector opacity) {
+        Objects.requireNonNull(msb);
+        Objects.requireNonNull(lsb);
+        Objects.requireNonNull(opacity);
         Preconditions.checkArgument(
                 msb.size() == lsb.size() && msb.size() == opacity.size());
 
@@ -98,7 +101,7 @@ public final class LcdImageLine {
          * according to the following convention : pixels of color 0 are
          * transparent and all others are opaque
          * 
-         * @return
+         * @return the LcdImageLine the builder was processing
          */
         public LcdImageLine build() {
             checkIfBuiltAlready();
@@ -236,6 +239,8 @@ public final class LcdImageLine {
      * @return the line resulting from the composition
      */
     public LcdImageLine below(LcdImageLine that, BitVector opacity) {
+        Objects.requireNonNull(that);
+        Objects.requireNonNull(opacity);
         Preconditions.checkArgument(
                 this.size() == that.size() && opacity.size() == this.size());
         BitVector finalMsb = null;
@@ -285,6 +290,7 @@ public final class LcdImageLine {
      * @return the line resulting from the composition
      */
     public LcdImageLine join(LcdImageLine that, int pixel) {
+        Objects.requireNonNull(that);
         Preconditions.checkArgument(size() == that.size() && pixel <= size());
         Objects.checkIndex(pixel, size());
         BitVector finalMsb = msb.shift(size() - pixel).shift(pixel - size())
@@ -305,6 +311,7 @@ public final class LcdImageLine {
      */
     @Override
     public boolean equals(Object that) {
+        Objects.requireNonNull(that);
         Preconditions.checkArgument(that instanceof LcdImageLine);
 
         LcdImageLine tmp = (LcdImageLine) that;

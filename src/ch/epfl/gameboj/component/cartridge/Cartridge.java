@@ -22,7 +22,7 @@ public final class Cartridge implements Component {
 
     private final Component mbc;
     private final static int CARTRIDGE_TYPE_ADDRESS = 0x147;
-    private final static int[] MBC1_RAM_SIZE = {0,2048,8192,3276};
+    private final static int[] MBC1_RAM_SIZE = { 0, 2048, 8192, 3276 };
     private final static int MBC1_RAM_SIZE_ADDRESS = 0x149;
 
     private Cartridge(Component mbc) {
@@ -94,18 +94,24 @@ public final class Cartridge implements Component {
             int cartridgeType = Byte.toUnsignedInt(tab[CARTRIDGE_TYPE_ADDRESS]);
             Preconditions
                     .checkArgument(cartridgeType >= 0 && cartridgeType <= 3);
-            
+
             Cartridge cart;
-            switch(cartridgeType) {
-                case 0 : cart = new Cartridge(new MBC0(new Rom(tab))); break;
-                case 1 : cart = new Cartridge(new MBC1(new Rom(tab),MBC1_RAM_SIZE[0])); break;
-                case 2 : 
+            switch (cartridgeType) {
+            case 0:
+                cart = new Cartridge(new MBC0(new Rom(tab)));
+                break;
+            case 1:
+                cart = new Cartridge(new MBC1(new Rom(tab), MBC1_RAM_SIZE[0]));
+                break;
+            case 2:
             case 3:
                 cart = new Cartridge(new MBC1(new Rom(tab),
-                        MBC1_RAM_SIZE[tab[MBC1_RAM_SIZE_ADDRESS]])); break;
-                default : throw new Error();
+                        MBC1_RAM_SIZE[tab[MBC1_RAM_SIZE_ADDRESS]]));
+                break;
+            default:
+                throw new Error();
             }
-            
+
             return cart;
 
         } catch (FileNotFoundException a) {

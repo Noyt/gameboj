@@ -176,6 +176,7 @@ public final class LcdController implements Clocked, Component {
      */
     @Override
     public int read(int address) {
+        Preconditions.checkBits16(address);
 
         if (address >= AddressMap.REGS_LCDC_START
                 && address < AddressMap.REGS_LCDC_END) {
@@ -410,7 +411,7 @@ public final class LcdController implements Clocked, Component {
         }
         checkSTAT(oldMode);
     }
-    
+
     /**
      * Returns the current image displayed on screen
      * 
@@ -507,6 +508,8 @@ public final class LcdController implements Clocked, Component {
     }
 
     private LcdImageLine extractLine(int bitLine, ImageType type) {
+        Objects.checkIndex(bitLine, IMAGE_DIMENSION);
+
         int lineOfTheTile = bitLine / Byte.SIZE;
 
         LcdImageLine.Builder lineBuilder = new LcdImageLine.Builder(
@@ -544,8 +547,9 @@ public final class LcdController implements Clocked, Component {
     }
 
     private int tileIndexInRam(int tileX, int tileY) {
-
-        int nbTileInALine = IMAGE_DIMENSION / Byte.SIZE;
+        int nbTileInALine = IMAGE_DIMENSION / TILE_DIMENSION;
+        Objects.checkIndex(tileX, nbTileInALine);
+        Objects.checkIndex(tileY, nbTileInALine);
 
         return tileY * nbTileInALine + tileX;
     }
@@ -563,7 +567,8 @@ public final class LcdController implements Clocked, Component {
      * @return
      */
     private int getTileLineAddress(int line, int tileName, boolean isSprite) {
-        Preconditions.checkArgument(line >= 0 && line < TILE_DIMENSION * 2);
+        Objects.checkIndex(line, TILE_DIMENSION * 2);
+        Objects.checkIndex(tileName, TILES_CHOICES_PER_IMAGE);
 
         if (line >= 0 && line < TILE_DIMENSION) {
             int tileAddress;
@@ -608,6 +613,8 @@ public final class LcdController implements Clocked, Component {
     }
 
     private int[] spritesIntersectingLine(int lcdLine) {
+        Objects.checkIndex(lcdLine, LCD_HEIGHT);
+
         int[] sprites = new int[MAX_NUMBER_OF_SPRITES_PER_LINE];
         int j = 0;
         for (int index = 0; index < NUMBER_OF_SPRITES
@@ -654,6 +661,9 @@ public final class LcdController implements Clocked, Component {
      * @return a line with a single sprite
      */
     private LcdImageLine individualSprite(int spriteIndex, int lineInLcd) {
+        Objects.checkIndex(spriteIndex, NUMBER_OF_SPRITES);
+        Objects.checkIndex(lineInLcd, LCD_HEIGHT);
+
         LcdImageLine.Builder b = new LcdImageLine.Builder(LCD_WIDTH);
         int lineInTheTile = lineInLcd
                 - getAttribute(spriteIndex, SpriteAttribute.Y) + Y_AXIS_DELAY;
@@ -678,10 +688,12 @@ public final class LcdController implements Clocked, Component {
                 ? regs.get(Reg.OBP1)
                 : regs.get(Reg.OBP0);
 
-        return b.build().mapColors(palette).shift(
-                getAttribute(spriteIndex, SpriteAttribute.X) - X_AXIS_DELAY);
+        return b.build().mapColors(palette).shift(LCD_WIDTH - TILE_DIMENSION)
+                .shift(-LCD_WIDTH + TILE_DIMENSION
+                        + getAttribute(spriteIndex, SpriteAttribute.X)
+                        - X_AXIS_DELAY);
     }
-    
+
     private LcdImageLine backGroundSprites(int bitLineInLcd, int[] allSprites) {
         return combinedSprites(bitLineInLcd, allSprites, true);
     }
@@ -692,6 +704,8 @@ public final class LcdController implements Clocked, Component {
 
     private LcdImageLine combinedSprites(int bitLineInLcd, int[] allSprites,
             boolean bg) {
+        Objects.checkIndex(bitLineInLcd, LCD_HEIGHT);
+
         int[] sprites = depthSprites(allSprites, bg);
 
         LcdImageLine combinedSprites = new LcdImageLine.Builder(LCD_WIDTH)
@@ -702,8 +716,9 @@ public final class LcdController implements Clocked, Component {
         return combinedSprites;
     }
 
-
     private int getAttribute(int spriteIndex, SpriteAttribute att) {
+        Objects.checkIndex(spriteIndex, NUMBER_OF_SPRITES);
+        
         int address = AddressMap.OAM_START
                 + spriteIndex * NUMBER_OF_OCTETS_PER_SPRITE;
         switch (att) {
